@@ -15,9 +15,10 @@ Authors@R:
 	   comment = c(ORCID = "0000-0002-6754-1392"))
     )
 Description: What the package does (one paragraph).
-License: What license it uses
+License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
 LazyData: true
 Suggests: 
-    covr
+    covr,
+    testthat
