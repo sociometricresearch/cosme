@@ -1,0 +1,23 @@
+Package: measurementfree
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    c(
+    person(given = "Jorge",
+           family = "Cimentada",
+           role = c("aut", "cre"),
+           email = "cimentadaj@gmail.com",
+           comment = c(ORCID = "0000-0001-5594-1156")),
+    person(given = "Wiebke",
+           family = "Weber",
+	   role = c("aut"),
+	   email = "wiebke.weber@upf.edu",
+	   comment = c(ORCID = "0000-0002-6754-1392"))
+    )
+Description: What the package does (one paragraph).
+License: What license it uses
+Encoding: UTF-8
+Language: es
+LazyData: true
+Suggests: 
+    covr
