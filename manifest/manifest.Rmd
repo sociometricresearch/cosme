@@ -1,0 +1,119 @@
+---
+title: "Total Survey Error Framework R Ecosystem"
+author: "Jorge Cimentada"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_output
+---
+
+As an attempt to organize my ideas on the measurement error packages that we're building, I'm writing this document that will outline all of the ideas around the package. This
+document will not touch upon the technicalities of the survey error framework given that this is already quite advanced both in the literature and in the software
+implementation. However, this document will describe how we can build an R package that merges both worlds starting from a top-to-bottom description of several R packages.
+
+## Overview of weighting and modeling
+
+The final objective of the total survey error packages is to have a default and reference package for all things related to measurement error/weighting and statistical
+modeling. Currently, defining a liner model in R is quite simple (in pseudocode):
+
+```{r eval = FALSE}
+lm(poltrst ~ ppltrst + stflife + stfeco, data = ess_data)
+```
+
+This function call requires only two arguments: the formula definition and the data which contains the columns. Additionally, it allows to specify a simple weight column.  In a
+more complicated framework, `cite:oberski_complex` introduced the package `lavaan.survey` which allows to run Structural Equational Modeling with complex survey designs using the
+`survey` package. Using this framework, the pseudocode from above becomes:
+
+```{r eval = FALSE}
+# Load packages and data
+library(lavaan.survey)
+data(ess.dk)
+
+# Define model and run it
+dk_model <- "socialTrust ~ 1 + systemTrust + fearCrime"
+lavaan_fit <- sem(dk_model, data=ess.dk)
+
+# Define survey design with interviewer cluster
+survey_design <- svydesign(ids=~intnum, prob=~1, data=ess.dk)
+
+# Adjust your model for a complex survey design
+survey_fit <- lavaan.survey(lavaan.fit=lavaan.fit, survey.design=survey.design)
+```
+
+There are now three steps in the pseudo code: 1) define and run the model, 2) create the survey design and 3) adjust your initial model for the complex survey design.
+Note that even though we're using a different package for Structural Equational Modeling, the estimation from above simply ran a linear model just as `lm` would do.
+The added benefit is that we can account for the complex survey structure of the data generating process (this specific model can also be run with the `survey`
+package but only for generalized linear models and not for more complex models such as structural ones. Moreover, the survey package does not
+allow to add the correlation between variables in the function call, the key step that allows measurement error to be corrected).
+
+If we simplified the code from above, we could directly end up with a shorter and concise function call (in pseudocode):
+
+```{r eval = FALSE}
+# Define survey design with interviewer cluster
+survey_design <- svydesign(ids=~intnum, prob=~1, data=ess_data)
+
+lm_me(
+  formula = poltrst ~ ppltrst + stflife + polintr,
+  data = ess_data,
+  complex_wt = survey_design
+)
+```
+
+The expression above is more intuitive as it only has two steps: 1) define complex survey design and 2) run model. It is assumed that inside `lm_me` the same proceedure as above
+will take place, allowing the wrapper `lm_me` not to worry about argument checking or the correspondance between the complex design and the data. This is already taken care of
+by the `lavaan.survey` function.
+
+## A framework for including measurement error
+
+An ideal measurement error workflow would take the above and add only one step: define a measurement error design. Just as you take care in designing your complex survey
+structure, measurement error should also require a thorough yet simple definition of the relationship between variables. Below I extend the last example to include an abstract
+design strategy of measurement error:
+
+```{r eval = FALSE}
+# 1) Define survey design with interviewer cluster
+survey_design <- svydesign(ids=~intnum, prob=~1, data=ess_data)
+
+# 2) Define measurement error design
+
+# 2.1) Variable relationship
+# stflife and stfeco share the same method
+variable_relationships <- "1 ~ stflife + stfeco"
+
+# 2.2) Get measurement error data (could be SQP or your own data)
+me_data <- get_estimates()
+
+# 2.3) Define your measurement error design
+me_design <-
+  medesign(
+    model = variable_relationships,
+    data = ess_data,
+    me_estimates = me_data
+  )
+
+# 3) Run model
+lm_me(
+  formula = poltrst ~ ppltrst + stflife + stfeco,
+  data = ess_data,
+  complex_wt = survey_design,
+  me = me_design
+)
+```
+
+Let's define each step at a time.
+
+* Step 1: classic way of defining your complex survey design. Many references on how to do this such as [this](http://r-survey.r-forge.r-project.org/survey/) and [this](http://asdfree.com/).
+* Step 2.1: Define the relationship between your variables. Here the user might specify which variables share a common method, which variables are standardized, which variables are sumscore,
+among other things... This 'model definition' will borrow many of the ideas from the lavaan package in terms of parsing the model from a string. In any case, the syntax of this model
+definition should be very flexible and have syntax declarations for each operation described above (share common method, standardized variables, etc...)
+* Step 2.2: Obtain measurement error estimates. This could be through SQP or your own set of the quality estimates.
+* Step 2.3: Combine the model definition, the data that will be used in the analysis and the measurement error estimates. This steps takes care of making sure that all variables defined
+in the model are indeed in measurement error estimates data frame as well as in the data. Moreover, it checks whether the variables defined have actual values in the measurement error data
+frame.
+* Step 3: Define the measurement error model, with two additional arguments: `complex_wt` and `me`, which were explained above.
+
+This last step is familiar yet adds the new `me` argument. How would this work out with the previous `lavaan.survey` expressions?
+
+YOu left off here. You need to add a lavaan.survey example and pass the quality adjusted correlation matrix to the `lavaan` call as an example.
+See if DK round 4 has quality estimates from the model above, if not, just do a pseudo code example (but test that at least converges on data) so that the definition of the function
+call is correct.
+
+After that, you need to break down how `medesign` will work, what it will have, what kind of checks will it do, how will it parse the model definition and separate it
+into different steps.
