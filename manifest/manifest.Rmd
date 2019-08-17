@@ -25,17 +25,31 @@ more complicated framework, `cite:oberski_complex` introduced the package `lavaa
 ```{r eval = FALSE}
 # Load packages and data
 library(lavaan.survey)
-data(ess.dk)
+devtools::install_github("ropensci/essurvey")
+library(essurvey)
 
-# Define model and run it
-dk_model <- "socialTrust ~ 1 + systemTrust + fearCrime"
-lavaan_fit <- sem(dk_model, data=ess.dk)
+set_email("cimentadaj@gmail.com")
 
-# Define survey design with interviewer cluster
-survey_design <- svydesign(ids=~intnum, prob=~1, data=ess.dk)
+# Download data
+ess_spain <- import_country("Spain", 4)
 
-# Adjust your model for a complex survey design
-survey_fit <- lavaan.survey(lavaan.fit=lavaan.fit, survey.design=survey.design)
+# 1) Define model and run it
+spain_model <- "ppltrst ~ stflife + trstprl + stfeco"
+lavaan_fit <- sem(spain_model, data=spain)
+
+# 2) Define survey design
+survey_design <-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
+
+options(survey.lonely.psu = "adjust")
+
+# 3) Adjust your model for a complex survey design
+survey_fit <- lavaan.survey(lavaan_fit, survey_design)
 ```
 
 There are now three steps in the pseudo code: 1) define and run the model, 2) create the survey design and 3) adjust your initial model for the complex survey design.
@@ -44,15 +58,21 @@ The added benefit is that we can account for the complex survey structure of the
 package but only for generalized linear models and not for more complex models such as structural ones. Moreover, the survey package does not
 allow to add the correlation between variables in the function call, the key step that allows measurement error to be corrected).
 
-If we simplified the code from above, we could directly end up with a shorter and concise function call (in pseudocode):
+We could directly simplify the code above and  end up with a shorter and concise function call (in pseudocode):
 
 ```{r eval = FALSE}
-# Define survey design with interviewer cluster
-survey_design <- svydesign(ids=~intnum, prob=~1, data=ess_data)
+# Define survey design
+survey_design <-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
 
 lm_me(
-  formula = poltrst ~ ppltrst + stflife + polintr,
-  data = ess_data,
+  formula = ppltrst ~ stflife + trstprl + stfeco,
+  data = ess_spain,
   complex_wt = survey_design
 )
 ```
@@ -61,21 +81,29 @@ The expression above is more intuitive as it only has two steps: 1) define compl
 will take place, allowing the wrapper `lm_me` not to worry about argument checking or the correspondance between the complex design and the data. This is already taken care of
 by the `lavaan.survey` function.
 
-## A framework for including measurement error
+## A framework for incorporating measurement error
 
 An ideal measurement error workflow would take the above and add only one step: define a measurement error design. Just as you take care in designing your complex survey
 structure, measurement error should also require a thorough yet simple definition of the relationship between variables. Below I extend the last example to include an abstract
 design strategy of measurement error:
 
 ```{r eval = FALSE}
-# 1) Define survey design with interviewer cluster
-survey_design <- svydesign(ids=~intnum, prob=~1, data=ess_data)
+# 1) Define survey design
+survey_design <-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
 
 # 2) Define measurement error design
 
 # 2.1) Variable relationship
-# stflife and stfeco share the same method
-variable_relationships <- "1 ~ stflife + stfeco"
+# Each row shows variables which share a common method
+variable_relationships <-
+  "1 ~ stflife + stfeco
+   2 ~ ppltrst + trstprl"
 
 # 2.2) Get measurement error data (could be SQP or your own data)
 me_data <- get_estimates()
@@ -90,7 +118,7 @@ me_design <-
 
 # 3) Run model
 lm_me(
-  formula = poltrst ~ ppltrst + stflife + stfeco,
+  formula = ppltrst ~ stflife + trstprl + stfeco,
   data = ess_data,
   complex_wt = survey_design,
   me = me_design
@@ -109,11 +137,59 @@ in the model are indeed in measurement error estimates data frame as well as in 
 frame.
 * Step 3: Define the measurement error model, with two additional arguments: `complex_wt` and `me`, which were explained above.
 
-This last step is familiar yet adds the new `me` argument. How would this work out with the previous `lavaan.survey` expressions?
+This last step is familiar yet adds the new `me` argument. How would this work out with the previous `lavaan.survey` expression?
 
-YOu left off here. You need to add a lavaan.survey example and pass the quality adjusted correlation matrix to the `lavaan` call as an example.
-See if DK round 4 has quality estimates from the model above, if not, just do a pseudo code example (but test that at least converges on data) so that the definition of the function
-call is correct.
+```{r eval = FALSE}
+# Load packages and data
+library(lavaan.survey)
+devtools::install_github("ropensci/essurvey")
+library(essurvey)
+
+set_email("cimentadaj@gmail.com")
+
+# Define variables, download ESS data, weights data and merge them
+selected_vars <- c("idno", "ppltrst", "stflife", "trstprl", "polintr")
+weight_vars <- c("idno", "psu", "stratify", "prob")
+ess_spain <- import_country("Spain", 4)[selected_vars]
+weights_spain <-import_sddf_country("Spain", 4)[weight_vars]
+spain <- merge(ess_spain, weights_spain, by = "idno")
+spain <- spain[complete.cases(spain), ]
+
+# 1) Define survey design
+survey_design <-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = spain
+  )
+
+# 2) Correlation adjusted for measurement error (we jumped these steps
+# for the sake of brevity. Here we adjusted trstprl and ppltrst for shared
+# common method variance)
+adjusted_correlation <-
+  read.table(
+    text = "          trstprl ppltrst polintr stflife
+            trstprl    1.00    0.35   -0.19    0.21
+            ppltrst    0.35    1.00   -0.20    0.25
+            polintr   -0.19   -0.20    1.00   -0.04
+            stflife    0.21    0.25   -0.04    1.00"
+  )
+
+adjusted_correlation <- as.matrix(adjusted_correlation)
+
+# 3) Define model and run it with the corrected correlation matrix
+spain_model <- "ppltrst ~ stflife + trstprl + polintr"
+lavaan_fit <- sem(spain_model, data=spain, sample.cov = adjusted_correlation)
+
+options(survey.lonely.psu = "adjust")
+
+# Adjust your model for a complex survey design
+survey_fit <- lavaan.survey(lavaan_fit, survey_design)
+```
+
+You left off where the adjusted correlation did not change anything in the model. Why?
+in the ESRA2019 example it did. Did you do something wrong?
 
 After that, you need to break down how `medesign` will work, what it will have, what kind of checks will it do, how will it parse the model definition and separate it
 into different steps.
