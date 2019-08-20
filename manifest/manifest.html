@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jorge Cimentada" />
 
-<meta name="date" content="2019-08-16" />
+<meta name="date" content="2019-08-19" />
 
 <title>Total Survey Error Framework R Ecosystem</title>
 
@@ -366,7 +366,7 @@ summary {
 
 <h1 class="title toc-ignore">Total Survey Error Framework R Ecosystem</h1>
 <h4 class="author">Jorge Cimentada</h4>
-<h4 class="date">2019-08-16</h4>
+<h4 class="date">2019-08-19</h4>
 
 </div>
 
@@ -379,40 +379,68 @@ summary {
 <p>This function call requires only two arguments: the formula definition and the data which contains the columns. Additionally, it allows to specify a simple weight column. In a more complicated framework, <code>cite:oberski_complex</code> introduced the package <code>lavaan.survey</code> which allows to run Structural Equational Modeling with complex survey designs using the <code>survey</code> package. Using this framework, the pseudocode from above becomes:</p>
 <pre class="r"><code># Load packages and data
 library(lavaan.survey)
-data(ess.dk)
+devtools::install_github(&quot;ropensci/essurvey&quot;)
+library(essurvey)
 
-# Define model and run it
-dk_model &lt;- &quot;socialTrust ~ 1 + systemTrust + fearCrime&quot;
-lavaan_fit &lt;- sem(dk_model, data=ess.dk)
+set_email(&quot;cimentadaj@gmail.com&quot;)
 
-# Define survey design with interviewer cluster
-survey_design &lt;- svydesign(ids=~intnum, prob=~1, data=ess.dk)
+# Download data
+ess_spain &lt;- import_country(&quot;Spain&quot;, 4)
 
-# Adjust your model for a complex survey design
-survey_fit &lt;- lavaan.survey(lavaan.fit=lavaan.fit, survey.design=survey.design)</code></pre>
+# 1) Define model and run it
+spain_model &lt;- &quot;ppltrst ~ stflife + trstprl + stfeco&quot;
+lavaan_fit &lt;- sem(spain_model, data=spain)
+
+# 2) Define survey design
+survey_design &lt;-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
+
+options(survey.lonely.psu = &quot;adjust&quot;)
+
+# 3) Adjust your model for a complex survey design
+survey_fit &lt;- lavaan.survey(lavaan_fit, survey_design)</code></pre>
 <p>There are now three steps in the pseudo code: 1) define and run the model, 2) create the survey design and 3) adjust your initial model for the complex survey design. Note that even though we’re using a different package for Structural Equational Modeling, the estimation from above simply ran a linear model just as <code>lm</code> would do. The added benefit is that we can account for the complex survey structure of the data generating process (this specific model can also be run with the <code>survey</code> package but only for generalized linear models and not for more complex models such as structural ones. Moreover, the survey package does not allow to add the correlation between variables in the function call, the key step that allows measurement error to be corrected).</p>
-<p>If we simplified the code from above, we could directly end up with a shorter and concise function call (in pseudocode):</p>
-<pre class="r"><code># Define survey design with interviewer cluster
-survey_design &lt;- svydesign(ids=~intnum, prob=~1, data=ess_data)
+<p>We could directly simplify the code above and end up with a shorter and concise function call (in pseudocode):</p>
+<pre class="r"><code># Define survey design
+survey_design &lt;-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
 
 lm_me(
-  formula = poltrst ~ ppltrst + stflife + polintr,
-  data = ess_data,
+  formula = ppltrst ~ stflife + trstprl + stfeco,
+  data = ess_spain,
   complex_wt = survey_design
 )</code></pre>
 <p>The expression above is more intuitive as it only has two steps: 1) define complex survey design and 2) run model. It is assumed that inside <code>lm_me</code> the same proceedure as above will take place, allowing the wrapper <code>lm_me</code> not to worry about argument checking or the correspondance between the complex design and the data. This is already taken care of by the <code>lavaan.survey</code> function.</p>
 </div>
-<div id="a-framework-for-including-measurement-error" class="section level2">
-<h2>A framework for including measurement error</h2>
+<div id="a-framework-for-incorporating-measurement-error" class="section level2">
+<h2>A framework for incorporating measurement error</h2>
 <p>An ideal measurement error workflow would take the above and add only one step: define a measurement error design. Just as you take care in designing your complex survey structure, measurement error should also require a thorough yet simple definition of the relationship between variables. Below I extend the last example to include an abstract design strategy of measurement error:</p>
-<pre class="r"><code># 1) Define survey design with interviewer cluster
-survey_design &lt;- svydesign(ids=~intnum, prob=~1, data=ess_data)
+<pre class="r"><code># 1) Define survey design
+survey_design &lt;-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
 
 # 2) Define measurement error design
 
 # 2.1) Variable relationship
-# stflife and stfeco share the same method
-variable_relationships &lt;- &quot;1 ~ stflife + stfeco&quot;
+# Each row shows variables which share a common method
+variable_relationships &lt;-
+  &quot;1 ~ stflife + stfeco
+   2 ~ ppltrst + trstprl&quot;
 
 # 2.2) Get measurement error data (could be SQP or your own data)
 me_data &lt;- get_estimates()
@@ -427,7 +455,7 @@ me_design &lt;-
 
 # 3) Run model
 lm_me(
-  formula = poltrst ~ ppltrst + stflife + stfeco,
+  formula = ppltrst ~ stflife + trstprl + stfeco,
   data = ess_data,
   complex_wt = survey_design,
   me = me_design
@@ -440,9 +468,84 @@ lm_me(
 <li>Step 2.3: Combine the model definition, the data that will be used in the analysis and the measurement error estimates. This steps takes care of making sure that all variables defined in the model are indeed in measurement error estimates data frame as well as in the data. Moreover, it checks whether the variables defined have actual values in the measurement error data frame.</li>
 <li>Step 3: Define the measurement error model, with two additional arguments: <code>complex_wt</code> and <code>me</code>, which were explained above.</li>
 </ul>
-<p>This last step is familiar yet adds the new <code>me</code> argument. How would this work out with the previous <code>lavaan.survey</code> expressions?</p>
-<p>YOu left off here. You need to add a lavaan.survey example and pass the quality adjusted correlation matrix to the <code>lavaan</code> call as an example. See if DK round 4 has quality estimates from the model above, if not, just do a pseudo code example (but test that at least converges on data) so that the definition of the function call is correct.</p>
-<p>After that, you need to break down how <code>medesign</code> will work, what it will have, what kind of checks will it do, how will it parse the model definition and separate it into different steps.</p>
+<p>This last step is familiar yet adds the new <code>me</code> argument. How would this work out with the previous <code>lavaan.survey</code> expression?</p>
+<pre class="r"><code># Load packages and data
+library(lavaan.survey)
+devtools::install_github(&quot;ropensci/essurvey&quot;)
+library(essurvey)
+
+set_email(&quot;cimentadaj@gmail.com&quot;)
+
+# Define variables, download ESS data, weights data and merge them
+selected_vars &lt;- c(&quot;idno&quot;, &quot;ppltrst&quot;, &quot;stflife&quot;, &quot;trstprl&quot;, &quot;stfeco&quot;)
+weight_vars &lt;- c(&quot;idno&quot;, &quot;psu&quot;, &quot;stratify&quot;, &quot;prob&quot;)
+ess_spain &lt;- import_country(&quot;Spain&quot;, 4)[selected_vars]
+weights_spain &lt;- import_sddf_country(&quot;Spain&quot;, 4)[weight_vars]
+spain &lt;- merge(ess_spain, weights_spain, by = &quot;idno&quot;)
+spain &lt;- spain[complete.cases(spain), ]
+
+# 1) Define survey design
+survey_design &lt;-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = spain
+  )
+
+
+
+
+# 2) Correlation adjusted for measurement error (we jumped these steps
+# for the sake of brevity. Here we adjusted trstprl and ppltrst for shared
+# common method variance)
+sqp_data &lt;- tibble::tribble(
+  ~question, ~reliability, ~validity, ~quality,
+  &quot;ppltrst&quot;,        0.729,     0.951,    0.693,
+  &quot;stflife&quot;,        0.655,      0.94,    0.615,
+  &quot;trstprl&quot;,        0.815,     0.944,     0.77,
+   &quot;stfeco&quot;,        0.823,     0.903,    0.743
+  )
+
+raw_correlation &lt;-
+  read.table(
+    text = &quot;
+                     ppltrst stflife trstprl stfeco
+            ppltrst    1.00    0.16    0.26   0.23
+            stflife    0.16    1.00    0.14   0.18
+            trstprl    0.26    0.14    1.00   0.41
+            stfeco     0.23    0.18    0.41   1.00&quot;
+  )
+
+## The adjusted correlation changes from .18 to .12 in stfeco and stfl
+adjusted_correlation &lt;-
+  read.table(
+    text = &quot;
+                      ppltrst stflife trstprl stfeco
+            ppltrst    1.00    0.16    0.22   0.23
+            stflife    0.16    1.00    0.14   0.12
+            trstprl    0.22    0.14    1.00   0.41
+            stfeco     0.23    0.12    0.41   1.00&quot;
+  )
+
+adjusted_correlation &lt;- as.matrix(adjusted_correlation)
+spain_model &lt;- &quot;ppltrst ~ stflife + trstprl + stfeco&quot;
+raw_fit &lt;- sem(spain_model, data = spain)
+
+# Coefficients align with the normal linear model
+parameterEstimates(raw_fit)
+coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
+
+
+# If we adjust the model with the adjusted correlation
+adj_fit &lt;- sem(spain_model, data = spain, sample.cov = adjusted_correlation)
+
+# The results are exactly the same. Is this right?
+parameterEstimates(adj_fit)
+coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
+
+# or should I instead pass the covariance matrix? I also tried putting the
+# covariance matrix and the results are the same.</code></pre>
 </div>
 
 

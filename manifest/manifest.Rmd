@@ -2,7 +2,7 @@
 title: "Total Survey Error Framework R Ecosystem"
 author: "Jorge Cimentada"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_output
+output: rmarkdown::html_document
 ---
 
 As an attempt to organize my ideas on the measurement error packages that we're building, I'm writing this document that will outline all of the ideas around the package. This
@@ -128,13 +128,17 @@ lm_me(
 Let's define each step at a time.
 
 * Step 1: classic way of defining your complex survey design. Many references on how to do this such as [this](http://r-survey.r-forge.r-project.org/survey/) and [this](http://asdfree.com/).
+
 * Step 2.1: Define the relationship between your variables. Here the user might specify which variables share a common method, which variables are standardized, which variables are sumscore,
 among other things... This 'model definition' will borrow many of the ideas from the lavaan package in terms of parsing the model from a string. In any case, the syntax of this model
 definition should be very flexible and have syntax declarations for each operation described above (share common method, standardized variables, etc...)
+
 * Step 2.2: Obtain measurement error estimates. This could be through SQP or your own set of the quality estimates.
+
 * Step 2.3: Combine the model definition, the data that will be used in the analysis and the measurement error estimates. This steps takes care of making sure that all variables defined
 in the model are indeed in measurement error estimates data frame as well as in the data. Moreover, it checks whether the variables defined have actual values in the measurement error data
 frame.
+
 * Step 3: Define the measurement error model, with two additional arguments: `complex_wt` and `me`, which were explained above.
 
 This last step is familiar yet adds the new `me` argument. How would this work out with the previous `lavaan.survey` expression?
@@ -148,10 +152,10 @@ library(essurvey)
 set_email("cimentadaj@gmail.com")
 
 # Define variables, download ESS data, weights data and merge them
-selected_vars <- c("idno", "ppltrst", "stflife", "trstprl", "polintr")
+selected_vars <- c("idno", "ppltrst", "stflife", "trstprl", "stfeco")
 weight_vars <- c("idno", "psu", "stratify", "prob")
 ess_spain <- import_country("Spain", 4)[selected_vars]
-weights_spain <-import_sddf_country("Spain", 4)[weight_vars]
+weights_spain <- import_sddf_country("Spain", 4)[weight_vars]
 spain <- merge(ess_spain, weights_spain, by = "idno")
 spain <- spain[complete.cases(spain), ]
 
@@ -164,32 +168,163 @@ survey_design <-
     data = spain
   )
 
+
+
+
 # 2) Correlation adjusted for measurement error (we jumped these steps
 # for the sake of brevity. Here we adjusted trstprl and ppltrst for shared
 # common method variance)
+sqp_data <- tibble::tribble(
+  ~question, ~reliability, ~validity, ~quality,
+  "ppltrst",        0.729,     0.951,    0.693,
+  "stflife",        0.655,      0.94,    0.615,
+  "trstprl",        0.815,     0.944,     0.77,
+   "stfeco",        0.823,     0.903,    0.743
+  )
+
+raw_correlation <-
+  read.table(
+    text = "
+                     ppltrst stflife trstprl stfeco
+            ppltrst    1.00    0.16    0.26   0.23
+            stflife    0.16    1.00    0.14   0.18
+            trstprl    0.26    0.14    1.00   0.41
+            stfeco     0.23    0.18    0.41   1.00"
+  )
+
+## The adjusted correlation changes from .18 to .12 in stfeco and stfl
 adjusted_correlation <-
   read.table(
-    text = "          trstprl ppltrst polintr stflife
-            trstprl    1.00    0.35   -0.19    0.21
-            ppltrst    0.35    1.00   -0.20    0.25
-            polintr   -0.19   -0.20    1.00   -0.04
-            stflife    0.21    0.25   -0.04    1.00"
+    text = "
+                      ppltrst stflife trstprl stfeco
+            ppltrst    1.00    0.16    0.22   0.23
+            stflife    0.16    1.00    0.14   0.12
+            trstprl    0.22    0.14    1.00   0.41
+            stfeco     0.23    0.12    0.41   1.00"
   )
 
 adjusted_correlation <- as.matrix(adjusted_correlation)
+spain_model <- "ppltrst ~ stflife + trstprl + stfeco"
+raw_fit <- sem(spain_model, data = spain)
+
+# Coefficients align with the normal linear model
+parameterEstimates(raw_fit)
+coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
+
+
+# If we adjust the model with the adjusted correlation
+adj_fit <- sem(spain_model, data = spain, sample.cov = adjusted_correlation)
+
+# The results are exactly the same. Is this right?
+parameterEstimates(adj_fit)
+coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
+
+# or should I instead pass the covariance matrix? I also tried putting the
+# covariance matrix and the results are the same.
+```
+
+```{r eval = FALSE, echo = FALSE}
+raw_covariance <-
+  spain %>%
+  cov(spain[, setdiff(names(spain), names(weights_spain))]) %>% round(2)
+
+adjusted_covariance <-
+  sqp_cmv_cov(raw_covariance,
+              Quality,
+              stflife, stfeco,
+              original_data = spain) %>%
+  sqp_cmv_cov(Quality,
+              ppltrst, trstprl,
+              original_data = spain)
+
+
 
 # 3) Define model and run it with the corrected correlation matrix
-spain_model <- "ppltrst ~ stflife + trstprl + polintr"
-lavaan_fit <- sem(spain_model, data=spain, sample.cov = adjusted_correlation)
+spain_model <- "ppltrst ~ stflife + trstprl + stfeco"
+lavaan_fit <- sem(spain_model, data = spain, sample.cov = adjusted_covariance)
 
 options(survey.lonely.psu = "adjust")
 
 # Adjust your model for a complex survey design
 survey_fit <- lavaan.survey(lavaan_fit, survey_design)
-```
 
-You left off where the adjusted correlation did not change anything in the model. Why?
-in the ESRA2019 example it did. Did you do something wrong?
+summary(survey_fit)
 
 After that, you need to break down how `medesign` will work, what it will have, what kind of checks will it do, how will it parse the model definition and separate it
 into different steps.
+```
+
+The above is also very tedious. The purpose of the pseudo code `lm_me` is to streamline all of the above automatically with the help
+of the `me_design` function. `me_design` will be largely responsible of defining the measurement error relationship between
+variables and checking that they are available for estimation:
+
+```{r }
+variable_relationships <-
+  "1 ~ stflife + stfeco
+   2 ~ ppltrst + trstprl"
+
+medesign(
+  model = variable_relationships,
+  data = ess_data,
+  me_estimates = me_data
+)
+```
+
+
+`medesign` takes care of doing two things. First, it should parse the variable relationship object
+to check that:
+
+1) The variables defined in the model are present in `me_data`.
+2) The variables defined in the model have no missing values in `me_data`.
+3) The variables defined in the model are present in `data`.
+4) The variables defined in the model are not complete missing in `data`.
+
+This function will lazily evaluate the arguments and delay the computation to another function which is
+in charge of executing the 'plan'. However, `medesign` should be responsible for parsing the model definition in detail. For that, we need to set some rules
+on how is something defined.
+
+We need to be able to define:
+
+1) A sumscore (define with a `=`)
+2) A standardized sumscore (defined with a `std()`)
+3) When observed variables share a common method (defined as `~`)
+4) When observed variable shares common method with a sumscore (defined similarly as `~`)
+5) When observed variable shares common method with a standardized sumscore (defined similarly as `~`)
+6) When a sum score shares common method with a standardized sumscore (defined similarly as `~`)
+7) When a standardized sumscore shares common method with a standardized sumscore (defined similarly as `~`)
+
+Below is an attempt to generate the syntax that defines a model. All of the code below is pseudo code, so variable names
+are made up.
+
+```{r }
+model_definition <-
+  "#1)
+   sumscore = var1 + var2
+
+   #2)
+   std_sumscore1 = std(var3 + var4)
+   std_sumscore2 = std(var5 + var6)
+
+   #3)
+   ~ var7 + var8
+
+   #4)
+   ~ var9 + sumscore
+
+   #5)
+   ~ var10 + std_sumscore1
+
+   #6)
+   ~ sumscore + std_sumscore1
+
+   #7)
+   ~ std_sumscore1 + std_sumscore2"
+```
+
+Each step in the model definition exemplifies each one of the described list of properties above. 
+Anything define as `some_var = another_var + another_var1` will be treated as a creation of a
+variable with a special operator `std` to define standardized variables and anything
+define with `~` will be treated as sharing a common method. Internally,
+`me_design` will know which variables are standardized by flagging the variable.
+
+The parsing of this model syntax will be used similarly to `lavaan:::lavParseModelString`.
