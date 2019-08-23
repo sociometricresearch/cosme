@@ -174,7 +174,7 @@ survey_design <-
 # 2) Correlation adjusted for measurement error (we jumped these steps
 # for the sake of brevity. Here we adjusted trstprl and ppltrst for shared
 # common method variance)
-sqp_data <- tibble::tribble(
+me_data <- tibble::tribble(
   ~question, ~reliability, ~validity, ~quality,
   "ppltrst",        0.729,     0.951,    0.693,
   "stflife",        0.655,      0.94,    0.615,
@@ -229,11 +229,11 @@ raw_covariance <-
   cov(spain[, setdiff(names(spain), names(weights_spain))]) %>% round(2)
 
 adjusted_covariance <-
-  sqp_cmv_cov(raw_covariance,
+  me_cmv_cov(raw_covariance,
               Quality,
               stflife, stfeco,
               original_data = spain) %>%
-  sqp_cmv_cov(Quality,
+  me_cmv_cov(Quality,
               ppltrst, trstprl,
               original_data = spain)
 

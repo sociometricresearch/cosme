@@ -19,6 +19,17 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
 LazyData: true
+VignetteBuilder: knitr
 Suggests: 
     covr,
-    testthat
+    knitr,
+    rmarkdown,
+    lavaan,
+    ggplot2,
+    testthat,
+    essurvey,
+    sqpr
+Imports: 
+    tibble,
+    dplyr
+RoxygenNote: 6.1.1

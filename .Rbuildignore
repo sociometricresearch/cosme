@@ -3,3 +3,6 @@
 ^README\.Rmd$
 ^appveyor\.yml$
 ^LICENSE\.md$
+manifest/
+^doc$
+^Meta$
