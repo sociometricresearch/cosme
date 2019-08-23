@@ -29,6 +29,7 @@ Suggests:
     testthat,
     essurvey,
     sqpr
+Remotes: sociometricresarch/sqpr
 Imports: 
     tibble,
     dplyr
