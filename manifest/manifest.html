@@ -12,7 +12,7 @@
 
 <meta name="author" content="Jorge Cimentada" />
 
-<meta name="date" content="2019-08-19" />
+<meta name="date" content="2019-08-27" />
 
 <title>Total Survey Error Framework R Ecosystem</title>
 
@@ -366,7 +366,7 @@ summary {
 
 <h1 class="title toc-ignore">Total Survey Error Framework R Ecosystem</h1>
 <h4 class="author">Jorge Cimentada</h4>
-<h4 class="date">2019-08-19</h4>
+<h4 class="date">2019-08-27</h4>
 
 </div>
 
@@ -462,11 +462,11 @@ lm_me(
 )</code></pre>
 <p>Let’s define each step at a time.</p>
 <ul>
-<li>Step 1: classic way of defining your complex survey design. Many references on how to do this such as <a href="http://r-survey.r-forge.r-project.org/survey/">this</a> and <a href="http://asdfree.com/">this</a>.</li>
-<li>Step 2.1: Define the relationship between your variables. Here the user might specify which variables share a common method, which variables are standardized, which variables are sumscore, among other things… This ‘model definition’ will borrow many of the ideas from the lavaan package in terms of parsing the model from a string. In any case, the syntax of this model definition should be very flexible and have syntax declarations for each operation described above (share common method, standardized variables, etc…)</li>
-<li>Step 2.2: Obtain measurement error estimates. This could be through SQP or your own set of the quality estimates.</li>
-<li>Step 2.3: Combine the model definition, the data that will be used in the analysis and the measurement error estimates. This steps takes care of making sure that all variables defined in the model are indeed in measurement error estimates data frame as well as in the data. Moreover, it checks whether the variables defined have actual values in the measurement error data frame.</li>
-<li>Step 3: Define the measurement error model, with two additional arguments: <code>complex_wt</code> and <code>me</code>, which were explained above.</li>
+<li><p>Step 1: classic way of defining your complex survey design. Many references on how to do this such as <a href="http://r-survey.r-forge.r-project.org/survey/">this</a> and <a href="http://asdfree.com/">this</a>.</p></li>
+<li><p>Step 2.1: Define the relationship between your variables. Here the user might specify which variables share a common method, which variables are standardized, which variables are sumscore, among other things… This ‘model definition’ will borrow many of the ideas from the lavaan package in terms of parsing the model from a string. In any case, the syntax of this model definition should be very flexible and have syntax declarations for each operation described above (share common method, standardized variables, etc…)</p></li>
+<li><p>Step 2.2: Obtain measurement error estimates. This could be through SQP or your own set of the quality estimates.</p></li>
+<li><p>Step 2.3: Combine the model definition, the data that will be used in the analysis and the measurement error estimates. This steps takes care of making sure that all variables defined in the model are indeed in measurement error estimates data frame as well as in the data. Moreover, it checks whether the variables defined have actual values in the measurement error data frame.</p></li>
+<li><p>Step 3: Define the measurement error model, with two additional arguments: <code>complex_wt</code> and <code>me</code>, which were explained above.</p></li>
 </ul>
 <p>This last step is familiar yet adds the new <code>me</code> argument. How would this work out with the previous <code>lavaan.survey</code> expression?</p>
 <pre class="r"><code># Load packages and data
@@ -499,7 +499,7 @@ survey_design &lt;-
 # 2) Correlation adjusted for measurement error (we jumped these steps
 # for the sake of brevity. Here we adjusted trstprl and ppltrst for shared
 # common method variance)
-sqp_data &lt;- tibble::tribble(
+me_data &lt;- tibble::tribble(
   ~question, ~reliability, ~validity, ~quality,
   &quot;ppltrst&quot;,        0.729,     0.951,    0.693,
   &quot;stflife&quot;,        0.655,      0.94,    0.615,
@@ -528,9 +528,16 @@ adjusted_correlation &lt;-
             stfeco     0.23    0.12    0.41   1.00&quot;
   )
 
+raw_correlation &lt;- as.matrix(raw_correlation)
 adjusted_correlation &lt;- as.matrix(adjusted_correlation)
+
 spain_model &lt;- &quot;ppltrst ~ stflife + trstprl + stfeco&quot;
-raw_fit &lt;- sem(spain_model, data = spain)
+raw_fit &lt;-
+  sem(
+    model = spain_model,
+    sample.cov = raw_correlation,
+    sample.nobs = 2311
+  )
 
 # Coefficients align with the normal linear model
 parameterEstimates(raw_fit)
@@ -538,7 +545,12 @@ coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
 
 
 # If we adjust the model with the adjusted correlation
-adj_fit &lt;- sem(spain_model, data = spain, sample.cov = adjusted_correlation)
+adj_fit &lt;-
+  sem(
+    spain_model,
+    sample.cov = adjusted_correlation,
+    sample.nobs = 2311
+  )
 
 # The results are exactly the same. Is this right?
 parameterEstimates(adj_fit)
@@ -546,6 +558,59 @@ coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
 
 # or should I instead pass the covariance matrix? I also tried putting the
 # covariance matrix and the results are the same.</code></pre>
+<p>The above is also very tedious. The purpose of the pseudo code <code>lm_me</code> is to streamline all of the above automatically with the help of the <code>me_design</code> function. <code>me_design</code> will be largely responsible of defining the measurement error relationship between variables and checking that they are available for estimation:</p>
+<pre class="r"><code>variable_relationships &lt;-
+  &quot;1 ~ stflife + stfeco
+   2 ~ ppltrst + trstprl&quot;
+
+medesign(
+  model = variable_relationships,
+  data = ess_data,
+  me_estimates = me_data
+)</code></pre>
+<p><code>medesign</code> takes care of doing two things. First, it should parse the variable relationship object to check that:</p>
+<ol style="list-style-type: decimal">
+<li>The variables defined in the model are present in <code>me_data</code>.</li>
+<li>The variables defined in the model have no missing values in <code>me_data</code>.</li>
+<li>The variables defined in the model are present in <code>data</code>.</li>
+<li>The variables defined in the model are not complete missing in <code>data</code>.</li>
+</ol>
+<p>This function will lazily evaluate the arguments and delay the computation to another function which is in charge of executing the ‘plan’. However, <code>medesign</code> should be responsible for parsing the model definition in detail. For that, we need to set some rules on how is something defined.</p>
+<p>We need to be able to define:</p>
+<ol style="list-style-type: decimal">
+<li>A sumscore (define with a <code>=</code>)</li>
+<li>A standardized sumscore (defined with a <code>std()</code>)</li>
+<li>When observed variables share a common method (defined as <code>~</code>)</li>
+<li>When observed variable shares common method with a sumscore (defined similarly as <code>~</code>)</li>
+<li>When observed variable shares common method with a standardized sumscore (defined similarly as <code>~</code>)</li>
+<li>When a sum score shares common method with a standardized sumscore (defined similarly as <code>~</code>)</li>
+<li>When a standardized sumscore shares common method with a standardized sumscore (defined similarly as <code>~</code>)</li>
+</ol>
+<p>Below is an attempt to generate the syntax that defines a model. All of the code below is pseudo code, so variable names are made up.</p>
+<pre class="r"><code>model_definition &lt;-
+  &quot;#1)
+   sumscore = var1 + var2
+
+   #2)
+   std_sumscore1 = std(var3 + var4)
+   std_sumscore2 = std(var5 + var6)
+
+   #3)
+   ~ var7 + var8
+
+   #4)
+   ~ var9 + sumscore
+
+   #5)
+   ~ var10 + std_sumscore1
+
+   #6)
+   ~ sumscore + std_sumscore1
+
+   #7)
+   ~ std_sumscore1 + std_sumscore2&quot;</code></pre>
+<p>Each step in the model definition exemplifies each one of the described list of properties above. Anything define as <code>some_var = another_var + another_var1</code> will be treated as a creation of a variable with a special operator <code>std</code> to define standardized variables and anything define with <code>~</code> will be treated as sharing a common method. Internally, <code>me_design</code> will know which variables are standardized by flagging the variable.</p>
+<p>The parsing of this model syntax will be used similarly to <code>lavaan:::lavParseModelString</code>.</p>
 </div>
 
 

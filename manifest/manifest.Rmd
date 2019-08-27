@@ -203,9 +203,16 @@ adjusted_correlation <-
             stfeco     0.23    0.12    0.41   1.00"
   )
 
+raw_correlation <- as.matrix(raw_correlation)
 adjusted_correlation <- as.matrix(adjusted_correlation)
+
 spain_model <- "ppltrst ~ stflife + trstprl + stfeco"
-raw_fit <- sem(spain_model, data = spain)
+raw_fit <-
+  sem(
+    model = spain_model,
+    sample.cov = raw_correlation,
+    sample.nobs = 2311
+  )
 
 # Coefficients align with the normal linear model
 parameterEstimates(raw_fit)
@@ -213,7 +220,12 @@ coef(lm(ppltrst ~ stflife + trstprl + stfeco, data = spain))
 
 
 # If we adjust the model with the adjusted correlation
-adj_fit <- sem(spain_model, data = spain, sample.cov = adjusted_correlation)
+adj_fit <-
+  sem(
+    spain_model,
+    sample.cov = adjusted_correlation,
+    sample.nobs = 2311
+  )
 
 # The results are exactly the same. Is this right?
 parameterEstimates(adj_fit)
@@ -258,7 +270,7 @@ The above is also very tedious. The purpose of the pseudo code `lm_me` is to str
 of the `me_design` function. `me_design` will be largely responsible of defining the measurement error relationship between
 variables and checking that they are available for estimation:
 
-```{r }
+```{r, eval = FALSE}
 variable_relationships <-
   "1 ~ stflife + stfeco
    2 ~ ppltrst + trstprl"
