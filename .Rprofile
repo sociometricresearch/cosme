@@ -1,3 +1,8 @@
 if (interactive()) {
-  message("Remember to specify Sys.setenv(SQP_USER = ''); Sys.setenv(SQP_PW = ''); Sys.setenv(ess_email = '') as environment variables to run `devtools::check()`")
+  cat("One important thing:\n
+* If you've just cloned the repository, remember to create a new .Renviron files which has\nthese three variables set:\n 
+NOT_CRAN=\"true\"
+SQP_USER=\" \"
+SQP_PW=\" \"
+ess_email=\" \"\n\n")
 }
