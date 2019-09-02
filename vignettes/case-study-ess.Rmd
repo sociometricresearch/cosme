@@ -35,10 +35,6 @@ library(measurementfree)
 
 ## Read the data
 
-```{r, echo = FALSE}
-ess_email <- Sys.getenv("ess_email")
-```
-
 Let's read in the data from the European Social Survey using the `essurvey` package and create a sum score of a number of variables. A sum score is the weighted $(w)$ `sum` of a number of variables $(y_1, y_2, ..., y_k)$ to create a composite score $(CS)$:
 
 $$
@@ -55,11 +51,11 @@ selected_vars <- c("trstprl", "trstplt", "trstprt",
                    "stfedu", "stfhlth", "psppsgv",
                    "psppipl", "ptcpplt", "ppltrst",
                    "polintr", "stflife", "stfeco",
-                   "agea","eisced")
+                   "agea", "eisced")
 
 # Download the ESS data and clear missing values
 ess7es <-
-  import_country("Spain", 7, ess_email) %>%
+  import_country("Spain", 7) %>%
   select(selected_vars, pspwght) %>%
   filter(complete.cases(.))
 
@@ -133,20 +129,24 @@ With the function `me_sscore` we can calculate the quality of a sum score. Remem
 For example, this code..
 
 ```{r}
+
 me_sscore(me_data = me_data,
            df = ess7es,
            new_name = poltrst,
            trstprl, trstplt, trstprt)
+
 ```
 
 creates a new variable called `poltrst` which will have the quality of the sum score of `trstprl`, `trstplt`, `trstprt`. Note that these three variables are **not** present anymore, but only `poltrst`, the summary of the three. For our analysis we want to repeat that for the three sum scores from the beginning. Let's extend it:
 
 ```{r}
+
 Quality <-
   me_data %>%
   me_sscore(df = ess7es, new_name = poltrst, trstprl, trstplt, trstprt) %>%
   me_sscore(df = ess7es, new_name = serv, stfedu, stfhlth) %>%
   me_sscore(df = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt) 
+
 ```
 
 Let's see how it looks like.
@@ -169,6 +169,7 @@ Quality
 Note that `me_bind_metrics` is very strict, it accepts an `me` data frame (given by `sqpr::get_sqp`) and it will match that the names of your estimates (`quality` here) matches exactly the same names in the SQP API. You can read more about it in `?me_bind_metrics`. Finally, let's order our results.
 
 ```{r}
+
 variables_order <- c("poltrst",
                      "serv",
                      "systmrsp",
@@ -180,6 +181,7 @@ variables_order <- c("poltrst",
                      "eisced")
 
 Quality <- Quality[match(variables_order, Quality$question), ]
+
 ```
 
 Briefly, let's also select these variables for ESS data.
@@ -201,6 +203,7 @@ original_corr_2
 `measurementfree` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey.
 
 ```{r}
+
 corr_q2 <-
   me_correlate(x = ess7escorr,
                 diag_adj = Quality$quality,
@@ -209,6 +212,7 @@ corr_q2 <-
                 method = "pearson")
 
 corr_q2
+
 ```
 
 It's the same correlation coefficients but with the diagonal set to the quality of the estimates. But **note** that both the order of the variables `Quality` and the order of the variables in `ess7corr` should be the same! Otherwise we might confuse quality estimates between variables.
@@ -216,6 +220,7 @@ It's the same correlation coefficients but with the diagonal set to the quality 
 For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `measurementfree` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation.
 
 ```{r}
+
 #subtract the cmv from the observed correlation
 corr_q2_cmv <-
   me_cmv_cor(x = corr_q2,
@@ -223,17 +228,20 @@ corr_q2_cmv <-
               stfeco, stflife)
 
 corr_q2_cmv
+
 ```
 
 Perhaps you can't see it but the coefficient of the `stfeco` and `stflife` combination has gone down from `0.272` to `0.205`. More concretely, `me_cmv_cor` calculates the CMV and subtracts it from the correlation coefficient. A more directly example is:
 
 ```{r}
+
 cmv <-
   Quality %>%
   filter(question %in% c("stflife", "stfeco")) %>%
   measurementfree::estimate_cmv()
 
 0.272 - cmv
+
 ```
 
 To finish off correcting for the measurement error, we consider this matrix with quality estimates on the diagonal and CMV subtracted from the correlations, a covariance matrix and transform it to a correlation matrix.
@@ -251,6 +259,7 @@ Here we have a corrected matrix for both measurement error and for the common me
 Let's run two regression models taken from Weber & Werner (2018) and see how the results differ.
 
 ```{r}
+
 model<- "poltrst ~ ppltrst + stflife + polintr + stfeco + serv + systmrsp + agea + eisced"
 
 # Model based on original correlation matrix
@@ -264,11 +273,13 @@ fit.corrected <-
   sem(model,
       sample.cov=corrected_corr,
       sample.nobs= 1624) 
+
 ```
 
 Let's look at how much the coefficients differ
 
 ```{r, fig.width = 7, fig.with = 9}
+
 coef_table <-
   list(fit, fit.corrected) %>%
   lapply(parameterestimates) %>%
@@ -283,6 +294,7 @@ coef_table %>%
   geom_point(position = position_dodge(width = 0.5)) +
   labs(x = "Predictors", y = "Estimated coefficients") +
   theme_bw()
+
 ```
 
 It differs slightly between models (although strongly for the dependent variable). Another approach is getting the ratio between the corrected over the original model.
