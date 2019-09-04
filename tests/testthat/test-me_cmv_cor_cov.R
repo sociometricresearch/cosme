@@ -195,7 +195,7 @@ test_cor_cov(me_cmv_cor, "me_cmv_cov")
 # can be reused.
 
 partial_cov <- function(x, me_data, ..., cmv = NULL) {
-  me_cmv_cov(x = x, me_data = me_data, ... = ..., original_data = original_df, cmv = cmv)
+  me_cmv_cov(x = x, me_data = me_data, ... = ..., data = original_df, cmv = cmv)
 }
 
 test_cor_cov(partial_cov, "me_cmv_cov")
@@ -299,7 +299,7 @@ test_that("me_cmv_cov returns correct calculation", {
                 me_df,
                 ppltrst,
                 trstplt,
-                original_data = ess7es3var)
+                data = ess7es3var)
   tmp_corrected_cov <- as.data.frame(tst_corrected_cov)
 
   correct_df <- data.frame(stringsAsFactors=FALSE,

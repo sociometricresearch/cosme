@@ -4,18 +4,19 @@
 \alias{me_cmv_cov}
 \title{Adjust a covariance matrix for Common Method Variance (CMV)}
 \usage{
-me_cmv_cov(x, me_data, ..., original_data, cmv = NULL)
+me_cmv_cov(x, me_data, ..., data, cmv = NULL)
 }
 \arguments{
 \item{x}{a covariance matrix, a covariance data frame or a covariance
 \code{tibble} given by \code{\link{me_covariance}}.}
 
-\item{me_data}{a data frame or tibble of class \code{me}.}
+\item{me_data}{a data frame of class \code{me} containing
+quality estimates from the variables specified in \code{...}.}
 
 \item{...}{two or more variables present in both \code{x} and \code{me_data}. Can
 be both in bare unquoted names or as character strings.}
 
-\item{original_data}{A data frame containing the original data for variables specified
+\item{data}{A data frame containing the data for variables specified
 in \code{...}. These are the original columns of the variables from the covariance
 matrix supplied in \code{x}.}
 
@@ -57,7 +58,6 @@ me_df <-
  reliability = c(NA, 0.4, 0.5, 0.5, 0.7),
  validity = c(NA, NA, 0.6, 0.7, 0.8))
 
-me_df <- structure(me_df, class = c(class(me_df), "me"))
 
 # Show that when y is not from me class, there's an error
 
@@ -66,7 +66,7 @@ cov_tibble
 
 # Coefficient of covariance changes
 # when adjusting for common method variance
-me_cmv_cov(cov_tibble, me_df, V4, V5, original_data = original_df)
+me_cmv_cov(cov_tibble, me_df, V4, V5, data = original_df)
 
 # The V5*V4 from both the upper/lower triangles
 # covariance matrix changed from -181 to -634

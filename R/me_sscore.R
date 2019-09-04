@@ -7,10 +7,12 @@
 #' @param me_data a data frame of class \code{me} containing
 #' quality estimates from the variables specified in \code{...}.
 #' 
-#' @param df a data frame which contains data for the variables specified
+#' @param data a data frame which contains data for the variables specified
 #' in \code{...}.
+#' 
 #' @param new_name a bare unquoted name or a string specifying the name
 #' of the new sum score.
+#' 
 #' @param ... bare unquoted names or separate strings specifying
 #' the variable names from which to estimate quality of their sum score.
 #' They all must be present in \code{me_data} and \code{df}. At minimum,
@@ -22,8 +24,8 @@
 #' weight.
 #'
 #' @param drop a logical stating whether to drop the questions that compose
-#' the sum score (specified in \code{...}) If \code{FALSE} it retains the original questions
-#' and the composite score.
+#' the sum score (specified in \code{...}) If \code{FALSE} it retains the
+#' original questions and the composite score.
 #'
 #' @return a \code{\link[tibble]{tibble}} similar to \code{me_data} but
 #' with a new row containing the quality of a sum score with the name
@@ -55,20 +57,20 @@
 #'
 #' me_sscore(
 #' me_data = me_df,
-#' df = sample_data,
+#' data = sample_data,
 #' new_name = new_sumscore,
 #' V3, V4
 #' )
 #'
 #' me_sscore(
 #' me_data = me_df,
-#' df = sample_data,
+#' data = sample_data,
 #' new_name = new_sumscore,
 #' "V1", "V2"
 #' )
 #'
 #'
-me_sscore <- function(me_data, df, new_name, ..., wt = NULL, drop = TRUE) {
+me_sscore <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
 
   # Check me data has correct class and formats
   me_data <- me_reconstruct(me_data)
@@ -78,10 +80,10 @@ me_sscore <- function(me_data, df, new_name, ..., wt = NULL, drop = TRUE) {
   vars_names <- unique(as.character(substitute(list(...)))[-1])
   summary_name <- unique(as.character(substitute(new_name)))
 
-  # Check all variables present in df
-  vars_not_matched <- !vars_names %in% names(df)
+  # Check all variables present in data
+  vars_not_matched <- !vars_names %in% names(data)
   if (any(vars_not_matched)) {
-    stop("One or more variables are not present in `df`: ",
+    stop("One or more variables are not present in `data`: ",
          paste0(vars_names[vars_not_matched], collapse = ", "),
          call. = FALSE)
   }
@@ -94,14 +96,14 @@ me_sscore <- function(me_data, df, new_name, ..., wt = NULL, drop = TRUE) {
          call. = FALSE)
   }
 
-  the_vars <- df[vars_names]
+  the_vars <- data[vars_names]
 
-  # Check all variables are numeric and there are at least two columns in the df data
+  # Check all variables are numeric and there are at least two columns in the data data
   if (!all(vapply(the_vars, is.numeric, FUN.VALUE = logical(1)))) {
-    stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `df`")
+    stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `data`")
   }
 
-  if (ncol(the_vars) < 2) stop("`df` must have at least two columns")
+  if (ncol(the_vars) < 2) stop("`data` must have at least two columns")
 
   # Select the rows with only the selected variales
   # for the sumscore
@@ -129,8 +131,8 @@ me_sscore <- function(me_data, df, new_name, ..., wt = NULL, drop = TRUE) {
   correct_order <- c("question", me_env$me_columns)
   new_order <- combined_matrix[c(correct_order, setdiff(names(combined_matrix), correct_order))]
 
-  final_df <- me_reconstruct(new_order)
-  final_df
+  final_data <- me_reconstruct(new_order)
+  final_data
 }
 
 # This is not supposed to be used in isolation.

@@ -4,12 +4,14 @@
 \alias{me_bind_metrics}
 \title{Manually bind new rows to an me data frame}
 \usage{
-me_bind_metrics(me_data, question, metrics)
+me_bind_metrics(me_data, question_name, metrics)
 }
 \arguments{
-\item{me_data}{a \code{data frame} or \code{tibble} of class \code{me}}
+\item{me_data}{a data frame of class \code{me} containing
+quality estimates from the variables specified in \code{...}.}
 
-\item{question}{a character string that will be used as the question name}
+\item{question_name}{a character string or a bare unquoted name that will be
+used as the question name}
 
 \item{metrics}{a list containing new  metrics. Currently it only
 supports 'quality', 'reliability' and 'validity'. Can also specify one of the metrics
@@ -45,7 +47,6 @@ me_bind_metrics(me_df, new_question, list(quality = 0.7, reliability = 0.2))
 \dontrun{
 
 me_bind_metrics(me_df, new_question, list(wrong_metric = 0.7))
-# Error: One or more of the specified `metrics` don't match the me column names
 
 }
 

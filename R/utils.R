@@ -77,10 +77,12 @@ me_env$question_variables <- c("id",
                                "country_iso",
                                "language_iso")
 
+me_env$me_columns <- c("reliability", "validity", "quality")
+
 me_env$short_estimate_variables <-
   paste0(
     "prediction.",
-    c("reliability", "validity", "quality")
+    me_env$me_columns
   )
 
 me_env$all_estimate_variables <- c("question",
@@ -108,4 +110,3 @@ me_env$all_estimate_variables <- c("question",
                                     "qualityCoefficientStdError"
                                     )
 
-me_env$me_columns <- c("reliability", "validity", "quality")

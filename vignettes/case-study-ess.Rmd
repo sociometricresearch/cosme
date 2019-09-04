@@ -131,9 +131,9 @@ For example, this code..
 ```{r}
 
 me_sscore(me_data = me_data,
-           df = ess7es,
-           new_name = poltrst,
-           trstprl, trstplt, trstprt)
+          data = ess7es,
+          new_name = poltrst,
+          trstprl, trstplt, trstprt)
 
 ```
 
@@ -143,9 +143,9 @@ creates a new variable called `poltrst` which will have the quality of the sum s
 
 Quality <-
   me_data %>%
-  me_sscore(df = ess7es, new_name = poltrst, trstprl, trstplt, trstprt) %>%
-  me_sscore(df = ess7es, new_name = serv, stfedu, stfhlth) %>%
-  me_sscore(df = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt) 
+  me_sscore(data = ess7es, new_name = poltrst, trstprl, trstplt, trstprt) %>%
+  me_sscore(data = ess7es, new_name = serv, stfedu, stfhlth) %>%
+  me_sscore(data = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt) 
 
 ```
 
@@ -205,11 +205,11 @@ original_corr_2
 ```{r}
 
 corr_q2 <-
-  me_correlate(x = ess7escorr,
-                diag_adj = Quality$quality,
-                wt = pspwght,
-                use = "complete.obs",
-                method = "pearson")
+  me_correlate(data = ess7escorr,
+               diag_adj = Quality$quality,
+               wt = pspwght,
+               use = "complete.obs",
+               method = "pearson")
 
 corr_q2
 
@@ -224,8 +224,8 @@ For variables which are measured with the same method, we want to account for th
 #subtract the cmv from the observed correlation
 corr_q2_cmv <-
   me_cmv_cor(x = corr_q2,
-              me_data = Quality,
-              stfeco, stflife)
+             me_data = Quality,
+             stfeco, stflife)
 
 corr_q2_cmv
 

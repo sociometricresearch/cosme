@@ -4,11 +4,11 @@
 \alias{me_covariance}
 \title{Calculate a covariance matrix with an adjusted diagonal}
 \usage{
-me_covariance(x, diag_adj = 1, wt = NULL, use = "complete.obs",
+me_covariance(data, diag_adj = 1, wt = NULL, use = "complete.obs",
   method = "pearson")
 }
 \arguments{
-\item{x}{a matrix or data frame with numeric columns.}
+\item{data}{a matrix or data frame with numeric columns.}
 
 \item{diag_adj}{a numeric vector with length equal to the number of columns
 of \code{x} to be multiplied by the diagonal.  Alternatively, it can be of

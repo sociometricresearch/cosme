@@ -11,7 +11,8 @@
 #' @param x a correlation matrix, a correlation data frame or a correlation
 #'  \code{tibble} given by \code{\link{me_correlate}}.
 #'
-#' @param me_data a data frame or tibble of class \code{me}.
+#' @param me_data a data frame of class \code{me} containing
+#' quality estimates from the variables specified in \code{...}.
 #'
 #' @param ... two or more variables present in both \code{x} and \code{me_data}. Can
 #' be both in bare unquoted names or as character strings.

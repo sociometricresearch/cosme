@@ -4,13 +4,13 @@
 \alias{me_sscore}
 \title{Calculate quality of sum score of selected variables}
 \usage{
-me_sscore(me_data, df, new_name, ..., wt = NULL, drop = TRUE)
+me_sscore(me_data, data, new_name, ..., wt = NULL, drop = TRUE)
 }
 \arguments{
 \item{me_data}{a data frame of class \code{me} containing
 quality estimates from the variables specified in \code{...}.}
 
-\item{df}{a data frame which contains data for the variables specified
+\item{data}{a data frame which contains data for the variables specified
 in \code{...}.}
 
 \item{new_name}{a bare unquoted name or a string specifying the name
@@ -27,8 +27,8 @@ sum scores of all variable. Be default, all variables are given the same
 weight.}
 
 \item{drop}{a logical stating whether to drop the questions that compose
-the sum score (specified in \code{...}) If \code{FALSE} it retains the original questions
-and the composite score.}
+the sum score (specified in \code{...}) If \code{FALSE} it retains the
+original questions and the composite score.}
 }
 \value{
 a \code{\link[tibble]{tibble}} similar to \code{me_data} but
@@ -64,14 +64,14 @@ sample_data <-
 
 me_sscore(
 me_data = me_df,
-df = sample_data,
+data = sample_data,
 new_name = new_sumscore,
 V3, V4
 )
 
 me_sscore(
 me_data = me_df,
-df = sample_data,
+data = sample_data,
 new_name = new_sumscore,
 "V1", "V2"
 )

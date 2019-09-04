@@ -23,7 +23,7 @@ test_that("me_sscore returns correct output", {
   result <-
     me_sscore(
       me_data = me_df,
-      df = sample_data,
+      data = sample_data,
       new_name = new_sumscore,
       V3, V4
     )
@@ -40,7 +40,7 @@ test_that("me_sscore uses only unique variable names", {
   result <-
     me_sscore(
       me_data = me_df,
-      df = sample_data,
+      data = sample_data,
       new_name = new_sumscore,
       V3, V4, V4
     )
@@ -57,7 +57,7 @@ test_that("me_sscore keeps variables that compose the sum score", {
   result <-
     me_sscore(
       me_data = me_df,
-      df = sample_data,
+      data = sample_data,
       new_name = new_sumscore,
       V3, V4, V4,
       drop = FALSE
@@ -93,9 +93,9 @@ test_that("me_sscore checks for arguments", {
   expect_error(
     me_sscore(
       me_data = me_df,
-      df = sample_data,
+      data = sample_data,
       new_name = new_sumscore),
-    "`df` must have at least two columns"
+    "`data` must have at least two columns"
   )
 
   tmp <- sample_data
@@ -104,10 +104,10 @@ test_that("me_sscore checks for arguments", {
   expect_error(
     me_sscore(
       me_data = me_df,
-      df = tmp,
+      data = tmp,
       new_name = new_sumscore,
       V1, V5),
-    "V1, V5 must be numeric variables in `df`"
+    "V1, V5 must be numeric variables in `data`"
   )
 
   ## NOTEEEE##
@@ -118,16 +118,16 @@ test_that("me_sscore checks variables are in both dfs", {
   expect_error(
     me_sscore(
       me_data = me_df,
-      df = sample_data,
+      data = sample_data,
       new_name = new_sumscore,
       V1, random_var),
-    "One or more variables are not present in `df`: random_var"
+    "One or more variables are not present in `data`: random_var"
   )
 
   expect_error(
     me_sscore(
       me_data = me_df,
-      df = sample_data,
+      data = sample_data,
       new_name = new_sumscore,
       V1, V6),
     "One or more variables are not present in `me_data`: V6"
@@ -140,14 +140,14 @@ test_that("me_sscore adds me class to valid me_data", {
 
   noclass <- me_sscore(
     me_data = tmp,
-    df = sample_data,
+    data = sample_data,
     new_name = new_sumscore,
     V1, V2
   )
 
   valid_class <- me_sscore(
     me_data = me_df,
-    df = sample_data,
+    data = sample_data,
     new_name = new_sumscore,
     V1, V2
   )

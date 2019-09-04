@@ -1,7 +1,9 @@
 #' Manually bind new rows to an me data frame
 #'
-#' @param me_data a \code{data frame} or \code{tibble} of class \code{me}
-#' @param question a character string that will be used as the question name
+#' @param me_data a data frame of class \code{me} containing
+#' quality estimates from the variables specified in \code{...}.
+#' @param question_name a character string or a bare unquoted name that will be
+#' used as the question name
 #' @param metrics a list containing new  metrics. Currently it only
 #' supports 'quality', 'reliability' and 'validity'. Can also specify one of the metrics
 #' and the remaining are set to NA by default
@@ -36,18 +38,17 @@
 #'\dontrun{
 #'
 #' me_bind_metrics(me_df, new_question, list(wrong_metric = 0.7))
-#' # Error: One or more of the specified `metrics` don't match the me column names
 #'
 #'}
 #'
 #' # Currently only quality, reliability and validity are allowed.
 #'
-me_bind_metrics <- function(me_data, question, metrics) {
+me_bind_metrics <- function(me_data, question_name, metrics) {
 
   me_reconstruct(me_data)
 
-  question_name <- as.character(substitute(question))
+  new_question <- as.character(substitute(question_name))
 
-  binded_me <- dplyr::bind_rows(me_data, me_construct_(question_name, metrics))
+  binded_me <- dplyr::bind_rows(me_data, me_construct_(new_question, metrics))
   binded_me
 }

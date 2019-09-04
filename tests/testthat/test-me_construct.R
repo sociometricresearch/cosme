@@ -28,7 +28,7 @@ test_that("me_construct handles arguments in correct format", {
 
   expect_error(
     me_construct(one_question, list(quality = 0.3, hey = 0.2)),
-    "One or more of the specified `metrics` don't match the me column names"
+    "One or more of the specified `metrics` don't match column names. Should be: reliability, validity, quality" #nolintr
     )
 
   expect_error(
