@@ -14,6 +14,7 @@ selected_vars <- c("ppltrst",
                    "stflife",
                    "stfeco")
 
+set_email("cimentadaj@gmail.com")
 # Download the ESS data and clear missing values
 ess4es_complete <- import_country("Spain", 4)[c("idno", selected_vars)]
 
@@ -21,7 +22,8 @@ ess4es_complete <- import_country("Spain", 4)[c("idno", selected_vars)]
 ess4es <- ess4es_complete[complete.cases(ess4es_complete[, -1]), selected_vars]
 
 # Download SQP data
-sqp_login()
+sqp_login("asqme", "asqme")
+
 quality <-
   get_sqp(
     study = "ESS Round 4",
@@ -35,7 +37,8 @@ quality <- quality[match(selected_vars, quality$question), ]
 
 # Exploratory correlation matrix (in order of the columns in data frame):
 original_corr <- cor(ess4es, use = "complete.obs", method = "pearson")
-corrected_corr <- me_correlate(x = ess4es, diag_adj = quality$quality)
+# here
+corrected_corr <- me_correlate(data = ess4es, diag_adj = quality$quality)
 
 # subtract the cmv from the observed correlation
 corrected_corr <-
@@ -44,19 +47,20 @@ corrected_corr <-
   me_cmv_cor(me_data = quality, ppltrst, trstprl)
 
 corrected_corr <- cov2cor(as.matrix(corrected_corr[, -1]))
+
 model <- "ppltrst ~ stflife + trstprl + stfeco"
 
 # Model based on original correlation matrix
 fit <-
   sem(model,
-      sample.cov=original_corr,
-      sample.nobs= nrow(ess4es)) 
+      sample.cov = original_corr,
+      sample.nobs = nrow(ess4es)) 
 
 # Model based on corrected correlation matrix 
 fit_corrected <-
   sem(model,
-      sample.cov=corrected_corr,
-      sample.nobs= nrow(ess4es)) 
+      sample.cov = corrected_corr,
+      sample.nobs = nrow(ess4es)) 
 
 
 weight_vars <- c("idno", "psu", "stratify", "prob")

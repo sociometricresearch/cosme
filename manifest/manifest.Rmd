@@ -150,6 +150,7 @@ selected_vars <- c("ppltrst",
                    "stflife",
                    "stfeco")
 
+set_email("cimentadaj@gmail.com")
 # Download the ESS data and clear missing values
 ess4es_complete <- import_country("Spain", 4)[c("idno", selected_vars)]
 ess4es <- ess4es_complete[complete.cases(ess4es_complete[, -1]), selected_vars]
@@ -164,7 +165,7 @@ quality <-
     lang = "spa"
   )
 
-# Same order 
+# Force variables in the same order 
 quality <- quality[match(selected_vars, quality$question), ]
 
 # Correlation matrix with quality in diagonal:
@@ -317,3 +318,342 @@ tse_result <-
 ```
 
 These are easy to understand steps and make the process linear when definition the Total Survey Error framework. The advantages of this process is that most of the estimation happening here is done through `lavaan` which is a package very mature. This means that all processes will revert back to the argument checking, estimation strategies and errors raised by the package. Moreover, the result will always be of class `lavaan`, which means that it can be used with **any** other function from the lavaan software (`summary`, `coef`, `parameterEstimates`, etc..) as well as other packages (`broom`).
+
+# Syntax parsing
+
+```{r }
+
+model.syntax <-
+  "#1)
+   sumscore = var1 + var2
+
+   #2)
+   # std_sumscore1 = std(var3 + var4)
+   # std_sumscore2 = std(var5 + var6)
+
+   #3)
+   ~ var7 + var8
+
+   #4)
+   ~ var9 + sumscore
+
+   #5)
+   ~ var10 + std_sumscore1
+
+   #6)
+   ~ sumscore + std_sumscore1
+
+   #7)
+   ~ std_sumscore1 + std_sumscore2"
+
+
+as.data.frame. = FALSE
+warn = TRUE
+debug = FALSE
+
+operators <- c("~", "=")
+
+me_parse_model_str <- function(model.syntax = " ",
+                               as.data.frame. = TRUE,
+                               warn = TRUE,
+                               debug = FALSE) {
+
+  if (length(model.syntax) == 0) {
+    stop("Empty model syntax")
+  }
+
+  # Delete comments
+  model.syntax <- gsub("[#!].*(?=\n)", "", model.syntax, perl = TRUE)
+  # Delete lines separated by ;
+  model.syntax <- gsub(";", "\n", model.syntax, fixed = TRUE)
+  # Delete tabs spaces
+  model.syntax <- gsub("[ \t]+", "", model.syntax, perl = TRUE)
+  # Delete new spaces of more than 2 to only one
+  model.syntax <- gsub("\n{2,}", "\n", model.syntax, perl = TRUE)
+  # separate intro vector
+  model <- unlist(strsplit(model.syntax, "\n"))
+
+  # Figure out lines which have operators to exclude other lines
+  start.idx <-
+    grep(
+      paste0("[", paste0(operators, collapse = ""), "]", collapse = ""),
+      model
+    )
+
+  if (length(start.idx) == 0L) {
+    stop("Model does not contain measurement error syntax (operators must be one of ", paste0("'", operators, "'", collapse = ", "), ")") #nolintr
+  }
+  
+  if (start.idx[1] > 1L) {
+    for (el in 1:(start.idx[1] - 1L)) {
+      if (nchar(model[el]) > 0L) {
+        warning("No operator found in this syntax line: ",
+                model[el], "\n",
+                "This syntax line will be ignored!")
+      }
+    }
+  }
+
+  end.idx <- c(start.idx[-1] - 1, length(model))
+  model.orig <- model
+  model <- character(length(start.idx))
+
+  for (i in 1:length(start.idx)) {
+    model[i] <- paste(model.orig[start.idx[i]:end.idx[i]], collapse = "")
+  }
+
+  idx.wrong <-
+    which(
+      !grepl(paste0("[", paste0(operators, collapse = ""), "]"), model)
+    )
+
+  if (length(idx.wrong) > 0) {
+    cat("Missing operator in formula(s):\n")
+    print(model[idx.wrong])
+    stop("Syntax error in measurement error model syntax")
+  }
+
+  idx.wrong <- which(grepl("^\\+", model))
+  if (length(idx.wrong) > 0) {
+    cat("Some formula(s) start with a plus (+) sign:\n")
+    print(model[idx.wrong])
+    stop("Syntax error in measurement error model syntax")
+  }
+
+  ind_formula <- grep("^~", model)
+  model[ind_formula] <- paste0("X", seq_along(ind_formula), model[ind_formula])
+  
+  FLAT.lhs <- character(0)
+  FLAT.op <- character(0)
+  FLAT.rhs <- character(0)
+  FLAT.rhs.mod.idx <- integer(0)
+  FLAT.idx <- 0L
+  MOD.idx <- 0L
+
+  for (i in 1:length(model)) {
+    x <- model[i]
+    if (debug) {
+      cat("Formula to parse:\n")
+      print(x)
+      cat("\n")
+    }
+    
+    if (grepl(operators[1], x, fixed = TRUE)) {
+      op <- operators[1]
+    } else if (grepl(operators[2], x, fixed = TRUE)) {
+      op <- operators[2]
+    } else {
+      stop("unknown operator in ", model[i])
+    }
+
+    # Identify where the operator is
+    op.idx <- regexpr(op, x)
+
+    # Separate string
+    lhs <- substr(x, 1L, op.idx - 1L)
+    rhs <- substr(x, op.idx + attr(op.idx, "match.length"), nchar(x))
+
+    if (substr(rhs, 1, 1) == "+") {
+      rhs <- substr(rhs, 2, nchar(rhs))
+    }
+
+    LHS <- strsplit(lhs, split = "+", fixed = TRUE)[[1]]
+    LHS <- gsub("^\\S*\\*", "", LHS)
+
+    if (!all(make.names(LHS) == LHS)) {
+      stop("Left hand side (lhs) of this formula:\n    ", 
+           lhs,
+           " ",
+           op,
+           " ",
+           rhs,
+           "\n    contains a reserved word (in R): ", 
+           dQuote(LHS[!make.names(LHS) == LHS]),
+           "\n    see ?reserved for a list of reserved words in R", 
+           "\n    please use a variable name that is not a reserved word in R"
+           )
+    }
+
+    rhs_empty <- op == "~" & (rhs == "" | rhs == "1")
+    if (rhs_empty) {
+      stop("Right hand side (rhs) of this formula:\n  ", 
+           lhs,
+           " ",
+           op,
+           " ",
+           rhs,
+           "\n  is empty"
+           )
+
+    }
+
+    
+    lhs.names <- lhs
+
+    rhs <- gsub("\\(?([-]?[0-9]*\\.?[0-9]*)\\)?\\?", "start(\\1)\\*", rhs)
+    rhs.formula <- as.formula(paste("~", rhs))
+    out <- syntax_parse_rhs(rhs = rhs.formula[[2L]], op = op)
+
+    if (debug) print(out)
+    
+    for (l in 1:length(lhs.names)) {
+      for (j in 1:length(out)) {
+        rhs.name <- names(out)[j]
+        
+        FLAT.idx <- FLAT.idx + 1L
+        FLAT.lhs[FLAT.idx] <- lhs.names[l]
+        FLAT.op[FLAT.idx] <- op
+        FLAT.rhs[FLAT.idx] <- rhs.name
+        mod <- list()
+        rhs.mod <- 0L
+
+        FLAT.rhs.mod.idx[FLAT.idx] <- rhs.mod
+        if (rhs.mod > 0L) {
+          MOD.idx <- MOD.idx + 1L
+        }
+      }
+    }
+  }
+
+  mod.idx <- which(FLAT.rhs.mod.idx > 0L)
+  FLAT.rhs.mod.idx[mod.idx] <- 1:length(mod.idx)
+
+  FLAT <- list(lhs = FLAT.lhs,
+               op = FLAT.op,
+               rhs = FLAT.rhs, 
+               mod.idx = FLAT.rhs.mod.idx
+               )
+
+
+  if (as.data.frame.) {
+    FLAT <- as.data.frame(FLAT, stringsAsFactors = FALSE)
+  }
+
+  FLAT
+}
+
+syntax_parse_rhs <- function (rhs, op = "") {
+  out <- list()
+  repeat {
+    if (length(rhs) == 1L) {
+      out <- c(vector("list", 1L), out)
+      NAME <- all.vars(rhs)
+      if (length(NAME) > 0L) {
+        names(out)[1L] <- NAME
+      }
+      else {
+        if (as.character(rhs) == "1") {
+          names(out)[1L] <- "intercept"
+        }
+        else if (as.character(rhs) == "0") {
+          names(out)[1L] <- "..zero.."
+          out[[1L]]$fixed <- 0
+        }
+        else {
+          names(out)[1L] <- "..constant.."
+          out[[1L]]$fixed <- 0
+        }
+      }
+      break
+    }
+    else if (rhs[[1L]] == "*") {
+      out <- c(vector("list", 1L), out)
+      NAME <- all.vars(rhs[[3L]])
+      if (length(NAME) > 0L) {
+        rhs3.names <- all.names(rhs[[3L]])
+        if (rhs3.names[1L] == ":") {
+          NAME <- paste(NAME[1L], ":", NAME[2L], sep = "")
+        }
+        names(out)[1L] <- NAME
+      }
+      else {
+        names(out)[1L] <- "intercept"
+      }
+      i.var <- all.vars(rhs[[2L]], unique = FALSE)
+      if (length(i.var) > 0L) {
+        out[[1L]]$label <- i.var
+      }
+      else {
+        out[[1L]] <- lav_syntax_get_modifier(rhs[[2L]])
+      }
+      break
+    }
+    else if (rhs[[1L]] == ":") {
+      out <- c(vector("list", 1L), out)
+      NAME <- all.vars(rhs)
+      NAME <- paste(NAME[1L], ":", NAME[2L], sep = "")
+      names(out)[1L] <- NAME
+      break
+    }
+    else if (rhs[[1L]] == "+") {
+      out <- c(vector("list", 1L), out)
+      if (length(rhs[[3L]]) == 3L && rhs[[3L]][[1]] == 
+            "*") {
+        NAME <- all.vars(rhs[[3L]][[3]])
+        if (length(NAME) > 0L) {
+          rhs3.names <- all.names(rhs[[3L]][[3]])
+          if (rhs3.names[1L] == ":") {
+            NAME <- paste(NAME[1L], ":", NAME[2L], sep = "")
+          }
+          names(out)[1L] <- NAME
+        }
+        else {
+          names(out)[1L] <- "intercept"
+        }
+        i.var <- all.vars(rhs[[3]][[2L]], unique = FALSE)
+        if (length(i.var) > 0L) {
+          out[[1L]]$label <- i.var
+        }
+        else {
+          out[[1L]] <- lav_syntax_get_modifier(rhs[[3]][[2L]])
+        }
+      }
+      else if (length(rhs[[3L]]) == 3L && rhs[[3L]][[1]] == 
+                 ":") {
+        NAME <- all.vars(rhs[[3L]])
+        NAME <- paste(NAME[1L], ":", NAME[2L], sep = "")
+        names(out)[1L] <- NAME
+      }
+      else {
+        NAME <- all.vars(rhs[[3]])
+        if (length(NAME) > 0L) {
+          names(out)[1L] <- NAME
+        }
+        else {
+          if (as.character(rhs[[3]]) == "1") {
+            names(out)[1L] <- "intercept"
+          }
+          else if (as.character(rhs[[3]]) == "0") {
+            names(out)[1L] <- "..zero.."
+            out[[1L]]$fixed <- 0
+          }
+          else {
+            names(out)[1L] <- "..constant.."
+            out[[1L]]$fixed <- 0
+          }
+        }
+      }
+      rhs <- rhs[[2L]]
+    }
+    else {
+      stop("lavaan ERROR: I'm confused parsing this line: ", 
+           rhs, "\n")
+    }
+  }
+  if (length(out) > 1L) {
+    rhs.names <- names(out)
+    while (!is.na(idx <- which(duplicated(rhs.names))[1L])) {
+      dup.name <- rhs.names[idx]
+      orig.idx <- match(dup.name, rhs.names)
+      merged <- c(out[[orig.idx]], out[[idx]])
+      if (!is.null(merged)) 
+        out[[orig.idx]] <- merged
+      out <- out[-idx]
+      rhs.names <- names(out)
+    }
+  }
+  out
+}
+
+
+```
