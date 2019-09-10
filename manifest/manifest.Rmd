@@ -237,7 +237,9 @@ We need to be able to define:
 3) When observed variables share a common method (defined as `~`) 
 4) When observed variable shares common method with a sumscore (defined similarly as `~`) 
 5) When observed variable shares common method with a standardized sumscore (defined similarly as `~`) 
-6) When a sum score shares common method with a standardized sumscore (defined similarly as `~`) 7) When a standardized sumscore shares common method with a standardized sumscore (defined similarly as `~`)
+6) When a sum score shares common method with a sum score (defined similarly as `~`)
+7) When a sum score shares common method with a standardized sumscore (defined similarly as `~`) 
+8) When a standardized sumscore shares common method with a standardized sumscore (defined similarly as `~`)
 
 Below is an attempt to generate the syntax that defines a model. All of the code below is pseudo code, so variable names are made up.
 
@@ -353,8 +355,29 @@ debug_code = FALSE
 
 operators <- c("~", "=")
 
-# What if I want to do normal operations on a sumscore, like *, /, sin, cos,
-# etc..
+# You left off in (1). lavaan doesn't seem to permit this.
+# It allows to provide starting values for each coefficient
+# but this is not flexible as it probably doesn't allow
+# stuff like sin(x1 * 2).
+
+# Once you finish that, you were thinking about how to
+# detect the specific operation of each CMV unit. For example,
+# if you have a CMV between an observed and sscore, how
+# would you translate that to the function that processes this
+# specific case? You were thinking of adding columns for
+# observed, sscore and std_sscore and then some sort
+# of combination between this to generate a string that
+# identifies the operation.
+
+# 1)
+# You need to fix the parser to include  normal operations on
+# a sumscore, like *, /, sin, cos, etc.. The rule is that they must
+# always be separate by a + because it's a sumscore
+
+# 2)
+# All variables in sumscore must be in the data
+# All variables in CMV must either in the data or the sscore definition
+
 
 me_parse_model_str <- function(model.syntax = " ",
                                as.data.frame. = TRUE,
