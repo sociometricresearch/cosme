@@ -75,9 +75,13 @@ me_sscore <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
   # Check me data has correct class and formats
   me_data <- me_reconstruct(me_data)
 
-  # Turn all variables into a list and delete the 'list'
-  # from the new character vector
-  vars_names <- unique(as.character(substitute(list(...)))[-1])
+  e_dots <- eval(substitute(alist(...)))
+  f_dots <- lapply(e_dots, function(x) {
+    if (is.name(x)) as.character(x) else eval(x)
+  })
+  
+  vars_names <- unique(unlist(f_dots))
+  if (is.null(vars_names)) vars_names <- character()
   summary_name <- unique(as.character(substitute(new_name)))
 
   # Check all variables present in data

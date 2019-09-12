@@ -64,7 +64,12 @@
 #' # correlation matrix changed from -0.05 to -0.203
 #'
 me_cmv_cor <- function(x, me_data, ..., cmv = NULL) {
-  cmv_vars <- unique(as.character(substitute(list(...)))[-1])
+  e_dots <- eval(substitute(alist(...)))
+  f_dots <- lapply(e_dots, function(x) {
+    if (is.name(x)) as.character(x) else eval(x)
+  })
+  
+  cmv_vars <- unique(unlist(f_dots))
 
   if (!(is.data.frame(x) | is.matrix(x))) {
     stop("`x` must be a correlation data frame or matrix")

@@ -94,7 +94,8 @@ test_that("me_sscore checks for arguments", {
     me_sscore(
       me_data = me_df,
       data = sample_data,
-      new_name = new_sumscore),
+      new_name = new_sumscore
+    ),
     "`data` must have at least two columns"
   )
 
