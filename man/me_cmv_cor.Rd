@@ -2,9 +2,12 @@
 % Please edit documentation in R/me_cmv_cor.R
 \name{me_cmv_cor}
 \alias{me_cmv_cor}
+\alias{me_cmv_cor_}
 \title{Adjust a correlation matrix for Common Method Variance (CMV)}
 \usage{
 me_cmv_cor(x, me_data, ..., cmv = NULL)
+
+me_cmv_cor_(x, me_data, cmv_vars, cmv = NULL)
 }
 \arguments{
 \item{x}{a correlation matrix, a correlation data frame or a correlation
@@ -20,6 +23,9 @@ be both in bare unquoted names or as character strings.}
 CMV coefficient of the variables specified in \code{...}.
 This argument is left available if the user has reasons to input their own CMV.
 By default, it is set to NULL and it is calculated internally.}
+
+\item{cmv_vars}{two or more variables present in both \code{x} and \code{me_data}. Only
+as a character vector.}
 }
 \value{
 the same matrix supplied in \code{x} but as a tibble with
@@ -30,13 +36,14 @@ If \code{x}  had row names, they're moved as a column called
 column is created with the column names to mimic a correlation matrix.
 }
 \description{
-\code{me_cmv_cov} accepts a correlation matrix, a correlation data frame or a correlation
+\code{me_cmv_cor} accepts a correlation matrix, a correlation data frame or a correlation
 tibble from \code{\link{me_correlate}}
 and adjusts the coefficients of the variables specified
-in  \code{...} with the reliability and validity coefficients from \code{me}.
+in  \code{...} with the reliability and validity coefficients from \code{me_data}.
 All variables specified in \code{...} must be present in both \code{x}
 and \code{me_data}. Optionally, you can supply the cmv coefficient in the
-argument \code{cmv}.
+argument \code{cmv}. Use \code{me_cmv_cor_} if you're interested in programming
+with \code{me_cmv_cor}.
 }
 \examples{
 

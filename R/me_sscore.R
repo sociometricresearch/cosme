@@ -1,8 +1,9 @@
 #' Calculate quality of sum score of selected variables
 #'
 #' \code{me_sscore} takes a data frame with quality estimates of class
-#'  \code{me} and estimates the quality of a sum score for
-#'  selected variables in \code{...}.
+#' \code{me} and estimates the quality of a sum score for
+#' selected variables in \code{...}. Use \code{me_sscore_} if you're
+#' interested in programming with \code{me_sscore}
 #'
 #' @param me_data a data frame of class \code{me} containing
 #' quality estimates from the variables specified in \code{...}.
@@ -26,6 +27,11 @@
 #' @param drop a logical stating whether to drop the questions that compose
 #' the sum score (specified in \code{...}) If \code{FALSE} it retains the
 #' original questions and the composite score.
+#'
+#' @param vars_names character vector specifying the variable names from
+#' which to estimate quality of their sum score. They all must be present
+#' in \code{me_data} and \code{df}. At minimum, it must be two or more
+#' variable names.
 #'
 #' @return a \code{\link[tibble]{tibble}} similar to \code{me_data} but
 #' with a new row containing the quality of a sum score with the name
@@ -70,11 +76,7 @@
 #' )
 #'
 #'
-me_sscore <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
-
-  # Check me data has correct class and formats
-  me_data <- me_reconstruct(me_data)
-
+me_sscore  <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
   e_dots <- eval(substitute(alist(...)))
   f_dots <- lapply(e_dots, function(x) {
     if (is.name(x)) as.character(x) else eval(x)
@@ -82,7 +84,19 @@ me_sscore <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
   
   vars_names <- unique(unlist(f_dots))
   if (is.null(vars_names)) vars_names <- character()
-  summary_name <- unique(as.character(substitute(new_name)))
+
+  new_name <- unique(as.character(substitute(new_name)))
+
+  me_sscore_(me_data, data, new_name, vars_names, wt, drop)
+}
+#' @rdname me_sscore
+#' @export
+me_sscore_ <- function(me_data, data, new_name, vars_names, wt = NULL, drop = TRUE) {
+
+  # Check me data has correct class and formats
+  me_data <- me_reconstruct(me_data)
+
+  summary_name <- new_name
 
   # Check all variables present in data
   vars_not_matched <- !vars_names %in% names(data)

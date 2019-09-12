@@ -2,9 +2,12 @@
 % Please edit documentation in R/me_sscore.R
 \name{me_sscore}
 \alias{me_sscore}
+\alias{me_sscore_}
 \title{Calculate quality of sum score of selected variables}
 \usage{
 me_sscore(me_data, data, new_name, ..., wt = NULL, drop = TRUE)
+
+me_sscore_(me_data, data, new_name, vars_names, wt = NULL, drop = TRUE)
 }
 \arguments{
 \item{me_data}{a data frame of class \code{me} containing
@@ -29,6 +32,11 @@ weight.}
 \item{drop}{a logical stating whether to drop the questions that compose
 the sum score (specified in \code{...}) If \code{FALSE} it retains the
 original questions and the composite score.}
+
+\item{vars_names}{character vector specifying the variable names from
+which to estimate quality of their sum score. They all must be present
+in \code{me_data} and \code{df}. At minimum, it must be two or more
+variable names.}
 }
 \value{
 a \code{\link[tibble]{tibble}} similar to \code{me_data} but
@@ -37,8 +45,9 @@ specified in \code{new_name}.
 }
 \description{
 \code{me_sscore} takes a data frame with quality estimates of class
- \code{me} and estimates the quality of a sum score for
- selected variables in \code{...}.
+\code{me} and estimates the quality of a sum score for
+selected variables in \code{...}. Use \code{me_sscore_} if you're
+interested in programming with \code{me_sscore}
 }
 \examples{
 

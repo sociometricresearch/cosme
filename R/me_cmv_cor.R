@@ -1,12 +1,13 @@
 #' Adjust a correlation matrix for Common Method Variance (CMV)
 #'
-#' \code{me_cmv_cov} accepts a correlation matrix, a correlation data frame or a correlation
+#' \code{me_cmv_cor} accepts a correlation matrix, a correlation data frame or a correlation
 #' tibble from \code{\link{me_correlate}}
 #' and adjusts the coefficients of the variables specified
-#' in  \code{...} with the reliability and validity coefficients from \code{me}.
+#' in  \code{...} with the reliability and validity coefficients from \code{me_data}.
 #' All variables specified in \code{...} must be present in both \code{x}
 #' and \code{me_data}. Optionally, you can supply the cmv coefficient in the
-#' argument \code{cmv}.
+#' argument \code{cmv}. Use \code{me_cmv_cor_} if you're interested in programming
+#' with \code{me_cmv_cor}.
 #'
 #' @param x a correlation matrix, a correlation data frame or a correlation
 #'  \code{tibble} given by \code{\link{me_correlate}}.
@@ -21,6 +22,9 @@
 #' CMV coefficient of the variables specified in \code{...}.
 #' This argument is left available if the user has reasons to input their own CMV.
 #' By default, it is set to NULL and it is calculated internally.
+#'
+#' @param cmv_vars two or more variables present in both \code{x} and \code{me_data}. Only
+#' as a character vector.
 #'
 #' @return the same matrix supplied in \code{x} but as a tibble with
 #' the correlation coefficients of the variables supplied in \code{...}
@@ -70,6 +74,12 @@ me_cmv_cor <- function(x, me_data, ..., cmv = NULL) {
   })
   
   cmv_vars <- unique(unlist(f_dots))
+
+  me_cmv_cor_(x, me_data, cmv_vars, cmv)
+}
+#' @rdname me_cmv_cor
+#' @export
+me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 
   if (!(is.data.frame(x) | is.matrix(x))) {
     stop("`x` must be a correlation data frame or matrix")
