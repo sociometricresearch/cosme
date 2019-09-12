@@ -25,7 +25,7 @@ more complicated framework, `cite:oberski_complex` introduced the package `lavaa
 ```{r eval = FALSE}
 # Load packages and data
 library(lavaan.survey)
-devtools::install_github("ropensci/essurvey")
+# devtools::install_github("ropensci/essurvey")
 library(essurvey)
 
 set_email("cimentadaj@gmail.com")
@@ -281,14 +281,14 @@ The strategy described above would have finally 3 steps that are transparent to 
 ```{r eval = FALSE}
 ess_spain <- # get your initial data
 
-# 1) Define survey design
-survey_design <-
-  svydesign(
-    ids = ~ psu + idno,
-    strata = ~ stratify,
-    weights = ~ prob,
-    data = ess_spain
-  )
+  # 1) Define survey design
+  survey_design <-
+    svydesign(
+      ids = ~ psu + idno,
+      strata = ~ stratify,
+      weights = ~ prob,
+      data = ess_spain
+    )
 
 # 2) Define measurement error design
 
@@ -323,14 +323,14 @@ These are easy to understand steps and make the process linear when definition t
 
 # Syntax parsing
 
-```{r }
+```{r}
 
 model.syntax <-
   "#1)
    sumscore = var1 + var2
 
    #2)
-   std_sumscore1 = std(var3 + var4)
+   std_sumscore1 = std(I(var3*w1 + w4 + sin(20)) + I(var4*w2) + I(var5*w3))
    # std_sumscore2 = std(var5 + var6)
 
    #3)
@@ -348,56 +348,27 @@ model.syntax <-
    #7)
    ~ std_sumscore1 + std_sumscore2"
 
-
-as.data.frame. = FALSE
-warn = TRUE
-debug_code = FALSE
-
 operators <- c("~", "=")
 
-# You left off in (1). lavaan doesn't seem to permit this.
-# It allows to provide starting values for each coefficient
-# but this is not flexible as it probably doesn't allow
-# stuff like sin(x1 * 2).
-
-# Once you finish that, you were thinking about how to
-# detect the specific operation of each CMV unit. For example,
-# if you have a CMV between an observed and sscore, how
-# would you translate that to the function that processes this
-# specific case? You were thinking of adding columns for
-# observed, sscore and std_sscore and then some sort
-# of combination between this to generate a string that
-# identifies the operation.
-
-# 1)
-# You need to fix the parser to include  normal operations on
-# a sumscore, like *, /, sin, cos, etc.. The rule is that they must
-# always be separate by a + because it's a sumscore
-
-# 2)
-# All variables in sumscore must be in the data
-# All variables in CMV must either in the data or the sscore definition
-
-
-me_parse_model_str <- function(model.syntax = " ",
-                               as.data.frame. = TRUE,
+me_parse_model <- function(model_syntax = " ",
+                               as_list = FALSE,
                                warn = TRUE,
                                debug_code = FALSE) {
 
-  if (length(model.syntax) == 0) {
-    stop("Empty measurement error model syntax")
+  if (length(model_syntax) == 0) {
+    stop("Empty measurement error model_syntax")
   }
 
   # Delete comments
-  model.syntax <- gsub("[#!].*(?=\n)", "", model.syntax, perl = TRUE)
+  model_syntax <- gsub("[#!].*(?=\n)", "", model_syntax, perl = TRUE)
   # Delete lines separated by ;
-  model.syntax <- gsub(";", "\n", model.syntax, fixed = TRUE)
+  model_syntax <- gsub(";", "\n", model_syntax, fixed = TRUE)
   # Delete tabs spaces
-  model.syntax <- gsub("[ \t]+", "", model.syntax, perl = TRUE)
+  model_syntax <- gsub("[ \t]+", "", model_syntax, perl = TRUE)
   # Delete new spaces of more than 2 to only one
-  model.syntax <- gsub("\n{2,}", "\n", model.syntax, perl = TRUE)
+  model_syntax <- gsub("\n{2,}", "\n", model_syntax, perl = TRUE)
   # separate intro vector
-  model <- unlist(strsplit(model.syntax, "\n"))
+  model <- unlist(strsplit(model_syntax, "\n"))
 
   # Figure out lines which have operators to exclude other lines
   start.idx <-
@@ -436,14 +407,14 @@ me_parse_model_str <- function(model.syntax = " ",
   if (length(idx.wrong) > 0) {
     cat("Missing operator in formula(s):\n")
     print(model[idx.wrong])
-    stop("Syntax error in measurement error model syntax")
+    stop("Syntax error in measurement error model_syntax")
   }
 
   idx.wrong <- which(grepl("^\\+", model))
   if (length(idx.wrong) > 0) {
     cat("Some formula(s) start with a plus (+) sign:\n")
     print(model[idx.wrong])
-    stop("Syntax error in measurement error model syntax")
+    stop("Syntax error in measurement error model_syntax")
   }
 
   ind_formula <- grep("^~", model)
@@ -470,7 +441,7 @@ me_parse_model_str <- function(model.syntax = " ",
     } else if (grepl(operators[2], x, fixed = TRUE)) {
       op <- operators[2]
     } else {
-      stop("Unknown operator in ", model[i])
+      stop("Unknown operator in ", model[i], ". Operators must be one of ", paste0("'", operators, "'", collapse = ", "), ".") #nolintr
     }
 
     # Identify where the operator is
@@ -529,8 +500,7 @@ me_parse_model_str <- function(model.syntax = " ",
       is_std <- FALSE
     }
 
-    rhs.formula <- as.formula(paste("~", rhs))
-    out <- syntax_parse_rhs(rhs = rhs.formula[[2L]], op = op)
+    out <- syntax_parse_rhs(rhs = as.formula(paste0("~", rhs)))
     
     if (debug_code) print(out)
     
@@ -543,7 +513,6 @@ me_parse_model_str <- function(model.syntax = " ",
         FLAT.op[FLAT.idx] <- op
         FLAT.rhs[FLAT.idx] <- rhs.name
         FLAT.std[FLAT.idx] <- is_std
-        mod <- list()
         rhs.mod <- 0L
 
         FLAT.rhs.mod.idx[FLAT.idx] <- rhs.mod
@@ -556,78 +525,50 @@ me_parse_model_str <- function(model.syntax = " ",
 
   mod.idx <- which(FLAT.rhs.mod.idx > 0L)
   FLAT.rhs.mod.idx[mod.idx] <- 1:length(mod.idx)
+  
+  FLAT <- data.frame(lhs = FLAT.lhs,
+                     op = FLAT.op,
+                     rhs = FLAT.rhs,
+                     std = FLAT.std,
+                     mod.idx = FLAT.rhs.mod.idx,
+                     stringsAsFactors = FALSE
+                     )
 
-  FLAT <- list(lhs = FLAT.lhs,
-               op = FLAT.op,
-               rhs = FLAT.rhs,
-               std = FLAT.std,
-               mod.idx = FLAT.rhs.mod.idx
-               )
+  sscore_df <- FLAT[FLAT$op == "=", ]
+  if (nrow(sscore_df) > 0) sscore_df$type  <- NA
 
+  name_ss <- vapply(
+    split(sscore_df, sscore_df$lhs),
+    function(x) unique(x$std),
+    FUN.VALUE = logical(1)
+  )
 
-  if (as.data.frame.) {
-    FLAT <- as.data.frame(FLAT, stringsAsFactors = FALSE)
+  cmv_df <- FLAT[FLAT$op == "~", ]
+
+  # If any variable has a standardized sscore, assign it name
+  # otherwise a sscore, otherwise just observed
+  cmv_df$type <-
+    with(cmv_df,
+         ifelse(rhs %in% names(name_ss[name_ss]), "ss_std",
+                ifelse(rhs %in% names(name_ss[!name_ss]), "ss", "observed")
+                )
+         )
+
+  final_df <- rbind(sscore_df, cmv_df)
+  final_df$std <- NULL
+
+  if (as_list) {
+    final_df <- lapply(final_df, identity)
   }
 
-  FLAT
+  final_df
 }
 
-syntax_parse_rhs <- function (rhs, op = "") {
+syntax_parse_rhs <- function (rhs) {
   out <- list()
-  repeat {
-    if (length(rhs) == 1L) {
-      out <- c(vector("list", 1L), out)
-      NAME <- all.vars(rhs)
-      names(out)[1L] <- NAME
-      break
-    } else if (rhs[[1L]] == "+") {
-      out <- c(vector("list", 1L), out)
-      if (length(rhs[[3L]]) == 3L && rhs[[3L]][[1]] == "*") {
-        NAME <- all.vars(rhs[[3L]][[3]])
-        if (length(NAME) > 0L) {
-          rhs3.names <- all.names(rhs[[3L]][[3]])
-          if (rhs3.names[1L] == ":") {
-            NAME <- paste(NAME[1L], ":", NAME[2L], sep = "")
-          }
-          names(out)[1L] <- NAME
-        } else {
-          names(out)[1L] <- "intercept"
-        }
 
-        i.var <- all.vars(rhs[[3]][[2L]], unique = FALSE)
-        if (length(i.var) > 0L) {
-          out[[1L]]$label <- i.var
-        }
-        else {
-          out[[1L]] <- lav_syntax_get_modifier(rhs[[3]][[2L]])
-        }
-      } else if (length(rhs[[3L]]) == 3L && rhs[[3L]][[1]] == ":") {
-        NAME <- all.vars(rhs[[3L]])
-        NAME <- paste(NAME[1L], ":", NAME[2L], sep = "")
-        names(out)[1L] <- NAME
-      } else {
-        NAME <- all.vars(rhs[[3]])
-        if (length(NAME) > 0L) {
-          names(out)[1L] <- NAME
-        } else {
-          if (as.character(rhs[[3]]) == "1") {
-            names(out)[1L] <- "intercept"
-          }
-          else if (as.character(rhs[[3]]) == "0") {
-            names(out)[1L] <- "..zero.."
-            out[[1L]]$fixed <- 0
-          }
-          else {
-            names(out)[1L] <- "..constant.."
-            out[[1L]]$fixed <- 0
-          }
-        }
-      }
-      rhs <- rhs[[2L]]
-    } else {
-      stop("I'm confused parsing this line: ", rhs, "\n")
-    }
-  }
+  all_terms <- attr(terms(rhs), "term.labels")
+  out <- setNames(vector("list", length(all_terms)), all_terms)
 
   if (length(out) > 1L) {
     rhs.names <- names(out)
@@ -641,8 +582,104 @@ syntax_parse_rhs <- function (rhs, op = "") {
       rhs.names <- names(out)
     }
   }
+  
   out
 }
 
+library(essurvey)
+selected_vars <- c("ppltrst",
+                   "trstprl",
+                   "stflife",
+                   "stfeco")
 
+ess_model <-
+  "# First cmv
+   ~ stflife + stfeco
+   # Second cmv
+   ~ ppltrst + trstprl
+   # Third cmv
+   ~ stflife + ppltrst"
+
+# Download the ESS data and clear missing values
+ess4es_complete <- import_country("Spain", 4)[selected_vars]
+
+parsed_model <-  me_parse_model(ess_model)
+
+me_data <- data.frame(stringsAsFactors=FALSE,
+                      question = c("ppltrst", "trstprl", "stflife", "stfeco"),
+                      reliability = c(0.729, 0.815, 0.655, 0.823),
+                      validity = c(0.951, 0.944, 0.94, 0.903),
+                      quality = c(0.693, 0.77, 0.615, 0.743)
+                      )
+
+cmv_df <- parsed_model[parsed_model$op == "~", ]
+selected_vars <- unique(cmv_df[, "rhs"])
+me_data <- me_data[match(selected_vars, me_data$question), ]
+
+qual_corr <- me_correlate(
+  ess4es_complete[, selected_vars],
+  diag_adj = me_data$quality
+)
+
+
+cmv_groups <- split(cmv_df, cmv_df$lhs)
+list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
+res <- me_cmv_cor_(qual_corr, me_data, list_cmv_vars[[1]])
+
+for (vars in list_cmv_vars[-1]) {
+  print(vars)
+  res <- me_cmv_cor_(res, me_data, vars)
+}
+
+res
+
+
+# You left off here
+# You already have a parser that works, and you have a working
+# example of correctiong for several observed variables for
+# their CMV.
+
+# Next step is to generalize to when you have sumscores. Sumscores
+# need to happen before any of this and the quality
+# of the sumscore needs to be added to the me_data before doing
+# any correlation. So start with a parser that extracts only sumscores
+# both standardized and normal, create this columns in the supplied
+# data and if any of the sumscores are used in the CMV, you need
+# to add it's quality in the me_data before doing any correlation.
+# After that, you can just calculate the CMV of an observed and a
+# composite score.
+
+# Once you finish that, you were thinking about how to
+# dispatch the specific operation of each CMV unit. For example,
+# if you have a CMV between an observed and sscore, how
+# would you translate that to the function that processes this
+# specific case? You were thinking of doing something
+# like a switch statemente to pass the desired function.
+# This is possible now that you have standard evaluation
+# functions for me_cmv_cor, me_cmv_cov and me_sscore.
+# This is nice because since the user does not have
+# room to add any arguments, so the function brought
+# from switch doesn't need to have any partial arguments.
+
+
+# When you got sscore + cmv working, you need to add the checks
+# of whether the sscore variables are indeed in the data.
+# This, I think, can be done automatically be model.matrix
+# if you pass the sumscores, taking out one manual check.
+
+# Then all variables in CMV must either in the data or the sscore definition
+# this you need to give an explicit check and raise an error.
+
+# I was thinking that `medesign` should accept the data, the me_data
+# and the model definition and it should only create the sscore variables
+# check that the cmv variables are in the data/me_data, create any quality
+# of the composite sscore. I think I don't have to extract the part that checks
+# which values are missing for the me_data because it's already done inside
+# the functions. However, look at it and if possible, move it to me design
+# so that all checks are done there.
+
+
+# Tests
+# when parsed string has the same variable used twice in CMV or sumscore,
+# everything is ok
 ```
