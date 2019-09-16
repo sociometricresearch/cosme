@@ -233,7 +233,7 @@ This function will lazily evaluate the arguments and delay the computation to an
 We need to be able to define:
 
 1) A sumscore (define with a `=`) 
-2) A standardized sumscore (defined with a `std()`) 
+2) A standardized sumscore (defined with a `std()` on the left hand side) 
 3) When observed variables share a common method (defined as `~`) 
 4) When observed variable shares common method with a sumscore (defined similarly as `~`) 
 5) When observed variable shares common method with a standardized sumscore (defined similarly as `~`) 
@@ -249,8 +249,8 @@ model_definition <-
    sumscore = var1 + var2
 
    #2)
-   std_sumscore1 = std(var3 + var4)
-   std_sumscore2 = std(var5 + var6)
+   std(sumscore1) = std(var3 + var4)
+   std(sumscore2) = std(var5 + var6)
 
    #3)
    ~ var7 + var8
@@ -327,10 +327,10 @@ These are easy to understand steps and make the process linear when definition t
 
 model.syntax <-
   "#1)
-   sumscore = var1 + var2
+   sumscore = var1 + var2 * var3
 
    #2)
-   std_sumscore1 = std(I(var3*w1 + w4 + sin(20)) + I(var4*w2) + I(var5*w3))
+   std(std_sumscore1) = var3*w1 + w4 + sin(20) + (var4*w2) + (var5*w3)
    # std_sumscore2 = std(var5 + var6)
 
    #3)
@@ -351,9 +351,9 @@ model.syntax <-
 operators <- c("~", "=")
 
 me_parse_model <- function(model_syntax = " ",
-                               as_list = FALSE,
-                               warn = TRUE,
-                               debug_code = FALSE) {
+                           as_list = FALSE,
+                           warn = TRUE,
+                           debug_code = FALSE) {
 
   if (length(model_syntax) == 0) {
     stop("Empty measurement error model_syntax")
@@ -428,6 +428,9 @@ me_parse_model <- function(model_syntax = " ",
   FLAT.idx <- 0L
   MOD.idx <- 0L
 
+  # Remove duplicates
+  model <- unique(model)
+
   for (i in 1:length(model)) {
     x <- model[i]
     if (debug_code) {
@@ -458,6 +461,19 @@ me_parse_model <- function(model_syntax = " ",
     LHS <- strsplit(lhs, split = "+", fixed = TRUE)[[1]]
     LHS <- gsub("^\\S*\\*", "", LHS)
 
+    # If it's standardized, replace it because syntax_parse_rhs
+    # fails with std() and save that it's std for later
+    std_sscore <- grepl("^std\\(.+\\)$", LHS)
+    if (op == "=" && std_sscore) {
+      LHS <- gsub("^std\\(|\\)$", "", LHS)
+
+      # Used below to detect the formula as std sscore
+      is_std <- TRUE
+    } else {
+      is_std <- FALSE
+    }
+
+
     if (!all(make.names(LHS) == LHS)) {
       stop("Left hand side (lhs) of this formula:\n    ", 
            lhs,
@@ -484,23 +500,18 @@ me_parse_model <- function(model_syntax = " ",
            )
     }
 
-    lhs.names <- lhs
+    lhs.names <- LHS
 
     rhs <- gsub("\\(?([-]?[0-9]*\\.?[0-9]*)\\)?\\?", "start(\\1)\\*", rhs)
 
-    # If it's standardized, replace it because syntax_parse_rhs
-    # fails with std() and save that it's std for later
-    std_sscore <- grepl("^std\\(.+\\)$", rhs)
-    if (std_sscore) {
-      rhs <- gsub("^std\\(|\\)$", "", rhs)
-
-      # Used below to detect the formula as std sscore
-      is_std <- TRUE
+    # If it's a sumscore, do not parse the rhs as it would evaluate
+    # things likes a * b to interactions when we just want them as
+    # operations
+    if (op == "=") {
+      out <- setNames(list(empty_name = NULL), rhs)      
     } else {
-      is_std <- FALSE
+      out <- syntax_parse_rhs(rhs = as.formula(paste0("~", rhs)))
     }
-
-    out <- syntax_parse_rhs(rhs = as.formula(paste0("~", rhs)))
     
     if (debug_code) print(out)
     
@@ -555,7 +566,6 @@ me_parse_model <- function(model_syntax = " ",
          )
 
   final_df <- rbind(sscore_df, cmv_df)
-  final_df$std <- NULL
 
   if (as_list) {
     final_df <- lapply(final_df, identity)
@@ -576,8 +586,7 @@ syntax_parse_rhs <- function (rhs) {
       dup.name <- rhs.names[idx]
       orig.idx <- match(dup.name, rhs.names)
       merged <- c(out[[orig.idx]], out[[idx]])
-      if (!is.null(merged)) 
-        out[[orig.idx]] <- merged
+      if (!is.null(merged)) out[[orig.idx]] <- merged
       out <- out[-idx]
       rhs.names <- names(out)
     }
@@ -594,7 +603,8 @@ selected_vars <- c("ppltrst",
 
 ess_model <-
   "# First cmv
-   ~ stflife + stfeco
+   stf = stflife + stfeco + sin(20) * 100
+   std(stf_second) = stflife + (stfeco * 100)
    # Second cmv
    ~ ppltrst + trstprl
    # Third cmv
@@ -603,9 +613,11 @@ ess_model <-
 # Download the ESS data and clear missing values
 ess4es_complete <- import_country("Spain", 4)[selected_vars]
 
+## ess4es_complete <- setNames((as.data.frame((replicate(4, sample(1:10, 2e4, replace = TRUE))))), selected_vars)
+
 parsed_model <-  me_parse_model(ess_model)
 
-me_data <- data.frame(stringsAsFactors=FALSE,
+me_data <- data.frame(stringsAsFactors = FALSE,
                       question = c("ppltrst", "trstprl", "stflife", "stfeco"),
                       reliability = c(0.729, 0.815, 0.655, 0.823),
                       validity = c(0.951, 0.944, 0.94, 0.903),
@@ -621,33 +633,81 @@ qual_corr <- me_correlate(
   diag_adj = me_data$quality
 )
 
-
 cmv_groups <- split(cmv_df, cmv_df$lhs)
 list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
 res <- me_cmv_cor_(qual_corr, me_data, list_cmv_vars[[1]])
 
 for (vars in list_cmv_vars[-1]) {
-  print(vars)
   res <- me_cmv_cor_(res, me_data, vars)
 }
 
 res
 
+create_sscore <- function(parsed_model, .data) {
+  sscore_df <- parsed_model[parsed_model$op == "=", ]
+
+  if (nrow(sscore_df) == 0) return(.data)
+
+  separate_ss <- split(sscore_df, sscore_df$lhs)
+
+  # Preserves same order because split doesn't preserve
+  separate_ss <- separate_ss[unique(sscore_df$lhs)]
+
+  for (x in separate_ss) {
+
+    ss_name <- unique(x$lhs)
+    if (x$std) x$rhs <- paste0("scale(", x$rhs, ")")
+    
+    sscore_for <-
+      as.formula(
+        paste("~ I(", x$rhs, ")")
+      )
+
+    available <- all.vars(sscore_for) %in% names(.data)
+
+    if (sum(available) != length(available)) {
+      stop(paste0("Variable(s) ",
+                  paste0(all.vars(sscore_for)[!available], collapse = ", "),
+                  " from sumscore",
+                  ss_name,
+                  " not available in `data`")
+           )
+    }
+
+    created_ss <-
+      setNames(
+        # Leave NA's as they are
+        model.frame(sscore_for, .data, na.action = NULL),
+        ss_name
+      )
+
+    # This is because model.frame returns the new variables with class
+    # AsIs from the I() in the formula
+    created_ss[ss_name] <- as.numeric(created_ss[[ss_name]])
+    .data <- cbind(.data, created_ss)
+  }
+  .data
+}
+
+head(create_sscore(parsed_model, ess4es_complete))
+
 
 # You left off here
-# You already have a parser that works, and you have a working
+# You already have a parser that works, a working
 # example of correctiong for several observed variables for
-# their CMV.
+# their CMV and the sumscore creation function.
 
-# Next step is to generalize to when you have sumscores. Sumscores
-# need to happen before any of this and the quality
-# of the sumscore needs to be added to the me_data before doing
-# any correlation. So start with a parser that extracts only sumscores
-# both standardized and normal, create this columns in the supplied
-# data and if any of the sumscores are used in the CMV, you need
+# Next is that if any of the sumscores are used in the CMV, you need
 # to add it's quality in the me_data before doing any correlation.
 # After that, you can just calculate the CMV of an observed and a
 # composite score.
+
+# You left off trying to adjusted the quality of the sscore
+# but apparently you exclude some variables from the me_data
+# above.
+
+me_sscore()
+
 
 # Once you finish that, you were thinking about how to
 # dispatch the specific operation of each CMV unit. For example,
@@ -677,7 +737,6 @@ res
 # which values are missing for the me_data because it's already done inside
 # the functions. However, look at it and if possible, move it to me design
 # so that all checks are done there.
-
 
 # Tests
 # when parsed string has the same variable used twice in CMV or sumscore,
