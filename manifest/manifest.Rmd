@@ -595,54 +595,6 @@ syntax_parse_rhs <- function (rhs) {
   out
 }
 
-library(essurvey)
-selected_vars <- c("ppltrst",
-                   "trstprl",
-                   "stflife",
-                   "stfeco")
-
-ess_model <-
-  "# First cmv
-   stf = stflife + stfeco + sin(20) * 100
-   std(stf_second) = stflife + (stfeco * 100)
-   # Second cmv
-   ~ ppltrst + trstprl
-   # Third cmv
-   ~ stflife + ppltrst"
-
-# Download the ESS data and clear missing values
-ess4es_complete <- import_country("Spain", 4)[selected_vars]
-
-## ess4es_complete <- setNames((as.data.frame((replicate(4, sample(1:10, 2e4, replace = TRUE))))), selected_vars)
-
-parsed_model <-  me_parse_model(ess_model)
-
-me_data <- data.frame(stringsAsFactors = FALSE,
-                      question = c("ppltrst", "trstprl", "stflife", "stfeco"),
-                      reliability = c(0.729, 0.815, 0.655, 0.823),
-                      validity = c(0.951, 0.944, 0.94, 0.903),
-                      quality = c(0.693, 0.77, 0.615, 0.743)
-                      )
-
-cmv_df <- parsed_model[parsed_model$op == "~", ]
-selected_vars <- unique(cmv_df[, "rhs"])
-me_data <- me_data[match(selected_vars, me_data$question), ]
-
-qual_corr <- me_correlate(
-  ess4es_complete[, selected_vars],
-  diag_adj = me_data$quality
-)
-
-cmv_groups <- split(cmv_df, cmv_df$lhs)
-list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
-res <- me_cmv_cor_(qual_corr, me_data, list_cmv_vars[[1]])
-
-for (vars in list_cmv_vars[-1]) {
-  res <- me_cmv_cor_(res, me_data, vars)
-}
-
-res
-
 create_sscore <- function(parsed_model, .data) {
   sscore_df <- parsed_model[parsed_model$op == "=", ]
 
@@ -689,7 +641,83 @@ create_sscore <- function(parsed_model, .data) {
   .data
 }
 
-head(create_sscore(parsed_model, ess4es_complete))
+adapted_sscore_quality <- function(parsed_model, .data, me_data) {
+  sscore_df <- parsed_model[parsed_model$op == "=", ]
+
+  if (nrow(sscore_df) == 0) return(me_data)
+
+  separate_ss <- split(sscore_df, sscore_df$lhs)
+
+  # Preserves same order because split doesn't preserve
+  separate_ss <- separate_ss[unique(sscore_df$lhs)]
+
+  for (x in separate_ss) {
+    me_data <-
+      me_sscore_(me_data = me_data,
+                 data = .data,
+                 new_name = x$lhs,
+                 vars_names = all.vars(as.formula(paste0("~", x$rhs)))
+                 )
+  }
+  
+  me_data
+}
+
+# Right now the quality of sscore is estimated with all variables in
+# the sscore formula, even if these are weights. e.g. s1 = x1 * w1
+# estimates the quality of a sumscore with x1 and v1
+
+library(essurvey)
+selected_vars <- c("ppltrst",
+                   "trstprl",
+                   "stflife",
+                   "stfeco")
+
+model_syntax <-
+  "# First cmv
+   # stf = ppltrst + (trstprl + sin(20) * 100)
+   # First cmv
+   ~ stflife + ppltrst"
+
+# Download the ESS data and clear missing values
+.data <- import_country("Spain", 4)[selected_vars]
+
+me_data <- data.frame(stringsAsFactors = FALSE,
+                      question = c("ppltrst", "trstprl", "stflife", "stfeco"),
+                      reliability = c(0.729, 0.815, 0.655, 0.823),
+                      validity = c(0.951, 0.944, 0.94, 0.903),
+                      quality = c(0.693, 0.77, 0.615, 0.743)
+                      )
+
+parsed_model <-  me_parse_model(model_syntax)
+.data <- create_sscore(parsed_model, .data)
+me_data <- adapted_sscore_quality(parsed_model,
+                                  .data = .data,
+                                  me_data = me_data)
+
+cmv_df <- parsed_model[parsed_model$op == "~", ]
+
+selected_vars <- unique(cmv_df[, "rhs"])
+me_data <- me_data[match(selected_vars, me_data$question), ]
+
+qual_corr <- me_correlate(
+  .data[, selected_vars],
+  diag_adj = me_data$quality
+)
+
+cmv_groups <- split(cmv_df, cmv_df$lhs)
+list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
+res <- me_cmv_cor_(qual_corr, me_data, list_cmv_vars[[1]])
+
+for (vars in list_cmv_vars[-1]) {
+  res <- me_cmv_cor_(res, me_data, vars)
+}
+
+col_names <- res[[1]]
+res <- tibble::as_tibble(cov2cor(as.matrix(res[-1])))
+res <- tibble::add_column(res, rowname = col_names, .before = 1)
+res
+
 
 
 # You left off here
