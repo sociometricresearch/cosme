@@ -20,18 +20,18 @@ me_reconstruct <- function(me_data, variables_check = me_env$me_columns) {
 
 # This should ONLY be used when you want to check an existing me
 # df
-check_me_columns <- function(me_data, available_vars) {
+check_me_columns <- function(me_data, available_cols) {
   # Check me_env$me_columns variables exists
 
-  metrics_available <- all(available_vars %in% names(me_data))
+  metrics_available <- all(available_cols %in% names(me_data))
 
   if (!metrics_available) {
-    stop("Columns ", paste0(available_vars, collapse = ", "),
+    stop("Columns ", paste0(available_cols, collapse = ", "),
          " must be available in `me_data`",
          call. = FALSE)
   }
 
-  for (i in me_data[available_vars]) col_checker(i)
+  for (i in me_data[available_cols]) col_checker(i)
 }
 
 check_me_vars <- function(me_data, available_vars) {
