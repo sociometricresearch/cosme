@@ -52,11 +52,39 @@ check_me_na <- function(me_data, me_cols) {
   me_reconstruct(me_data, me_cols)
 
   if (anyNA(me_data[me_cols])) {
-    stop("`me_data` must have non-missing values at columns reliability and validity for all variables")
+    stop("`me_data` must have non-missing values at columns reliability and validity for all variables") #nolintr
   }
 
   TRUE
 }
+
+check_data_vars <- function(.data, available_vars) {
+  available <- available_vars %in% names(.data)
+
+  if (sum(available) != length(available)) {
+    stop(paste0("Variable(s) ",
+                paste0(available_vars[!available], collapse = ", "),
+                " not available in `.data`")
+         )
+  }
+
+}
+
+check_data_na <- function(.data, available_vars) {
+
+  all_na <- vapply(.data[available_vars],
+                   function(x) all(is.na(x)), FUN.VALUE = logical(1)
+                   )
+
+  if (any(all_na)) {
+    stop(paste0("Variable(s) ",
+                paste0(available_vars[all_na], collapse = ", "),
+                " are all NA in `.data`. Estimates cannot be done using these variables") #nolintr
+         )
+  }
+
+}
+
 
 col_checker <- function(x) {
   if (all(is.na(x))) return(TRUE)
