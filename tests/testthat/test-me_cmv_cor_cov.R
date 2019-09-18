@@ -208,12 +208,6 @@ test_input_errors <- function(fun, fun_str) {
     expect_error(fun(list(), me_df),
                  paste0("`x` must be a ", type ," data frame or matrix"))
 
-    expect_error(fun(corr_tibble, me_df),
-                 "You need to supply at least two variables to calculate the Common Method Variance")
-
-    expect_error(fun(corr_tibble, me_df, V2),
-                 "You need to supply at least two variables to calculate the Common Method Variance")
-
     expect_error(fun(corr_tibble, me_df, V2, V3),
                  "`me_data` must have non-missing values at columns reliability and validity for all variables")
 

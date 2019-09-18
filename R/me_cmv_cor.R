@@ -85,11 +85,6 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
     stop("`x` must be a correlation data frame or matrix")
   }
 
-  if (length(cmv_vars) < 2) {
-    stop("You need to supply at least two variables to calculate the Common Method Variance",
-         call. = FALSE)
-  }
-
   me_data <- me_reconstruct(me_data, c("reliability", "validity"))
 
   x <- matrix2tibble(x)

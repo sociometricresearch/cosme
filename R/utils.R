@@ -85,6 +85,19 @@ check_data_na <- function(.data, available_vars) {
   TRUE
 }
 
+check_number_cmv <- function(parsed_model) {
+  cmv_df <- parsed_model[parsed_model$op == "~", ]
+  split_cmv <- split(cmv_df, cmv_df$lhs)
+
+  for (cmv_vars in split_cmv) {
+    if (nrow(cmv_vars) < 2) {
+      stop("You need to supply at least two variables to calculate the Common Method Variance (CMV) in ", #nolintr
+           paste0("'~ ", cmv_vars$rhs, "'"),
+           call. = FALSE)
+    }
+  }
+
+}
 
 col_checker <- function(x) {
   if (all(is.na(x))) return(TRUE)
