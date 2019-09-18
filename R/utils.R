@@ -79,7 +79,7 @@ check_data_na <- function(.data, available_vars) {
   if (any(all_na)) {
     stop(paste0("Variable(s) ",
                 paste0(available_vars[all_na], collapse = ", "),
-                " are all NA in `.data`. Estimates cannot be done using these variables") #nolintr
+                " are all NA in `.data`. Estimates cannot be calculated using these variables") #nolintr
          )
   }
   TRUE

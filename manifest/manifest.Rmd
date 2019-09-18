@@ -212,7 +212,7 @@ However, the above strategy is also very tedious. The purpose of the pseudo code
 variable_relationships <-
   "~ stflife + stfeco
    ~ ppltrst + trstprl"
-n
+
 medesign(
   model = variable_relationships,
   data = ess_data,
@@ -663,9 +663,153 @@ adapted_sscore_quality <- function(parsed_model, .data, me_data) {
   me_data
 }
 
+# Here I check whether the variables parsed by model_syntax
+# are in the me_data data but when I extract the variables
+# from the sscore, I cannot disentangle what the vars are
+# from, let's say, weights.
+medesign <- function(model_syntax, .data, me_data) {
+  parsed_model <- me_parse_model(model_syntax)
+  split_model <- split(parsed_model, parsed_model$lhs)
+
+  vars_used <- lapply(split_model, function(x) {
+    all.vars(as.formula(paste0("~", paste(x$rhs, collapse = "+"))))
+  })
+  
+  vars_used <- unlist(vars_used)
+
+  check_number_cmv(parsed_model)
+  check_me_vars(me_data, vars_used)
+  check_me_na(me_data, me_cols = c("reliability", "validity"))
+  check_data_vars(.data, vars_used)
+  check_data_na(.data, vars_used)
+
+  .data <- create_sscore(parsed_model, .data)
+  
+  me_data <- adapted_sscore_quality(parsed_model,
+                                    .data = .data,
+                                    me_data = me_data)
+
+  me_data <- me_data[match(vars_used, me_data$question), ]
+
+  qual_corr <- me_correlate(
+    .data[, vars_used],
+    diag_adj = me_data$quality
+  )
+
+  qual_cov <- me_covariance(
+    .data[, vars_used],
+    diag_adj = me_data$quality
+  )
+
+  structure(
+    list(parsed_model = parsed_model,
+         .data = .data,
+         me_data = me_data,
+         corr = qual_corr,
+         covv = qual_cov),
+    class = "me"
+  )
+
+}
+
+print.me <- function(x) {
+  sscore_df <- x$parsed_model[x$parsed_model$op == "=", ]
+  split_sscore <- split(sscore_df, sscore_df$lhs)
+  
+  formatted_sscore <- vapply(split_sscore, function(x) {
+    paste(unique(x$lhs), unique(x$op), paste(unique(x$rhs), collapse = " + "))
+  }, FUN.VALUE = character(1)
+  )
+
+  cmv_df <- x$parsed_model[x$parsed_model$op == "~", ]
+  split_cmv <- split(cmv_df, cmv_df$lhs)
+  
+  formatted_cmv <- vapply(split_cmv, function(x) {
+    paste(unique(x$op), paste(unique(x$rhs), collapse = " + "))
+  }, FUN.VALUE = character(1))
+
+  clean_model <- paste0(c(formatted_sscore, formatted_cmv), collapse = "\n")
+
+  cat("<Measurement error design>",
+      "Parsed model:",
+      paste0("   ", clean_model),
+      sep = "\n")
+}
+
+# 1) The variables defined in the model are present in `me_data`.
+model_syntax <- "~ mpg + cyl + drat"
+.data <- mtcars
+me_data <- data.frame(stringsAsFactors = FALSE,
+                      question = c("mpg", "cyl"),
+                      reliability = c(0.729, 0.815),
+                      validity = c(0.951, 0.944),
+                      quality = c(0.693, 0.77)
+                      )
+
+medesign(model_syntax, .data, me_data)
+
+# 2) The variables defined in the model have no missing values in `me_data`.
+model_syntax <- "~ mpg + cyl + drat"
+.data <- mtcars
+me_data <- data.frame(stringsAsFactors = FALSE,
+                      question = c("mpg", "cyl", "drat"),
+                      reliability = c(0.729, 0.815, 0.68),
+                      validity = c(0.951, 0.944, NA),
+                      quality = c(0.693, 0.77, 0.89)
+                      )
+
+medesign(model_syntax, .data, me_data)
+
+
+# 3) The variables defined in the model are present in `data`.
+model_syntax <- "~ mpg + cyl + whatever + sec"
+.data <- mtcars
+me_data <- data.frame(stringsAsFactors = FALSE,
+                      question = c("mpg", "cyl", "whatever", "sec"),
+                      reliability = c(0.729, 0.815, 0.68, 0.79),
+                      validity = c(0.951, 0.944, 0.79, 0.67),
+                      quality = c(0.693, 0.77, 0.89, 0.9)
+                      )
+
+medesign(model_syntax, .data, me_data)
+
+
+# 4) The variables defined in the model are not complete missing in `data`.
+model_syntax <- "~ mpg + cyl + whatever"
+.data <- mtcars
+.data$whatever <- NA
+me_data <- data.frame(stringsAsFactors = FALSE,
+                      question = c("mpg", "cyl", "whatever"),
+                      reliability = c(0.729, 0.815, 0.68),
+                      validity = c(0.951, 0.944, 0.79),
+                      quality = c(0.693, 0.77, 0.89)
+                      )
+
+medesign(model_syntax, .data, me_data)
+
+# 5) Defining CMV with one variable raises error.
+model_syntax <- "~ mpg + cyl + whatever; ~ drat"
+.data <- mtcars
+me_data <- data.frame(stringsAsFactors = FALSE,
+                      question = c("mpg", "cyl", "whatever"),
+                      reliability = c(0.729, 0.815, 0.68),
+                      validity = c(0.951, 0.944, 0.79),
+                      quality = c(0.693, 0.77, 0.89)
+                      )
+
+medesign(model_syntax, .data, me_data)
+
+
+# The next thing to do is making me_cmv_cor/cov to work with
+# the mdesign object, which should ITERATE over each CMV
+# calculate everything and then rbind it back
+
+# Working example
+
 # Right now the quality of sscore is estimated with all variables in
 # the sscore formula, even if these are weights. e.g. s1 = x1 * w1
-# estimates the quality of a sumscore with x1 and v1
+# estimates the quality of a sumscore with x1 and w1, which
+# should only be x1
 
 library(essurvey)
 selected_vars <- c("ppltrst",
@@ -707,6 +851,9 @@ qual_corr <- me_correlate(
 
 cmv_groups <- split(cmv_df, cmv_df$lhs)
 list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
+
+# Correct for me with the first CMV because
+# we need a starting point for the loop below
 res <- me_cmv_cor_(qual_corr, me_data, list_cmv_vars[[1]])
 
 for (vars in list_cmv_vars[-1]) {
@@ -714,10 +861,16 @@ for (vars in list_cmv_vars[-1]) {
 }
 
 col_names <- res[[1]]
-res <- tibble::as_tibble(cov2cor(as.matrix(res[-1])))
+res <- tibble::as_tibble(cov2cor(as.matrix(res[-1]))) 
 res <- tibble::add_column(res, rowname = col_names, .before = 1)
 res
 
+
+
+model_syntax <-"~ stflife + ppltrst"
+
+ex1 <- medesign(model_syntax, .data, me_data)
+ex1
 
 
 # You left off here
@@ -733,8 +886,6 @@ res
 # You left off trying to adjusted the quality of the sscore
 # but apparently you exclude some variables from the me_data
 # above.
-
-me_sscore()
 
 
 # Once you finish that, you were thinking about how to
