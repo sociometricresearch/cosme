@@ -157,12 +157,7 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 #'
 estimate_cmv <- function(me_data) {
   me_cols <- c("reliability", "validity")
-  me_reconstruct(me_data, me_cols)
-
-  if (anyNA(me_data[me_cols])) {
-    stop("`me_data` must have non-missing values at columns reliability and validity for all variables")
-  }
-
+  check_me_na(me_data, me_cols)
   reliability_coef <- sqrt(me_data[[me_cols[1]]])
   validity_coef <- sqrt(1 - me_data[[me_cols[2]]])
 

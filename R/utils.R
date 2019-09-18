@@ -48,6 +48,16 @@ check_me_vars <- function(me_data, available_vars) {
   TRUE
 }
 
+check_me_na <- function(me_data, me_cols) {
+  me_reconstruct(me_data, me_cols)
+
+  if (anyNA(me_data[me_cols])) {
+    stop("`me_data` must have non-missing values at columns reliability and validity for all variables")
+  }
+
+  TRUE
+}
+
 col_checker <- function(x) {
   if (all(is.na(x))) return(TRUE)
 
