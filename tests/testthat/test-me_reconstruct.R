@@ -12,7 +12,7 @@ test_that("me_reconstruct checks data format", {
 
   expect_error(
     me_reconstruct(me_df),
-    paste0("Variables ",  variables," must be available in `me_data`")
+    paste0("Columns ",  variables," must be available in `me_data`")
   )
 
   me_df <-

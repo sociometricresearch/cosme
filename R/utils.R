@@ -10,7 +10,7 @@
 me_reconstruct <- function(me_data, variables_check = me_env$me_columns) {
 
   # If me_data is not in the correct format, throw an error
-  check_me_data(me_data, variables_check)
+  check_me_columns(me_data, variables_check)
 
   # If it has a correct format, then simply add the me class if
   # it doesn't have it
@@ -20,18 +20,32 @@ me_reconstruct <- function(me_data, variables_check = me_env$me_columns) {
 
 # This should ONLY be used when you want to check an existing me
 # df
-check_me_data <- function(me_data, available_vars) {
+check_me_columns <- function(me_data, available_vars) {
   # Check me_env$me_columns variables exists
 
   metrics_available <- all(available_vars %in% names(me_data))
 
   if (!metrics_available) {
-    stop("Variables ", paste0(available_vars, collapse = ", "),
+    stop("Columns ", paste0(available_vars, collapse = ", "),
          " must be available in `me_data`",
          call. = FALSE)
   }
 
   for (i in me_data[available_vars]) col_checker(i)
+}
+
+check_me_vars <- function(me_data, available_vars) {
+  which_available <- available_vars %in% me_data$question
+  metrics_available <- all(which_available)
+
+  if (!metrics_available) {
+    stop("Variable(s) ",
+         paste0(available_vars[!which_available], collapse = ", "),
+         " must be available in `me_data`",
+         call. = FALSE)
+  }
+
+  TRUE
 }
 
 col_checker <- function(x) {

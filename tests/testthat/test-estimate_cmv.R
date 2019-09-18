@@ -36,7 +36,7 @@ test_that("estimate_cmv throws back NA error in reliability and validity", {
                    random_name = c(NA, 0.1, 0.6, 0.7, 0.8))
 
   expect_error(estimate_cmv(me_df),
-               "Variables reliability, validity must be available in `me_data`")
+               "Columns reliability, validity must be available in `me_data`")
 })
 
 test_that("estimate_cmv returns correct output", {
