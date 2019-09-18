@@ -67,7 +67,7 @@ check_data_vars <- function(.data, available_vars) {
                 " not available in `.data`")
          )
   }
-
+  TRUE
 }
 
 check_data_na <- function(.data, available_vars) {
@@ -82,7 +82,7 @@ check_data_na <- function(.data, available_vars) {
                 " are all NA in `.data`. Estimates cannot be done using these variables") #nolintr
          )
   }
-
+  TRUE
 }
 
 
