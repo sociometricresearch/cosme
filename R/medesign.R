@@ -89,6 +89,10 @@
 # of lavaan for an example
 medesign <- function(model_syntax, .data, me_data) {
   me_data <- as_me(me_data)
+
+  stopifnot(is.data.frame(.data),
+            nrow(.data) > 0)
+
   parsed_model <- me_parse_model(model_syntax)
   split_model <- split(parsed_model, parsed_model$lhs)
 
@@ -125,22 +129,22 @@ medesign <- function(model_syntax, .data, me_data) {
 
   me_data <- me_data[match(vars_used, me_data$question), ]
 
-  qual_corr <- me_correlate(
-    .data[, vars_used],
-    diag_adj = me_data$quality
-  )
+  qual_cor <- stats::cor(.data, use = "complete.obs")
+  qual_cov <- stats::cov(.data, use = "complete.obs")
 
-  qual_cov <- me_covariance(
-    .data[, vars_used],
-    diag_adj = me_data$quality
-  )
+  # Replce the diagonal only with the quality of the specified
+  # variabes in model_syntax. This will probably changed
+  # to an explicit declaration of quality in model_syntax
+  pos_diag <- match(me_data$question, rownames(qual_cor))
+  diag(qual_cor)[pos_diag] <- me_data$quality
+  diag(qual_cov)[pos_diag] <- me_data$quality
 
   structure(
     list(parsed_model = parsed_model,
          .data = .data,
          me_data = me_data,
-         corr = qual_corr,
-         covv = qual_cov),
+         corr = matrix2tibble(qual_cor),
+         covv = matrix2tibble(qual_cov)),
     class = "medesign"
   )
 

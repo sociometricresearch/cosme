@@ -95,6 +95,34 @@ test_that("medesign raises error when bad model_syntax", {
   )
 })
 
+test_that("medesign checks format of .data", {
+  # These three variables share a common method
+  me_syntax <- "~ mpg + cyl + drat"
+  # Fake data for the example
+  me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "drat"),
+                        reliability = c(0.729, 0.815, 0.68),
+                        validity = c(0.951, 0.944, 0.79),
+                        quality = c(0.693, 0.77, 0.89)
+                        )
+  .data <- mtcars[numeric(), ]
+
+  expect_error(
+    medesign(me_syntax, .data, me_data),
+    regexp = "nrow(.data) > 0 is not TRUE",
+    fixed = TRUE
+  )
+
+  .data <- as.matrix(mtcars)
+
+  expect_error(
+    medesign(me_syntax, .data, me_data),
+    regexp = "is.data.frame(.data) is not TRUE",
+    fixed = TRUE
+  )
+
+})
+
 test_that("medesign returns expected format", {
   # These three variables share a common method
   me_syntax <- "~ mpg + cyl + drat"

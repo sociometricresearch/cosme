@@ -1,42 +1,23 @@
 #' Adjust a correlation matrix for Common Method Variance (CMV)
 #'
-#' \code{me_cmv_cor} accepts a correlation matrix, a correlation data frame or a correlation
-#' tibble from \code{\link{me_correlate}}
-#' and adjusts the coefficients of the variables specified
-#' in  \code{...} with the reliability and validity coefficients from \code{me_data}.
-#' All variables specified in \code{...} must be present in both \code{x}
-#' and \code{me_data}. Optionally, you can supply the cmv coefficient in the
-#' argument \code{cmv}. Use \code{me_cmv_cor_} if you're interested in programming
-#' with \code{me_cmv_cor}.
+#' \code{me_cmv_cor} accepts an \code{medesign} object specified in
+#' \code{\link{medesign}} and adjusts the correlation coefficients of
+#' common method variables with the reliability and validity coefficients
+#' from \code{me_data}. Optionally, you can supply the CMV coefficients
+#' manually in the argument \code{cmv}.
 #'
-#' @param x a correlation matrix, a correlation data frame or a correlation
-#'  \code{tibble} given by \code{\link{me_correlate}}.
+#' @param .medesign An \code{medesign} object given by \code{\link{medesign}}
+#' @param cmv an optional numeric vector of the same length as the number of
+#' common method variance specifications in \code{.mdesign}.This argument is
+#' left available if the user has reasons to input their own CMV. By default,
+#' it is set to NULL and it is calculated internally.
 #'
-#' @param me_data a data frame of class \code{me} containing
-#' quality estimates from the variables specified in \code{...}.
-#'
-#' @param ... two or more variables present in both \code{x} and \code{me_data}. Can
-#' be both in bare unquoted names or as character strings.
-#'
-#' @param cmv an optional numeric vector of length 1 which contains the
-#' CMV coefficient of the variables specified in \code{...}.
-#' This argument is left available if the user has reasons to input their own CMV.
-#' By default, it is set to NULL and it is calculated internally.
-#'
-#' @param cmv_vars two or more variables present in both \code{x} and \code{me_data}. Only
-#' as a character vector.
-#'
-#' @return the same matrix supplied in \code{x} but as a tibble with
-#' the correlation coefficients of the variables supplied in \code{...}
-#' adjusted for their common method variance.
-#' If \code{x}  had row names, they're moved as a column called
-#' 'rowname'. If it doesnt have row names or a column named 'rowname' a new
-#' column is created with the column names to mimic a correlation matrix.
+#' @return The common-method-variance corrected correlation.
 #'
 #' @export
 #'
-#' @seealso \code{\link{me_correlate}} for calculating correlation matrices
-#' and \code{\link{estimate_cmv}} for calculating the CMV manually.
+#' @seealso \code{link{medesign}} and \code{\link{me_cmv_cov}} for the same
+#' adjustment but for a covariance matrix.
 #'
 #' @examples
 #'
@@ -44,54 +25,67 @@
 #' library(tibble)
 #'
 #' original_df <- as.data.frame(matrix(rnorm(100, sd = 50), nrow = 20))
-#' corr_tibble <- me_correlate(original_df, rnorm(5))
 #'
-#' # Toy dataset
+#' # Toy quality dataset
 #' me_df <-
 #'  tibble(question = paste0("V", 1:5),
 #'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-#'  reliability = c(NA, 0.4, 0.5, 0.5, 0.7),
-#'  validity = c(NA, NA, 0.6, 0.7, 0.8))
+#'  reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+#'  validity = c(0.79, 0.9, 0.6, 0.7, 0.8))
 #'
-#' me_df <- structure(me_df, class = c(class(me_df), "me"))
+#' # Define mdesign object
+#' m_obj <- medesign("~ V4 + V5", original_df, me_df)
 #'
-#' # Show that when y is not from me class, there's an error
-#'
-#' # Original correlation matrix with new diagonal
-#' corr_tibble
+#' # Original correlation matrix
+#' me_correlate(original_df)
 #'
 #' # Coefficient of correlation changes
 #' # when adjusting for common method variance
-#' me_cmv_cor(corr_tibble, me_df, V4, V5)
+#' me_cmv_cor(m_obj)
 #'
 #' # The V5*V4 from both the upper/lower triangles
-#' # correlation matrix changed from -0.05 to -0.203
+#' # correlation matrix changed from -0.05 to -0.27
 #'
-me_cmv_cor <- function(x, me_data, ..., cmv = NULL) {
-  e_dots <- eval(substitute(alist(...)))
-  f_dots <- lapply(e_dots, function(x) {
-    if (is.name(x)) as.character(x) else eval(x)
-  })
+me_cmv_cor <- function(.medesign, cmv = NULL) {
+
+  if (!inherits(.medesign, "medesign")) {
+    stop("`.medesign` should be a measurement error design object given by `medesign`") #nolintr
+  }
   
-  cmv_vars <- unique(unlist(f_dots))
-
-  me_cmv_cor_(x, me_data, cmv_vars, cmv)
-}
-#' @rdname me_cmv_cor
-#' @export
-me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
-
-  if (!(is.data.frame(x) | is.matrix(x))) {
-    stop("`x` must be a correlation data frame or matrix")
+  # cmv vector equals the same length as the number of cmv definitions
+  if (!is.null(cmv)) {
+    stopifnot(is.numeric(cmv))
+    stopifnot(length(cmv) == length(unique(.medesign$parsed_model$lhs)))
+  } else {
+    # Create empty list to iterate over each cmv
+    cmv <- rep(list(NULL), length(unique(.medesign$parsed_model$lhs)))
   }
 
+  parsed_model <- .medesign$parsed_model
+  cmv_df <- parsed_model[parsed_model$op == "~", ]
+
+  cmv_groups <- split(cmv_df, cmv_df$lhs)
+  list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
+
+  for (i in seq_along(list_cmv_vars)) {
+
+    # If it's the first iteration, provide the original correlation
+    # otherwise the looped corrected correlation
+    res <- me_cmv_cor_(x = if (i == 1) .medesign$corr else res,
+                       me_data = .medesign$me_data,
+                       cmv_vars = list_cmv_vars[[i]],
+                       cmv = cmv[[i]])
+  }
+
+  res
+}
+
+me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
+  # Althought this check is carried in `medesign`,
+  # I leave this one here again because it's specific towards
+  # two columns. Doesn't make a difference, but I'd rather
+  # err on the side of safety
   me_data <- as_me(me_data, c("reliability", "validity"))
-
-  x <- matrix2tibble(x)
-
-  # Check if all supplied variables are present in both
-  # dfs
-  columns_present(x, me_data, cmv_vars)
 
   selected_rows <- me_data[[1]] %in% cmv_vars
   if (is.null(cmv)) cmv <- estimate_cmv(me_data[selected_rows, ])
@@ -103,9 +97,9 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
   corrected_corr <- tibble::as_tibble(replace_matrix_cmv(x, cmv, cmv_vars),
                                       .name_repair = "minimal")
 
-  # Turn the correlation back to a correlation for he diagonal
+  # Turn the correlation back to a correlation for the diagonal
   # to be one
-  ## corrected_cor[, -1] <- stats::cov2cor(as.matrix(corrected_cor[, -1]))
+  corrected_corr[, -1] <- stats::cov2cor(as.matrix(corrected_corr[, -1]))
   corrected_corr
 }
 
@@ -119,7 +113,6 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 #' which contains the desired variables from which to estimate the CMV.
 #'
 #' @return a numeric vector of length one with the estimated coefficient
-#' @export
 #'
 #' @seealso \code{\link{me_cmv_cor}} for automatically adjusting a correlation
 #' matrix for the CMV, \code{\link{me_cmv_cov}} for automatically adjusting a
@@ -128,6 +121,9 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 #' @examples
 #' library(tibble)
 #'
+#' # Don't remove don't run: since this fun is not exported
+#' # it throws an error. Keeping docs jsut for me here.
+#' \dontrun{
 #' me_df <-
 #'  tibble(question = paste0("V", 1:5),
 #'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
@@ -135,20 +131,7 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 #'  validity = c(0.5, 0.1, 0.6, 0.7, 0.8))
 #'
 #' estimate_cmv(me_df)
-#'
-#' \dontrun{
-#'
-#' me_df <-
-#'  tibble(question = paste0("V", 1:5),
-#'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-#'  reliability = c(0.2, 0.4, 0.5, 0.5, 0.7),
-#'  validity = c(NA, 0.1, 0.6, 0.7, 0.8))
-#'
-#' estimate_cmv(me_df)
-#' # Error in estimate_cmv(me_df) :
-#' # me_data must have non-missing values at columns reliability and validity for all variables
 #' }
-#'
 #'
 estimate_cmv <- function(me_data) {
   me_cols <- c("reliability", "validity")

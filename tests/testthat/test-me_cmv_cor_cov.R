@@ -13,11 +13,11 @@ corr_tibble <- me_correlate(original_df, rnorm(5))
 me_df <-
   tibble(question = paste0("V", 1:5),
          quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-         reliability = c(NA, 0.4, 0.5, 0.5, 0.7),
-         validity = c(NA, NA, 0.6, 0.7, 0.8)
+         reliability = c(1, 0.4, 0.5, 0.5, 0.7),
+         validity = c(1, 1, 0.6, 0.7, 0.8)
          )
 
-me_df <- structure(me_df, class = c(class(me_df), "me"))
+me_df <- as_me(me_df)
 
 correct_format <- function(p) {
   expect_is(p, "data.frame")
@@ -40,51 +40,17 @@ correct_format <- function(p) {
   invisible(TRUE)
 }
 
+fun <- me_cmv_cor
+fun_str <- "me_cmv_cov"
+
 test_cor_cov <- function(fun, fun_str) {
 
   test_that(paste0(fun_str, " returns correct output"), {
-    cmv_tib <- fun(x = corr_tibble,
-                   me_data = me_df,
-                   V4, V5)
+    model <- "~ V4 + V5"
+    m_des <- medesign(model, original_df, me_df)
+    cmv_tib <- fun(m_des)
 
     correct_format(cmv_tib)
-
-    # Also handles character strings as variables
-    expect_identical(cmv_tib, fun(corr_tibble, me_df, "V4", "V5"))
-  })
-
-
-  test_that(paste0(fun_str, "`x` argument works fine with matrix"), {
-    random_vec <- rnorm(10, sd = 50)
-
-    matr_nothing <- matrix(random_vec, 5, 5)
-
-    matr_row <- matrix(random_vec, 5, 5,
-                       dimnames = list(paste0("V", seq_len(5))))
-
-    matr_col <- matrix(random_vec, 5, 5,
-                       dimnames = list(NULL, paste0("V", seq_len(5))))
-
-    matr_both <- matrix(random_vec, 5, 5,
-                        dimnames = list(paste0("V", seq_len(5)),
-                                        paste0("V", seq_len(5))))
-
-
-    # Matrix no row or col names
-    cmv_matr <- fun(matr_nothing, me_df, V4, V5)
-    correct_format(cmv_matr)
-
-    # Matrix row names
-    cmv_matr <- fun(matr_row, me_df, V4, V5)
-    correct_format(cmv_matr)
-
-    # Matrix col names
-    cmv_matr <- fun(matr_col, me_df, V4, V5)
-    correct_format(cmv_matr)
-
-    # Matrix row and col names
-    cmv_matr <- fun(matr_both, me_df, V4, V5)
-    correct_format(cmv_matr)
   })
 
   test_that(paste0(fun_str, "`x` argument works fine with data frame"), {
@@ -92,15 +58,18 @@ test_cor_cov <- function(fun, fun_str) {
 
     df_no_rows <- as.data.frame(matrix(random_vec, 5, 5))
 
-    # df no row names
-    cmv_matr <- fun(df_no_rows, me_df, V4, V5)
-    correct_format(cmv_matr)
+    model <- "~ V4 + V5"
+    m_des <- medesign(model, df_no_rows, me_df)
+    cmv_tib <- fun(m_des)
+
+    correct_format(cmv_tib)
 
     rownames(df_no_rows) <- paste0("V", seq_len(5))
     df_rows <- df_no_rows
 
     # df row names
-    cmv_matr <- fun(df_rows, me_df, V4, V5)
+    m_des <- medesign(model, df_rows, me_df)
+    cmv_matr <- fun(m_des)
     correct_format(cmv_matr)
   })
 
@@ -111,35 +80,103 @@ test_cor_cov <- function(fun, fun_str) {
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
+    # For one CMV
     filtered_df <- subset(me_df, question %in% c("V4", "V5"))
+    model <- "~ V4 + V5"
+    m_des <- medesign(model, original_df, me_df)
+    cmv_aut <- fun(m_des)
+    cmv_manual <- fun(m_des, cmv = estimate_cmv(filtered_df))
+    expect_equal(cmv_aut, cmv_manual)
 
-    cmv_aut <- fun(corr_tibble, me_df, V4, V5)
-    cmv_manual <- fun(corr_tibble, me_df, V4, V5, cmv = estimate_cmv(filtered_df))
+    # For multiple CMV
+    filtered_df <- subset(me_df, question %in% c("V2", "V3", "V4", "V5"))
+    model <- "~ V2 + V3;~ V4 + V5"
+    m_des <- medesign(model, original_df, me_df)
+    cmv_aut <- fun(m_des)
 
+    list_df <- list(filtered_df[1:2, ], filtered_df[3:4, ])
+    cmv_manual <- fun(m_des, cmv = vapply(list_df,
+                                          estimate_cmv,
+                                          FUN.VALUE = numeric(1)))
     expect_equal(cmv_aut, cmv_manual)
   })
 
-  test_that(paste0(fun_str, " gives same result when variables are shuffled"), {
+  test_that(paste0(fun_str, " gives same result when variables in .data are shuffled"), { #nolintr
     me_df <-
       tibble(question = paste0("V", 1:5),
              quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    shuffled_corr <- corr_tibble[c(1, 3, 5, 4, 2), ]
-    original_corr <- corr_tibble
+    model <- "~ V3 + V4 + V5"
+    shuffled_des <- medesign(model, original_df[c(2, 5, 4, 3, 1)], me_df)
+    original_des <- medesign(model, original_df, me_df)
     
-    cmv_shuffled <- fun(shuffled_corr, me_df, V3, V4, V5)
-    cmv_original <- fun(corr_tibble, me_df, V3, V4, V5)
+    cmv_shuffled <- fun(shuffled_des)
+    cmv_original <- fun(original_des)
 
-    expect_equivalent(cmv_original,
-                      cmv_shuffled[order(cmv_shuffled$rowname), ])
+    reordered <- cmv_shuffled[order(cmv_shuffled$rowname), names(cmv_original)]
 
-    expect_equal(names(cmv_shuffled), names(cmv_original))
+    expect_identical(cmv_original,
+                     reordered)
+  })
+
+  test_that(paste0(fun_str, " gives same result when variables in medata are shuffled"), { #nolintr
+    me_df <-
+      tibble(question = paste0("V", 1:5),
+             quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
+             reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+             validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
+
+    model <- "~ V3 + V4 + V5"
+    shuffled_des <- medesign(model, original_df, me_df[c(2, 5, 4, 3, 1), ])
+    original_des <- medesign(model, original_df, me_df)
+    
+    cmv_shuffled <- fun(shuffled_des)
+    cmv_original <- fun(original_des)
+
+    reordered <- cmv_shuffled[order(cmv_shuffled$rowname), names(cmv_original)]
+
+    expect_identical(cmv_original,
+                     reordered)
+  })
+
+
+  test_that(paste0(fun_str, " gives same result when variables in .data and medata are shuffled"), { #nolintr
+    me_df <-
+      tibble(question = paste0("V", 1:5),
+             quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
+             reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+             validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
+
+    model <- "~ V3 + V4 + V5"
+    shuffled_des <- medesign(model,
+                             original_df[, c(2, 5, 4, 3, 1)],
+                             me_df[c(3, 1, 5, 2, 4), ]
+                             )
+
+    original_des <- medesign(model, original_df, me_df)
+    
+    cmv_shuffled <- fun(shuffled_des)
+    cmv_original <- fun(original_des)
+
+    reordered <- cmv_shuffled[order(cmv_shuffled$rowname), names(cmv_original)]
+
+    expect_identical(cmv_original,
+                     reordered)
   })
   
   test_that(paste0(fun_str, " uses only unique variable names"), {
-    cmv_tib <- fun(corr_tibble, me_df, V4, V5, V5)
+    me_df <-
+      tibble(question = paste0("V", 1:5),
+             quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
+             reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+             validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
+
+    model <- "~ V3 + V4 + V5"
+    original_des <- medesign(model, original_df, me_df)
+
+    cmv_tib <- fun(original_des)
     expect_is(cmv_tib, "data.frame")
 
     # First column is the row names
@@ -158,66 +195,47 @@ test_cor_cov <- function(fun, fun_str) {
       all(sort(tp[lower.tri(tp)]) == sort(tp[upper.tri(tp)]))
     }
 
+    me_df <-
+      tibble(question = paste0("V", 1:5),
+             quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
+             reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+             validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
+
+    model <- "~ V4 + V5"
+    original_des <- medesign(model, original_df, me_df)
+
+    cmv_tib <- as.data.frame(fun(original_des))
+
     # Two variables
-    cmv_tib <- as.data.frame(fun(corr_tibble, me_df, V4, V5))
     expect_true(up_equal(cmv_tib))
 
     # Three variables
-    cmv_tib <- as.data.frame(fun(corr_tibble, me_df, V3, V4, V5))
+    model <- "~ V3 + V4 + V5"
+    original_des <- medesign(model, original_df, me_df)
+    cmv_tib <- as.data.frame(fun(original_des))
+    # Bc turning from tibble to df looses precision, I just
+    # round to 4, any small decimals discrepancies I don't
+    # mind
+    cmv_tib[2:6] <- round(cmv_tib[2:6], 4)
     expect_true(up_equal(cmv_tib))
   })
-
-  test_that(paste0(fun_str, " adds me class to valid me_data"), {
-    tmp <- me_df
-    class(tmp) <- c("tbl_df", "tbl", "data.frame")
-
-    noclass <- fun(
-      corr_tibble,
-      me_data = tmp,
-      V4, V5
-    )
-
-    valid_class <- fun(
-      corr_tibble,
-      me_data = me_df,
-      V4, V5
-    )
-    expect_identical(valid_class, noclass)
-  })
 }
 
-test_cor_cov(me_cmv_cor, "me_cmv_cov")
-
-
-# Given that original_data is not necessary in me_cmv_corr, I create
-# me_cmv_cov with the original data argument prefilled so that all
-# of the tests run this function and the me_cmv_cor and me_cmv_cov tests
-# can be reused.
-
-partial_cov <- function(x, me_data, ..., cmv = NULL) {
-  me_cmv_cov(x = x, me_data = me_data, ... = ..., data = original_df, cmv = cmv)
-}
-
-test_cor_cov(partial_cov, "me_cmv_cov")
+test_cor_cov(me_cmv_cor, "me_cmv_cor")
+test_cor_cov(me_cmv_cov, "me_cmv_cov")
 
 
 test_input_errors <- function(fun, fun_str) {
-  type <- if (grepl("cor", fun_str)) "correlation" else "covariance"
-
   test_that(paste0(fun_str, " throws specific errors"), {
-    expect_error(fun(list(), me_df),
-                 paste0("`x` must be a ", type ," data frame or matrix"))
-
-    expect_error(fun(corr_tibble, me_df, V2, V3),
-                 "`me_data` must have non-missing values at columns reliability and validity for all variables")
-
-    expect_error(fun(corr_tibble, me_df, hey, other),
-                 "At least one variable not present in `x`: hey, other")
+    expect_error(fun(list()),
+                 regexp = "`.medesign` should be a measurement error design object given by `medesign`", #nolintr
+                 fixed = TRUE
+                 )
   })
 }
 
 test_input_errors(me_cmv_cor, "me_cmv_cor")
-test_input_errors(partial_cov, "me_cmv_cov")
+test_input_errors(me_cmv_cov, "me_cmv_cov")
 
 
 library(essurvey)
@@ -232,25 +250,33 @@ ess7es3var <- ess7es[selected_vars]
 library(sqpr)
 sqp_login()
 
-question_ids <- find_questions("ESS Round 7", selected_vars)
-question_ids <- question_ids[with(question_ids, country_iso == "ES" & language_iso == "spa"), "id", drop = TRUE]
+me_df <-
+  get_sqp(
+    study = "ESS Round 7",
+    question_name = selected_vars,
+    country = "ES",
+    lang = "spa"
+  )
 
-me_df <- get_estimates(question_ids)
 me_df <- me_df[order(me_df$question), ]
 
 test_that("me_cmv_cor returns correct calculation after cov2cor",  {
+  ## TODO: Leaving this here for when you decide whether you want
+  ## to include the weights arg in me_correlate/me_covariance
   ## Apply weighted correlation with pspwght
   # wt_cor_cv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)
   # original_corr_weighted <- wt_cor_cv$cor
-  original_corr <- cor(ess7es3var)
-
-  diag(original_corr) <- me_df$quality
+  # original_corr <- cor(ess7es3var)
+  # diag(original_corr) <- me_df$quality
   # diag(original_corr_weighted) <- me_df$quality
 
-  tst_cmv <- me_cmv_cor(original_corr, me_df, ppltrst, trstplt)
-  tmp_corrected_cor <- as_tibble(cov2cor(as.matrix(tst_cmv[, selected_vars])))
-  tmp_corrected_cor <- add_column(tmp_corrected_cor, rowname = tst_cmv$rowname, .before = 1)
-  tmp_corrected_cor <- as.data.frame(tmp_corrected_cor)
+  m_obj <- medesign("~ ppltrst + trstplt", ess7es3var, me_df)
+  # TODO: Temporary fix until you figure out whether
+  # all variables will be replace with the quality or only
+  # the ones defined in the CMV in the model_syntax
+  diag(m_obj$corr[1, 2]) <- me_df$quality[1]
+
+  tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
 
   correct_df <- data.frame(stringsAsFactors=FALSE,
                            rowname = c("polintr", "ppltrst", "trstplt"),
@@ -262,46 +288,25 @@ test_that("me_cmv_cor returns correct calculation after cov2cor",  {
   expect_equivalent(tmp_corrected_cor, correct_df)
 })
 
-test_that("me_cmv_cor returns correct calculate before cov2cor", {
-  original_corr <- cor(ess7es3var)
-  diag(original_corr) <- me_df$quality
-  tst_cmv <- as.data.frame(me_cmv_cor(original_corr, me_df, ppltrst, trstplt))
-
-  compare_tst_cmv <- data.frame(stringsAsFactors=FALSE,
-                                rowname = c("polintr", "ppltrst", "trstplt"),
-                                polintr = c(0.601, -0.199527970511773, -0.17357782848536),
-                                ppltrst = c(-0.199527970511773, 0.702, 0.148332185882232),
-                                trstplt = c(-0.17357782848536, 0.148332185882232, 0.822)
-                                )
-
-  expect_equivalent(tst_cmv, compare_tst_cmv)
-})
-
-
 test_that("me_cmv_cov returns correct calculation", {
 
-  original_cov <- cov(ess7es3var, use = "complete.obs", method = "pearson")
-  wt_cor_cv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)
-  
-  ## Apply weighted covariance with pspwght
-  original_cov_weighted <- wt_cor_cv$cov
+  m_obj <- medesign("~ ppltrst + trstplt", ess7es3var, me_df)
+  # TODO: The first correct example you did was using weights
+  # so I had to hack medesign a bit to produce weighted covariances
+  # and make sure that the results are correct
+  m_obj$covv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)$cov
+  diag(m_obj$covv) <- diag(m_obj$covv) * me_df$quality
+  m_obj$covv <- matrix2tibble(m_obj$covv)
+  tmp_corrected_cov <- as.data.frame(me_cmv_cov(m_obj))
 
-  #### Using `me`
-  diag(original_cov_weighted) <- diag(original_cov_weighted) * me_df$quality  
-  tst_corrected_cov <-
-    me_cmv_cov(original_cov_weighted,
-                me_df,
-                ppltrst,
-                trstplt,
-                data = ess7es3var)
-  tmp_corrected_cov <- as.data.frame(tst_corrected_cov)
-
-  correct_df <- data.frame(stringsAsFactors=FALSE,
-     rowname = c("polintr", "ppltrst", "trstplt"),
-     polintr = c(0.536047529655009, -0.419466267364113, -0.35995941514413),
-     ppltrst = c(-0.419466267364113, 3.14154466545579, 0.716657167759028),
-     trstplt = c(-0.35995941514413, 0.716657167759028, 4.08409798275177)
-     )
+  correct_df <-
+    data.frame(
+      stringsAsFactors=FALSE,
+      rowname = c("polintr", "ppltrst", "trstplt"),
+      polintr = c(0.536047529655009, -0.419466267364113, -0.35995941514413),
+      ppltrst = c(-0.419466267364113, 3.14154466545579, 0.716657167759028),
+      trstplt = c(-0.35995941514413, 0.716657167759028, 4.08409798275177)
+    )
 
   expect_equivalent(tmp_corrected_cov, correct_df)
 })

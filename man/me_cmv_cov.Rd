@@ -2,53 +2,27 @@
 % Please edit documentation in R/me_cmv_cov.R
 \name{me_cmv_cov}
 \alias{me_cmv_cov}
-\alias{me_cmv_cov_}
 \title{Adjust a covariance matrix for Common Method Variance (CMV)}
 \usage{
-me_cmv_cov(x, me_data, ..., data, cmv = NULL)
-
-me_cmv_cov_(x, me_data, cmv_vars, data, cmv = NULL)
+me_cmv_cov(.medesign, cmv = NULL)
 }
 \arguments{
-\item{x}{a covariance matrix, a covariance data frame or a covariance
-\code{tibble} given by \code{\link{me_covariance}}.}
+\item{.medesign}{An \code{medesign} object given by \code{\link{medesign}}}
 
-\item{me_data}{a data frame of class \code{me} containing
-quality estimates from the variables specified in \code{...}.}
-
-\item{...}{two or more variables present in both \code{x} and \code{me_data}. Can
-be both in bare unquoted names or as character strings.}
-
-\item{data}{A data frame containing the data for variables specified
-in \code{...}. These are the original columns of the variables from the covariance
-matrix supplied in \code{x}.}
-
-\item{cmv}{an optional numeric vector of length 1 which contains the
-CMV coefficient of the variables specified in \code{...}.
-This argument is left available if the user has reasons to input their own CMV.
-By default, it is set to NULL and it is calculated internally.}
-
-\item{cmv_vars}{two or more variables present in both \code{x} and \code{me_data}. Only
-as a character vector.}
+\item{cmv}{an optional numeric vector of the same length as the number of
+common method variance specifications in \code{.mdesign}. This argument is
+left available if the user has reasons to input their own CMV. By default,
+it is set to NULL and it is calculated internally.}
 }
 \value{
-the same matrix supplied in \code{x} but as a tibble with
-the covariance coefficients of the variables supplied in \code{...}
-adjusted for their common method variance.
-
-If \code{x}  had row names, they're moved as a column called
-'rowname'. If it doesnt have row names or a column named 'rowname' a new
-column is created with the column names to mimic a covariance matrix.
+The common-method-variance corrected correlation.
 }
 \description{
-\code{me_cmv_cov} accepts a covariance matrix, a covariance data frame or a covariance
-tibble from \code{\link{me_covariance}}
-and adjusts the coefficients of the variables specified
-in  \code{...} with the reliability and validity coefficients from \code{me_data}.
-All variables specified in \code{...} must be present in both \code{x}
-and \code{me_data}. Optionally, you can supply the cmv coefficient in the
-argument \code{cmv}. Use \code{me_cmv_cov_} if you're interested in programming
-with \code{me_cmv_cov}.
+\code{me_cmv_cov} accepts an \code{medesign} object specified in
+\code{\link{medesign}} and adjusts the covariance coefficients of
+common method variables with the reliability and validity coefficients
+from \code{me_data}. Optionally, you can supply the CMV coefficients
+manually in the argument \code{cmv}.
 }
 \examples{
 
@@ -56,30 +30,29 @@ set.seed(2131)
 library(tibble)
 
 original_df <- as.data.frame(matrix(rnorm(100, sd = 50), nrow = 20))
-cov_tibble <- me_covariance(original_df)
 
-# Toy dataset
+# Toy quality dataset
 me_df <-
  tibble(question = paste0("V", 1:5),
  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
- reliability = c(NA, 0.4, 0.5, 0.5, 0.7),
- validity = c(NA, NA, 0.6, 0.7, 0.8))
+ reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+ validity = c(0.79, 0.9, 0.6, 0.7, 0.8))
 
+# Define mdesign object
+m_obj <- medesign("~ V4 + V5", original_df, me_df)
 
-# Show that when y is not from me class, there's an error
+# Original correlation matrix
+me_covariance(original_df)
 
-# Original covariance matrix with new diagonal
-cov_tibble
-
-# Coefficient of covariance changes
+# Coefficient of correlation changes
 # when adjusting for common method variance
-me_cmv_cov(cov_tibble, me_df, V4, V5, data = original_df)
+me_cmv_cov(m_obj)
 
 # The V5*V4 from both the upper/lower triangles
 # covariance matrix changed from -181 to -634
 
 }
 \seealso{
-\code{\link{me_covariance}} for calculating covariance matrices
-and \code{\link{estimate_cmv}} for calculating the CMV manually.
+\code{link{medesign}} and \code{\link{me_cmv_cor}} for the same
+adjustment but for a covariance matrix.
 }
