@@ -52,8 +52,6 @@ me_data <- data.frame(stringsAsFactors = FALSE,
                       quality = c(0.693, 0.77, 0.89)
                       )
 
-# Convert your me_data to an me object
-me_data <- as_me(me_data)
 medesign(me_syntax, mtcars, me_data)
 
 
@@ -72,11 +70,7 @@ me_data <- data.frame(stringsAsFactors = FALSE,
                       quality = c(0.693, 0.77, 0.89, 0.68)
                       )
 
-# Convert your me_data to an me object
-me_data <- as_me(me_data)
-
 medesign(me_syntax, mtcars, me_data)
-
 
 }
 \author{

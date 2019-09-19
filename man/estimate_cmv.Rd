@@ -19,6 +19,9 @@ Estimate the Common Method Variance (CMV) coefficient of a set of variables
 \examples{
 library(tibble)
 
+# Don't remove don't run: since this fun is not exported
+# it throws an error. Keeping docs jsut for me here.
+\dontrun{
 me_df <-
  tibble(question = paste0("V", 1:5),
  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
@@ -26,20 +29,7 @@ me_df <-
  validity = c(0.5, 0.1, 0.6, 0.7, 0.8))
 
 estimate_cmv(me_df)
-
-\dontrun{
-
-me_df <-
- tibble(question = paste0("V", 1:5),
- quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
- reliability = c(0.2, 0.4, 0.5, 0.5, 0.7),
- validity = c(NA, 0.1, 0.6, 0.7, 0.8))
-
-estimate_cmv(me_df)
-# Error in estimate_cmv(me_df) :
-# me_data must have non-missing values at columns reliability and validity for all variables
 }
-
 
 }
 \seealso{

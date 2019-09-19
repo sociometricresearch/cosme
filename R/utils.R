@@ -120,30 +120,8 @@ col_checker <- function(x) {
          " must be numeric columns with values between/including 0 and 1 in `me_data`",
          call. = FALSE)
   }
-  invisible(TRUE)
+  TRUE
 }
-
-columns_present <- function(corr_data, me_data, var_names) {
-  sum_corr <- corr_data[[1]] %in% var_names
-  sum_me <- me_data[[1]] %in% var_names
-
-  vars_corr <- var_names %in% corr_data[[1]]
-  vars_me <- var_names %in% me_data[[1]]
-
-  if (sum(sum_corr) != length(var_names)) {
-    stop("At least one variable not present in `x`: ",
-         paste0(var_names[!vars_corr], collapse = ", "),
-         call. = FALSE)
-  }
-
-  if ((sum(sum_me) != length(var_names))) {
-    stop("At least one variable not present in `me_data`: ",
-         paste0(var_names[!vars_me], collapse = ", "),
-         call. = FALSE)
-  }
-
-}
-
 
 me_env <- new.env()
 me_env$study_variables <- c("id", "name")
