@@ -85,7 +85,7 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
     stop("`x` must be a correlation data frame or matrix")
   }
 
-  me_data <- me_reconstruct(me_data, c("reliability", "validity"))
+  me_data <- as_me(me_data, c("reliability", "validity"))
 
   x <- matrix2tibble(x)
 

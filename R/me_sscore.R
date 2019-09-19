@@ -94,7 +94,7 @@ me_sscore  <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
 me_sscore_ <- function(me_data, data, new_name, vars_names, wt = NULL, drop = TRUE) {
 
   # Check me data has correct class and formats
-  me_data <- me_reconstruct(me_data)
+  me_data <- as_me(me_data)
 
   summary_name <- new_name
 
@@ -149,7 +149,7 @@ me_sscore_ <- function(me_data, data, new_name, vars_names, wt = NULL, drop = TR
   correct_order <- c("question", me_env$me_columns)
   new_order <- combined_matrix[c(correct_order, setdiff(names(combined_matrix), correct_order))]
 
-  final_data <- me_reconstruct(new_order)
+  final_data <- as_me(new_order)
   final_data
 }
 

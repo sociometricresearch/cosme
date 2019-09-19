@@ -166,5 +166,5 @@ generic_me <- function(question_name, me_metrics, all_columns = FALSE) {
     me_data <- tibble::as_tibble(c(question = question_name, me_metrics),
                                  .name_repair = "minimal")
   }
-  me_reconstruct(me_data)
+  as_me(me_data)
 }

@@ -7,7 +7,7 @@
 # functions will check whether the data is in right format and assign
 # the class accordingly. It basically makes sure the data is good for
 # later processing.
-me_reconstruct <- function(me_data, variables_check = me_env$me_columns) {
+as_me <- function(me_data, variables_check = me_env$me_columns) {
 
   # If me_data is not in the correct format, throw an error
   check_me_columns(me_data, variables_check)
@@ -23,14 +23,25 @@ me_reconstruct <- function(me_data, variables_check = me_env$me_columns) {
 check_me_columns <- function(me_data, available_cols) {
   # Check me_env$me_columns variables exists
 
-  metrics_available <- all(available_cols %in% names(me_data))
+  # Contains "question" as well as reliability, etc..
+  complete_cols <- c(me_env$me_question, available_cols)
+  metrics_available <- all(complete_cols %in% names(me_data))
 
   if (!metrics_available) {
-    stop("Columns ", paste0(available_cols, collapse = ", "),
+    stop("Columns ", paste0(complete_cols, collapse = ", "),
          " must be available in `me_data`",
          call. = FALSE)
   }
 
+
+  if (!is.character(me_data[[me_env$me_question]])) {
+    stop("Column ",
+         me_env$me_question,
+         " must be a character vector",
+         " containing the question names")
+  }
+  
+  # Only check the numeric cols (available_cols)
   for (i in me_data[available_cols]) col_checker(i)
 }
 
@@ -49,7 +60,7 @@ check_me_vars <- function(me_data, available_vars) {
 }
 
 check_me_na <- function(me_data, me_cols) {
-  me_reconstruct(me_data, me_cols)
+  as_me(me_data, me_cols)
 
   if (anyNA(me_data[me_cols])) {
     stop("`me_data` must have non-missing values at columns reliability and validity for all variables") #nolintr
@@ -143,6 +154,7 @@ me_env$question_variables <- c("id",
                                "language_iso")
 
 me_env$me_columns <- c("reliability", "validity", "quality")
+me_env$me_question <- "question"
 
 me_env$short_estimate_variables <-
   paste0(

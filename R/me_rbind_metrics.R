@@ -45,7 +45,7 @@
 #'
 me_bind_metrics <- function(me_data, question_name, metrics) {
 
-  me_reconstruct(me_data)
+  as_me(me_data)
 
   new_question <- as.character(substitute(question_name))
 
