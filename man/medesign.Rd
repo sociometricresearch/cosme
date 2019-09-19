@@ -7,11 +7,15 @@
 medesign(model_syntax, .data, me_data)
 }
 \arguments{
-\item{model_syntax}{}
+\item{model_syntax}{A description of the user-specified model as a character
+string. The model is described using the me model syntax. See the details
+and example section for on how to write this syntax.}
 
-\item{.data}{}
+\item{.data}{a data frame containing all variables defined in
+\code{model_syntax}}
 
-\item{me_data}{}
+\item{me_data}{A dataframe of class \code{me}. Can be created manually
+with \code{me_construct}.}
 }
 \value{
 an \code{me} design object which can be passed to other functions

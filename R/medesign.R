@@ -28,7 +28,9 @@
 ##' @return an \code{me} design object which can be passed to other functions
 ##' of measurementfree.
 ##' @author Jorge Cimentada
-##'
+##' 
+##' @export
+##' 
 ##' @examples
 ##'
 ##' # These three variables share a common method
