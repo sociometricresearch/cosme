@@ -14,6 +14,8 @@ me_parse_model(model_syntax = " ", as_list = FALSE,
 Dataframe is set as a default.}
 
 \item{debug_code}{a logical for whether debugging logs should be printed.}
+
+\item{operators}{permitted operators to define new lines}
 }
 \value{
 A dataframe with the parsed model extracted into different columns

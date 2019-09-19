@@ -65,7 +65,7 @@ me_df <- structure(me_df, class = c(class(me_df), "me"))
 
 sample_data <-
  as_tibble(
- setNames(
+ stats::setNames(
   replicate(5, rbinom(1000, 5, 0.6), simplify = FALSE),
  paste0("V", 1:5))
  )
