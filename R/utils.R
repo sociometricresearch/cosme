@@ -60,6 +60,8 @@ check_me_vars <- function(me_data, available_vars) {
 }
 
 check_me_na <- function(me_data, me_cols) {
+  # TODO: You need to check for NA values ONLY on the rows which are
+  # going to be used in measurement error
   as_me(me_data, me_cols)
 
   if (anyNA(me_data[me_cols])) {
