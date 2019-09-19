@@ -55,7 +55,7 @@
 #'
 #' sample_data <-
 #'  as_tibble(
-#'  setNames(
+#'  stats::setNames(
 #'   replicate(5, rbinom(1000, 5, 0.6), simplify = FALSE),
 #'  paste0("V", 1:5))
 #'  )

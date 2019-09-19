@@ -3,6 +3,7 @@
 ##' @param as_list a logical for whether the result is a data frame or a list.
 ##' Dataframe is set as a default.
 ##' @param debug_code a logical for whether debugging logs should be printed.
+##' @param operators permitted operators to define new lines
 ##' @return A dataframe with the parsed model extracted into different columns
 ##' @author Jorge
 me_parse_model <- function(model_syntax = " ",
@@ -163,9 +164,9 @@ me_parse_model <- function(model_syntax = " ",
     # things likes a * b to interactions when we just want them as
     # operations
     if (op == "=") {
-      out <- setNames(list(empty_name = NULL), rhs)      
+      out <- stats::setNames(list(empty_name = NULL), rhs)      
     } else {
-      out <- syntax_parse_rhs(rhs = as.formula(paste0("~", rhs)))
+      out <- syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)))
     }
     
     if (debug_code) print(out)
@@ -232,8 +233,8 @@ me_parse_model <- function(model_syntax = " ",
 syntax_parse_rhs <- function (rhs) {
   out <- list()
 
-  all_terms <- attr(terms(rhs), "term.labels")
-  out <- setNames(vector("list", length(all_terms)), all_terms)
+  all_terms <- attr(stats::terms(rhs), "term.labels")
+  out <- stats::setNames(vector("list", length(all_terms)), all_terms)
 
   if (length(out) > 1L) {
     rhs.names <- names(out)

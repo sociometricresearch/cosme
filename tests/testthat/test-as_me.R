@@ -6,7 +6,7 @@ test_that("as_me checks data format", {
   all_vars <- paste0(c(me_env$me_question, me_env$me_columns), collapse = ", ")
 
   me_df <-
-    tibble(question = paste0("V", 1:3),
+    tibble::tibble(question = paste0("V", 1:3),
            not_indf = c(0.2, 0.3, 0.5),
            reliability = c(NA, 0.4, 0.5),
            validity = c(NA, NA, 0.6))
@@ -17,7 +17,7 @@ test_that("as_me checks data format", {
   )
 
   me_df <-
-    tibble(question = c("X1", "X2", "X3"),
+    tibble::tibble(question = c("X1", "X2", "X3"),
            quality = c(0.2, 0.3, 0.5),
            reliability = c(NA, 0.4, 0.5),
            validity = c(NA, NA, 1.2))
@@ -30,7 +30,7 @@ test_that("as_me checks data format", {
   )
 
   me_df <-
-    tibble(question = 1:3,
+    tibble::tibble(question = 1:3,
            quality = c(0.2, 0.3, 0.5),
            reliability = c(0.5, 0.4, 0.5),
            validity = c(0.1, 0.2, 0.9))
@@ -47,7 +47,7 @@ test_that("as_me checks data format", {
 
 test_that("as_me assigns me class if everything is fine", {
   me_df <-
-    tibble(question = paste0("V", 1:3),
+    tibble::tibble(question = paste0("V", 1:3),
            quality = c(0.2, 0.3, 0.5),
            reliability = c(NA, 0.4, 0.5),
            validity = c(NA, NA, 0.6))

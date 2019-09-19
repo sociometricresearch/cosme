@@ -93,7 +93,7 @@ medesign <- function(model_syntax, .data, me_data) {
   split_model <- split(parsed_model, parsed_model$lhs)
 
   vars_used <- lapply(split_model, function(x) {
-    all.vars(as.formula(paste0("~", paste(x$rhs, collapse = "+"))))
+    all.vars(stats::as.formula(paste0("~", paste(x$rhs, collapse = "+"))))
   })
 
   # Check only for sscore variables because this is done first
@@ -188,7 +188,7 @@ create_sscore <- function(parsed_model, .data) {
     if (x$std) x$rhs <- paste0("scale(", x$rhs, ")")
     
     sscore_for <-
-      as.formula(
+      stats::as.formula(
         paste("~ I(", x$rhs, ")")
       )
 
@@ -204,13 +204,13 @@ create_sscore <- function(parsed_model, .data) {
     }
 
     created_ss <-
-      setNames(
+      stats::setNames(
         # Leave NA's as they are
-        model.frame(sscore_for, .data, na.action = NULL),
+        stats::model.frame(sscore_for, .data, na.action = NULL),
         ss_name
       )
 
-    # This is because model.frame returns the new variables with class
+    # This is because stats::model.frame returns the new variables with class
     # AsIs from the I() in the formula
     created_ss[ss_name] <- as.numeric(created_ss[[ss_name]])
     .data <- cbind(.data, created_ss)
@@ -233,7 +233,7 @@ adapted_sscore_quality <- function(parsed_model, .data, me_data) {
       me_sscore_(me_data = me_data,
                  data = .data,
                  new_name = x$lhs,
-                 vars_names = all.vars(as.formula(paste0("~", x$rhs)))
+                 vars_names = all.vars(stats::as.formula(paste0("~", x$rhs)))
                  )
   }
   

@@ -13,7 +13,7 @@ me_df <- structure(me_df, class = c(class(me_df), "me"))
 
 sample_data <-
   as_tibble(
-    setNames(
+    stats::setNames(
       replicate(5, c(rbinom(1000, 5, 0.6), NA), simplify = FALSE),
       paste0("V", 1:5)),
     .name_repair = "minimal"
@@ -82,7 +82,7 @@ me_df <- structure(me_df, class = c(class(me_df), "me"))
 
 sample_data <-
   as_tibble(
-    setNames(
+    stats::setNames(
       replicate(6, c(rbinom(1000, 5, 0.6), NA), simplify = FALSE),
       paste0("V", 1:6)),
     .name_repair = "minimal"
