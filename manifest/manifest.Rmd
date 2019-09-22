@@ -389,11 +389,8 @@ ex1
 
 
 # You left off here
-# You left off trying to adjusted the quality of the sscore
-# but apparently you exclude some variables from the me_data
-# above.
 
-# Once you finish that, you were thinking about how to
+# You were thinking about how to
 # dispatch the specific operation of each CMV unit. For example,
 # if you have a CMV between an observed and sscore, how
 # would you translate that to the function that processes this
@@ -405,34 +402,18 @@ ex1
 # room to add any arguments, so the function brought
 # from switch doesn't need to have any partial arguments.
 
-
 # When you got sscore + cmv working, you need to add the checks
 # of whether the sscore variables are indeed in the data.
-# This, I think, can be done automatically be model.matrix
-# if you pass the sumscores, taking out one manual check.
-
-# Then all variables in CMV must either in the data or the sscore definition
-# this you need to give an explicit check and raise an error.
-
-# I was thinking that `medesign` should accept the data, the me_data
-# and the model definition and it should only create the sscore variables
-# check that the cmv variables are in the data/me_data, create any quality
-# of the composite sscore. I think I don't have to extract the part that checks
-# which values are missing for the me_data because it's already done inside
-# the functions. However, look at it and if possible, move it to me design
-# so that all checks are done there.
 
 # TODO: Question to wiebke. Right now, when the user defines, let's
 # say:
 # "~ stflife + steco"
-# the the CMV of these variables is calculate and replace.
-# However, currently only the quality is replaced for these two variables
-# in the correlation. It could potentially be that in .data there
-# are variables available in me_data which have quality available.
-# However, these are not being replaced, only variables which
-# we extract from the model_string. Perhaps the best way to do this
-# would be to add an additional operator in model_syntax to be able
-# to extract also the quality of variables, separately.
+# the the CMV of these variables is calculate and replaced.
+# However, currently the quality is replaced for these all variables
+# available in .data which are in me_data in the correlation.
+# Perhaps the best way to do this would be to add an additional operator
+# in model_syntax to be able to explicitly specify which  variables
+# should be corrected for quality separately.
 
 # TODO: Redo the vignette with new pkg workflow, which is commented out
 
