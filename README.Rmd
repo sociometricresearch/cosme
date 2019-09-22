@@ -23,3 +23,64 @@ knitr::opts_chunk$set(
 
 The `measurementfree` package allows you to calculate several estimations of the quality of your survey questions and also adjust your estimations for measurement error.
 
+Assuming you have a data frame with the `reliability`, `validity` and `quality` of your question, you can correct for the quality and common method variance easily.
+
+# A simple example
+
+`measurementfree` introduces the concept of a measurement error design, such as the `survey` package has a survey design object. You can define this measurement error design with three objects: your model design, your measurement error data and the data of the analysis. For a simple case, let's assume that the columns `mpg`, `cyl` and `disp` for `mtcars` were measured with the same method (e.g. likert scale), then we could define the measurement error design object as this:
+
+```{r }
+# This is the model definition
+model_definition <- "~ mpg + cyl + disp"
+
+# The measurement error data
+me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "disp"),
+                        reliability = c(0.729, 0.815, 0.68),
+                        validity = c(0.951, 0.944, 0.79),
+                        quality = c(0.693, 0.77, 0.89)
+                      )
+
+# Define your measurement error design
+me_obj <- medesign(model_definition, mtcars, me_data)
+
+me_obj
+```
+
+Once you have that object, we simply pass it to `me_cmv_cor` to adjust the correlation of `mpg`, `cyl`, and `cyl` for common method variance as well as their quality:
+
+```{r }
+me_cmv_cor(me_obj)
+```
+
+# Another simple example
+
+For this example let's assume that `mpg` and `cyl` were measured with the same method and `disp` and `drat` were measured with another method, then we can simply supply a new line to the model above and make sure that the variable has data on `me_data`:
+
+```{r }
+# This is the model definition
+model_definition <-
+  "~ mpg + cyl
+   ~ disp + drat"
+
+# The (fake) measurement error data
+me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "disp", "drat"),
+                        reliability = c(0.729, 0.815, 0.68, 0.69),
+                        validity = c(0.951, 0.944, 0.79, 0.89),
+                        quality = c(0.693, 0.77, 0.89, 0.93)
+                      )
+
+# Define your measurement error design
+me_obj <- medesign(model_definition, mtcars, me_data)
+
+me_obj
+```
+
+Once you have that object, we simply pass it to `me_cmv_cor` to adjust the correlation of `mpg`, `cyl`, and `cyl` for common method variance as well as their quality:
+
+```{r }
+me_cmv_cor(me_obj)
+```
+
+Alternatively, you can use `me_cmv_cov` to adjust a covariance matrix for common method variance as well as quality.
