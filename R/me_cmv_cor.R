@@ -29,9 +29,9 @@
 #' # Toy quality dataset
 #' me_df <-
 #'  tibble(question = paste0("V", 1:5),
-#'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
 #'  reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
-#'  validity = c(0.79, 0.9, 0.6, 0.7, 0.8))
+#'  validity = c(0.79, 0.9, 0.6, 0.7, 0.8),
+#'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9))
 #'
 #' # Define mdesign object
 #' m_obj <- medesign("~ V4 + V5", original_df, me_df)

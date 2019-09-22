@@ -389,19 +389,9 @@ ex1
 
 
 # You left off here
-# You already have a parser that works, a working
-# example of correctiong for several observed variables for
-# their CMV and the sumscore creation function.
-
-# Next is that if any of the sumscores are used in the CMV, you need
-# to add it's quality in the me_data before doing any correlation.
-# After that, you can just calculate the CMV of an observed and a
-# composite score.
-
 # You left off trying to adjusted the quality of the sscore
 # but apparently you exclude some variables from the me_data
 # above.
-
 
 # Once you finish that, you were thinking about how to
 # dispatch the specific operation of each CMV unit. For example,

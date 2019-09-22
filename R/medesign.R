@@ -121,14 +121,14 @@ medesign <- function(model_syntax, .data, me_data) {
   check_data_vars(.data, vars_used)
   check_data_na(.data, vars_used)
 
-  me_data <- me_data[match(vars_used, me_data$question), ]
+  me_data_filt <- me_data[match(vars_used, me_data$question), ]
 
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")
 
-  # Replce the diagonal only with the quality of the specified
-  # variabes in model_syntax. This will probably changed
-  # to an explicit declaration of quality in model_syntax
+  # Replce the diagonal with the quality of all variables
+  # in me_data (not the filtered one). This could change
+  # to an explicit declaration of quality in model_syntax in the future
   pos_diag <- match(me_data$question, rownames(qual_cor))
   diag(qual_cor)[pos_diag] <- me_data$quality
   diag(qual_cov)[pos_diag] <- me_data$quality
@@ -136,7 +136,7 @@ medesign <- function(model_syntax, .data, me_data) {
   structure(
     list(parsed_model = parsed_model,
          .data = .data,
-         me_data = me_data,
+         me_data = me_data_filt,
          corr = matrix2tibble(qual_cor),
          covv = matrix2tibble(qual_cov)),
     class = "medesign"

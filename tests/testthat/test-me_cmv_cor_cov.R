@@ -41,7 +41,7 @@ correct_format <- function(p) {
 }
 
 fun <- me_cmv_cor
-fun_str <- "me_cmv_cov"
+fun_str <- "me_cmv_cor"
 
 test_cor_cov <- function(fun, fun_str) {
 
@@ -192,7 +192,7 @@ test_cor_cov <- function(fun, fun_str) {
   test_that(paste0(fun_str, " replaces upper and lower triangle"), {
     up_equal <- function(x) {
       tp <- x[-1]
-      all(sort(tp[lower.tri(tp)]) == sort(tp[upper.tri(tp)]))
+      all(all.equal(sort(tp[lower.tri(tp)]), sort(tp[upper.tri(tp)])))
     }
 
     me_df <-
