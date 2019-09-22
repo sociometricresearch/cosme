@@ -117,11 +117,13 @@ medesign <- function(model_syntax, .data, me_data) {
   # just because I'm lazy
   check_number_cmv(parsed_model)
   check_me_vars(me_data, vars_used)
-  check_me_na(me_data, me_cols = c("reliability", "validity"))
-  check_data_vars(.data, vars_used)
-  check_data_na(.data, vars_used)
 
   me_data_filt <- me_data[match(vars_used, me_data$question), ]
+
+  # Only check NA's on variables used
+  check_me_na(me_data_filt, me_cols = c("reliability", "validity"))
+  check_data_vars(.data, vars_used)
+  check_data_na(.data, vars_used)
 
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")

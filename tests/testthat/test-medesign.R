@@ -135,6 +135,29 @@ test_that("medesign returns expected format", {
                         )
   res <- medesign(me_syntax, mtcars, me_data)
   validate_medesign(res)
+test_that("mdesign only checks for NA in me_data for used variables", {
+  # These three variables share a common method
+  me_syntax <- "~ mpg + cyl"
+  # Fake data for the example
+  me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "drat"),
+                        reliability = c(0.729, 0.815, NA),
+                        validity = c(0.951, 0.944, NA),
+                        quality = c(0.693, 0.77, 0.89)
+                        )
+
+  # Expect NO error
+  # https://stackoverflow.com/questions/10826365/how-to-test-that-an-error-does-not-occur #nolintr
+  expect_error(res <- medesign(me_syntax, mtcars, me_data), NA)
+  me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "drat"),
+                        reliability = c(0.729, NA, NA),
+                        validity = c(0.951, 0.944, NA),
+                        quality = c(0.693, 0.77, 0.89)
+                        )
+  # This should throw an error because there is an NA in
+  # validity/reliability for a var used in the me_syntax
+  expect_error(medesign(me_syntax, mtcars, me_data))
 })
 
 test_that("medesign checks for wrong format of me_data", {
