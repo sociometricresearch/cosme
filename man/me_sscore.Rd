@@ -5,15 +5,16 @@
 \alias{me_sscore_}
 \title{Calculate quality of sum score of selected variables}
 \usage{
-me_sscore(me_data, data, new_name, ..., wt = NULL, drop = TRUE)
+me_sscore(me_data, .data, new_name, ..., wt = NULL, drop = TRUE)
 
-me_sscore_(me_data, data, new_name, vars_names, wt = NULL, drop = TRUE)
+me_sscore_(me_data, .data, new_name, vars_names, wt = NULL,
+  drop = TRUE)
 }
 \arguments{
 \item{me_data}{a data frame of class \code{me} containing
 quality estimates from the variables specified in \code{...}.}
 
-\item{data}{a data frame which contains data for the variables specified
+\item{.data}{a data frame which contains data for the variables specified
 in \code{...}.}
 
 \item{new_name}{a bare unquoted name or a string specifying the name
@@ -73,14 +74,14 @@ sample_data <-
 
 me_sscore(
 me_data = me_df,
-data = sample_data,
+.data = sample_data,
 new_name = new_sumscore,
 V3, V4
 )
 
 me_sscore(
 me_data = me_df,
-data = sample_data,
+.data = sample_data,
 new_name = new_sumscore,
 "V1", "V2"
 )

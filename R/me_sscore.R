@@ -63,14 +63,14 @@
 #'
 #' me_sscore(
 #' me_data = me_df,
-#' data = sample_data,
+#' .data = sample_data,
 #' new_name = new_sumscore,
 #' V3, V4
 #' )
 #'
 #' me_sscore(
 #' me_data = me_df,
-#' data = sample_data,
+#' .data = sample_data,
 #' new_name = new_sumscore,
 #' "V1", "V2"
 #' )

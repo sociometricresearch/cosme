@@ -38,6 +38,11 @@ validity an quality. The first column should contain the names of the
 variables as character vector, while the other three should be numeric
 vectors with their corresponding reliability, validity and quality
 values.
+
+Currently, \code{medesign} replaces the non-NA quality of all variables found
+in \code{me_data} and \code{.data} in the correlation/covariance diagonal
+by default. This is then used by \code{me_cmv_cor} and \code{me_cmv_cov}
+to correct for the quality in the diagonal.
 }
 \examples{
 

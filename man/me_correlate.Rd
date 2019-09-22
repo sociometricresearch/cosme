@@ -4,11 +4,11 @@
 \alias{me_correlate}
 \title{Calculate a correlation matrix with an adjusted diagonal}
 \usage{
-me_correlate(data, diag_adj = 1, wt = NULL, use = "complete.obs",
+me_correlate(.data, diag_adj = 1, wt = NULL, use = "complete.obs",
   method = "pearson")
 }
 \arguments{
-\item{data}{a matrix or data frame with numeric columns.}
+\item{.data}{a matrix or data frame with numeric columns.}
 
 \item{diag_adj}{a numeric vector with length equal to the number of columns
 of \code{x} to be multiplied by the diagonal.  Alternatively, it can be of
