@@ -51,8 +51,6 @@
 #'        validity = c(0.8, 0.1, 0.6, 0.7, 0.8))
 #'
 #'
-#' me_df <- structure(me_df, class = c(class(me_df), "me"))
-#'
 #' sample_data <-
 #'  as_tibble(
 #'  stats::setNames(

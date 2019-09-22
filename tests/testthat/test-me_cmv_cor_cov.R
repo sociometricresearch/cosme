@@ -271,9 +271,6 @@ test_that("me_cmv_cor returns correct calculation after cov2cor",  {
   # diag(original_corr_weighted) <- me_df$quality
 
   m_obj <- medesign("~ ppltrst + trstplt", ess7es3var, me_df)
-  # TODO: Temporary fix until you figure out whether
-  # all variables will be replace with the quality or only
-  # the ones defined in the CMV in the model_syntax
   diag(m_obj$corr[1, 2]) <- me_df$quality[1]
 
   tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))

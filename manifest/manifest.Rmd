@@ -324,30 +324,6 @@ These are easy to understand steps and make the process linear when definition t
 # Syntax parsing
 
 ```{r}
-
-model.syntax <-
-  "#1)
-   sumscore = var1 + var2 * var3
-
-   #2)
-   std(std_sumscore1) = var3*w1 + w4 + sin(20) + (var4*w2) + (var5*w3)
-   # std_sumscore2 = std(var5 + var6)
-
-   #3)
-   ~ var7 + var8
-
-   #4)
-   ~ var9 + sumscore
-
-   #5)
-   ~ var10 + std_sumscore1
-
-   #6)
-   ~ sumscore + std_sumscore1
-
-   #7)
-   ~ std_sumscore1 + std_sumscore2"
-
 # Working example
 
 # Right now the quality of sscore is estimated with all variables in
@@ -381,43 +357,4 @@ me_data <- data.frame(stringsAsFactors = FALSE,
 me_obj <- medesign(model_syntax, .data, me_data)
 
 me_cmv_cor(me_obj)
-
-model_syntax <-"~ stflife + ppltrst"
-
-ex1 <- medesign(model_syntax, .data, me_data)
-ex1
-
-
-# You left off here
-
-# You were thinking about how to
-# dispatch the specific operation of each CMV unit. For example,
-# if you have a CMV between an observed and sscore, how
-# would you translate that to the function that processes this
-# specific case? You were thinking of doing something
-# like a switch statemente to pass the desired function.
-# This is possible now that you have standard evaluation
-# functions for me_cmv_cor, me_cmv_cov and me_sscore.
-# This is nice because since the user does not have
-# room to add any arguments, so the function brought
-# from switch doesn't need to have any partial arguments.
-
-# When you got sscore + cmv working, you need to add the checks
-# of whether the sscore variables are indeed in the data.
-
-# TODO: Question to wiebke. Right now, when the user defines, let's
-# say:
-# "~ stflife + steco"
-# the the CMV of these variables is calculate and replaced.
-# However, currently the quality is replaced for these all variables
-# available in .data which are in me_data in the correlation.
-# Perhaps the best way to do this would be to add an additional operator
-# in model_syntax to be able to explicitly specify which  variables
-# should be corrected for quality separately.
-
-# TODO: Redo the vignette with new pkg workflow, which is commented out
-
-# Tests
-# when parsed string has the same variable used twice in CMV or sumscore,
-# everything is ok
 ```

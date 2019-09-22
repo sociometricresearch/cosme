@@ -69,23 +69,6 @@
 ##'
 ##' medesign(me_syntax, mtcars, me_data)
 ##' 
-
-# TODO: Here I check whether the variables parsed by model_syntax
-# are in the me_data data but when I extract the variables
-# from the sscore, I cannot disentangle what the vars are
-# from, let's say, weights.
-
-# TODO: Currently you don't have sumscores implemented because if
-# you create the the quality of the sumscore, reliability
-# and validity have missing values and the original me code
-# raises an error. I think it's because sscore are only
-# used to adjust for quality, but why do I remember Wiebke
-# doing CMV between sumscores and observed variables? Maybe
-# I got confused.
-
-# TODO: Populate the descript extensively on how the syntax
-# is written and what is permitted. See model.syntax
-# of lavaan for an example
 medesign <- function(model_syntax, .data, me_data) {
   me_data <- as_me(me_data)
 
