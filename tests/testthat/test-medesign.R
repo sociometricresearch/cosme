@@ -158,6 +158,66 @@ test_that("medesign returns expected format", {
 
 })
 
+test_that("medesign ignores vars with NA in quality for diagonal", {
+  # These three variables share a common method
+  me_syntax <- "~ mpg + cyl"
+  # Fake data for the example
+  me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "drat"),
+                        reliability = c(0.729, 0.815, NA),
+                        validity = c(0.951, 0.944, NA),
+                        quality = c(0.693, 0.77, NA)
+                        )
+
+  res <- medesign(me_syntax, mtcars, me_data)
+
+  replaced_diag <- diag(as.matrix(res$corr[-1]))
+  expect_true(
+    all(names(mtcars)[which(replaced_diag != 1)] == c("mpg", "cyl"))
+  )
+
+  # Compare that the replaced diagonals are different from the original
+  # ones for the variables in me_data
+  original_diag <- diag(as.matrix(me_covariance(mtcars)[-1]))
+  replaced_diag <- diag(as.matrix(res$covv[-1]))
+  are_different <- original_diag != replaced_diag
+
+  expect_true(
+    all(names(mtcars)[which(are_different)] == c("mpg", "cyl"))
+  )
+
+})
+
+test_that("medesign ignores quality with ALL NA in quality for diagonal", {
+  # These three variables share a common method
+  me_syntax <- "~ mpg + cyl"
+  # Fake data for the example
+  me_data <- data.frame(stringsAsFactors = FALSE,
+                        question = c("mpg", "cyl", "drat"),
+                        reliability = c(0.729, 0.815, NA),
+                        validity = c(0.951, 0.944, NA),
+                        quality = c(NA, NA, NA)
+                        )
+
+  res <- medesign(me_syntax, mtcars, me_data)
+
+  replaced_diag <- diag(as.matrix(res$corr[-1]))
+  expect_true(
+    all(names(mtcars)[which(replaced_diag != 1)] == character(0))
+  )
+
+  # Compare that the replaced diagonals are different from the original
+  # ones for the variables in me_data
+  original_diag <- diag(as.matrix(me_covariance(mtcars)[-1]))
+  replaced_diag <- diag(as.matrix(res$covv[-1]))
+  are_different <- original_diag != replaced_diag
+
+  expect_true(
+    all(names(mtcars)[which(are_different)] == character())
+  )
+
+})
+
 test_that("medesign replaces diag for vars in me_data despite model_syntax", {
   # These three variables share a common method
   me_syntax <- "~ mpg + cyl"
@@ -225,6 +285,7 @@ test_that("medesign creates sscore and removes vars from me_data", {
 
 })
 
+
 test_that("medesign creates two sscore and removes vars from me_data", {
   # These three variables share a common method
   me_syntax <- "sscore_one = drat + disp; sscore_two = am + gear; ~ mpg + cyl"
@@ -268,7 +329,8 @@ test_that("medesign creates two sscore and removes vars from me_data", {
 
 })
 
-test_that("mdesign only checks for NA in me_data for used variables", {
+
+test_that("medesign only checks for NA in me_data for used variables", {
   # These three variables share a common method
   me_syntax <- "~ mpg + cyl"
   # Fake data for the example

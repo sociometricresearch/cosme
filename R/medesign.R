@@ -14,6 +14,11 @@
 ##' vectors with their corresponding reliability, validity and quality
 ##' values.
 ##'
+##' Currently, \code{medesign} replaces the non-NA quality of all variables found
+##' in \code{me_data} and \code{.data} in the correlation/covariance diagonal
+##' by default. This is then used by \code{me_cmv_cor} and \code{me_cmv_cov}
+##' to correct for the quality in the diagonal.
+##'
 ##' 
 ##' 
 ##' @title Define your measurement error design
@@ -128,9 +133,10 @@ medesign <- function(model_syntax, .data, me_data) {
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")
 
-  # Replce the diagonal with the quality of all variables
+  # Replce the diagonal with the non-na quality of all variables
   # in me_data (not the filtered one). This could change
   # to an explicit declaration of quality in model_syntax in the future
+  me_data <- me_data[!is.na(me_data$quality), ]
   pos_diag <- match(me_data$question, rownames(qual_cor))
   diag(qual_cor)[pos_diag] <- me_data$quality
   diag(qual_cov)[pos_diag] <- me_data$quality
