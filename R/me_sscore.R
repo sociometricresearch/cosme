@@ -8,7 +8,7 @@
 #' @param me_data a data frame of class \code{me} containing
 #' quality estimates from the variables specified in \code{...}.
 #' 
-#' @param data a data frame which contains data for the variables specified
+#' @param .data a data frame which contains data for the variables specified
 #' in \code{...}.
 #' 
 #' @param new_name a bare unquoted name or a string specifying the name
@@ -76,7 +76,7 @@
 #' )
 #'
 #'
-me_sscore  <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
+me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, drop = TRUE) {
   e_dots <- eval(substitute(alist(...)))
   f_dots <- lapply(e_dots, function(x) {
     if (is.name(x)) as.character(x) else eval(x)
@@ -87,21 +87,21 @@ me_sscore  <- function(me_data, data, new_name, ..., wt = NULL, drop = TRUE) {
 
   new_name <- unique(as.character(substitute(new_name)))
 
-  me_sscore_(me_data, data, new_name, vars_names, wt, drop)
+  me_sscore_(me_data, .data, new_name, vars_names, wt, drop)
 }
 #' @rdname me_sscore
 #' @export
-me_sscore_ <- function(me_data, data, new_name, vars_names, wt = NULL, drop = TRUE) {
+me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, drop = TRUE) {
 
   # Check me data has correct class and formats
   me_data <- as_me(me_data)
 
   summary_name <- new_name
 
-  # Check all variables present in data
-  vars_not_matched <- !vars_names %in% names(data)
+  # Check all variables present in .data
+  vars_not_matched <- !vars_names %in% names(.data)
   if (any(vars_not_matched)) {
-    stop("One or more variables are not present in `data`: ",
+    stop("One or more variables are not present in `.data`: ",
          paste0(vars_names[vars_not_matched], collapse = ", "),
          call. = FALSE)
   }
@@ -114,14 +114,14 @@ me_sscore_ <- function(me_data, data, new_name, vars_names, wt = NULL, drop = TR
          call. = FALSE)
   }
 
-  the_vars <- data[vars_names]
+  the_vars <- .data[vars_names]
 
-  # Check all variables are numeric and there are at least two columns in the data data
+  # Check all variables are numeric and there are at least two columns in the .data data
   if (!all(vapply(the_vars, is.numeric, FUN.VALUE = logical(1)))) {
-    stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `data`")
+    stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `.data`")
   }
 
-  if (ncol(the_vars) < 2) stop("`data` must have at least two columns")
+  if (ncol(the_vars) < 2) stop("`.data` must have at least two columns")
 
   # Select the rows with only the selected variales
   # for the sumscore
@@ -157,13 +157,13 @@ me_sscore_ <- function(me_data, data, new_name, vars_names, wt = NULL, drop = TR
 # Rather with measurement quality as a wrapper
 # because it checks all of the arguments are in
 # the correct format, etc..
-estimate_sscore <- function(me_data, the_data, wt) {
+estimate_sscore <- function(me_data, .data, wt) {
 
-  if (is.null(wt)) wt <- rep(1, length(the_data))
+  if (is.null(wt)) wt <- rep(1, length(.data))
 
   is_numeric <- is.numeric(wt)
   is_na <- anyNA(wt)
-  correct_length <- length(wt) == ncol(the_data)
+  correct_length <- length(wt) == ncol(.data)
 
   if (!is_numeric | is_na | !correct_length) {
     stop("`wt` must be a non-NA numeric vector with the same length as the number of variables")
@@ -183,7 +183,7 @@ estimate_sscore <- function(me_data, the_data, wt) {
   # Method effect
   method_e <- sqrt(1 - vy^2)
 
-  std_data <- vapply(the_data, stats::sd, na.rm = TRUE, FUN.VALUE = numeric(1))
+  std_data <- vapply(.data, stats::sd, na.rm = TRUE, FUN.VALUE = numeric(1))
 
   # This is the 'quality coefficient'
   # for the observed variable i. (1-qi2)var(yi)
@@ -191,7 +191,7 @@ estimate_sscore <- function(me_data, the_data, wt) {
 
   # Here you create
   # all combinations
-  comb <- utils::combn(seq_along(the_data), 2, simplify = FALSE)
+  comb <- utils::combn(seq_along(.data), 2, simplify = FALSE)
 
   # This the multiplication of all variable combinations
   # using ri * mi * mj * rj * si * sj
@@ -206,7 +206,7 @@ estimate_sscore <- function(me_data, the_data, wt) {
   intm <- sum(combn_multiplication(comb, wt, cov_e)) * 2
 
   var_ecs <- weights_by_qcoef + intm
-  var_composite <- stats::var(rowSums(the_data, na.rm = TRUE))
+  var_composite <- stats::var(rowSums(.data, na.rm = TRUE))
 
   1 - (var_ecs / var_composite)
 }

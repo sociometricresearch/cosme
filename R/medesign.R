@@ -231,7 +231,7 @@ adapted_sscore_quality <- function(parsed_model, .data, me_data) {
   for (x in separate_ss) {
     me_data <-
       me_sscore_(me_data = me_data,
-                 data = .data,
+                 .data = .data,
                  new_name = x$lhs,
                  vars_names = all.vars(stats::as.formula(paste0("~", x$rhs)))
                  )

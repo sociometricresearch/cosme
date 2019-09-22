@@ -5,7 +5,7 @@
 #' numeric vector. It's a wrapper around \code{\link[stats]{cor}} with slight
 #' tweaks.
 #'
-#' @param data a matrix or data frame with numeric columns.
+#' @param .data a matrix or data frame with numeric columns.
 #'
 #' @param diag_adj a numeric vector with length equal to the number of columns
 #'   of \code{x} to be multiplied by the diagonal.  Alternatively, it can be of
@@ -51,7 +51,7 @@
 #' diagonal_wout_weight <- rnorm(ncol(mtcars) - 1)
 #' me_correlate(mtcars, diagonal_wout_weight, wt = mpg)
 #' 
-me_correlate <- function(data,
+me_correlate <- function(.data,
                          diag_adj = 1,
                          wt = NULL,
                          use = "complete.obs",
@@ -61,7 +61,7 @@ me_correlate <- function(data,
   wt <- if (length(wt) == 0) NULL else wt
 
   cor_cov_matrix(type = "cor",
-                 x = data,
+                 x = .data,
                  diag_adj = diag_adj,
                  use = use,
                  method = method,
@@ -99,12 +99,16 @@ me_correlate <- function(data,
 #'
 #' diagonal_wout_weight <- rnorm(ncol(mtcars) - 1)
 #' me_covariance(mtcars, diagonal_wout_weight, wt = mpg)
-me_covariance <- function(data, diag_adj = 1, wt = NULL, use = "complete.obs", method = "pearson") {
+me_covariance <- function(.data,
+                          diag_adj = 1,
+                          wt = NULL,
+                          use = "complete.obs",
+                          method = "pearson") {
   wt <- as.character(substitute(wt))
   wt <- if (length(wt) == 0) NULL else wt
 
   cor_cov_matrix(type = "cov",
-                 x = data,
+                 x = .data,
                  diag_adj = diag_adj,
                  use = use,
                  method = method,
