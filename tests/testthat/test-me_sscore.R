@@ -110,9 +110,6 @@ test_that("me_sscore checks for arguments", {
       V1, V5),
     "V1, V5 must be numeric variables in `.data`"
   )
-
-  ## NOTEEEE##
-  ## Check that all me_data are non-NA in all variables selected
 })
 
 test_that("me_sscore checks variables are in both dfs", {
