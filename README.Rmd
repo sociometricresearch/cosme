@@ -25,7 +25,14 @@ The `measurementfree` package allows you to calculate several estimations of the
 
 Assuming you have a data frame with the `reliability`, `validity` and `quality` of your question, you can correct for the quality and common method variance easily.
 
-# A simple example
+Load the package as:
+
+```{r}
+# devtools::install_github("sociometricresearch/measurementfree")
+library(measurementfree)
+```
+
+## A simple example
 
 `measurementfree` introduces the concept of a measurement error design, such as the `survey` package has a survey design object. You can define this measurement error design with three objects: your model design, your measurement error data and the data of the analysis. For a simple case, let's assume that the columns `mpg`, `cyl` and `disp` for `mtcars` were measured with the same method (e.g. likert scale), then we could define the measurement error design object as this:
 
@@ -53,7 +60,7 @@ Once you have that object, we simply pass it to `me_cmv_cor` to adjust the corre
 me_cmv_cor(me_obj)
 ```
 
-# Another simple example
+## Another simple example
 
 For this example let's assume that `mpg` and `cyl` were measured with the same method and `disp` and `drat` were measured with another method, then we can simply supply a new line to the model above and make sure that the variable has data on `me_data`:
 

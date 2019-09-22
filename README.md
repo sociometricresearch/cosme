@@ -22,7 +22,14 @@ Assuming you have a data frame with the `reliability`, `validity` and
 `quality` of your question, you can correct for the quality and common
 method variance easily.
 
-# A simple example
+Load the package as:
+
+``` r
+# devtools::install_github("sociometricresearch/measurementfree")
+library(measurementfree)
+```
+
+## A simple example
 
 `measurementfree` introduces the concept of a measurement error design,
 such as the `survey` package has a survey design object. You can define
@@ -76,7 +83,7 @@ me_cmv_cor(me_obj)
 #> # … with 3 more variables: am <dbl>, gear <dbl>, carb <dbl>
 ```
 
-# Another simple example
+## Another simple example
 
 For this example let’s assume that `mpg` and `cyl` were measured with
 the same method and `disp` and `drat` were measured with another method,
