@@ -11,7 +11,6 @@ status](https://www.r-pkg.org/badges/version/measurementfree)](https://cran.r-pr
 status](https://travis-ci.org/sociometricresearch/measurementfree.svg?branch=master)](https://travis-ci.org/sociometricresearch/measurementfree)
 [![AppVeyor build
 status](https://ci.appveyor.com/api/projects/status/github/sociometricresearch/measurementfree?branch=master&svg=true)](https://ci.appveyor.com/project/sociometricresearch/measurementfree)
-<!-- [![Codecov test coverage](https://codecov.io/gh/sociometricresearch/measurementfree/branch/master/graph/badge.svg)](https://codecov.io/gh/sociometricresearch/measurementfree?branch=master) -->
 [![Codecov test
 coverage](https://codecov.io/gh/sociometricresearch/measurementfree/branch/master/graph/badge.svg)](https://codecov.io/gh/sociometricresearch/measurementfree?branch=master)
 <!-- badges: end -->
