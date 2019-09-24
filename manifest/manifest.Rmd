@@ -281,14 +281,14 @@ The strategy described above would have finally 3 steps that are transparent to 
 ```{r eval = FALSE}
 ess_spain <- # get your initial data
 
-  # 1) Define survey design
-  survey_design <-
-    svydesign(
-      ids = ~ psu + idno,
-      strata = ~ stratify,
-      weights = ~ prob,
-      data = ess_spain
-    )
+# 1) Define survey design
+survey_design <-
+  svydesign(
+    ids = ~ psu + idno,
+    strata = ~ stratify,
+    weights = ~ prob,
+    data = ess_spain
+  )
 
 # 2) Define measurement error design
 
