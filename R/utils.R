@@ -165,3 +165,7 @@ me_env$all_estimate_variables <- c("question",
                                     "qualityCoefficientStdError"
                                     )
 
+.onAttach <- function(libname, pkgname) {
+   packageStartupMessage("\nPlease cite as: \n")
+   packageStartupMessage('Cimentada, J. & Weber, W. (2019). A flexible tool to correct correlation and covariance matrices for measurement error R package version 0.0.1.')
+}

@@ -1,5 +1,5 @@
 Package: measurementfree
-Title: An flexible tool to correct correlation and covariance matrices for measurement error
+Title: A flexible tool to correct correlation and covariance matrices for measurement error
 Version: 0.0.1
 Authors@R: 
     c(
@@ -19,6 +19,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
 LazyData: true
+URL: https://sociometricresearch.github.io/measurementfree/, https://github.com/sociometricresearch/measurementfree/
 VignetteBuilder: knitr
 Suggests: 
     covr,

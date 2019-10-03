@@ -1,0 +1,11 @@
+citHeader('To cite measurementfree in publications use:')
+
+citEntry(
+  entry    = 'Manual',
+  title    = 'An flexible tool to correct correlation and covariance matrices for measurement error',
+  author   = 'Jorge Cimentada  (<https://orcid.org/0000-0001-5594-1156>) Wiebke Weber  (<https://orcid.org/0000-0002-6754-1392>)',
+  year     = '2019',
+  note     = 'R package version 0.0.1',
+  url      = 'https://sociometricresearch.github.io/measurementfree/, https://github.com/sociometricresearch/measurementfree/',
+  textVersion = 'Cimentada, J. & Weber, W. (2019). A flexible tool to correct correlation and covariance matrices for measurement error R package version 0.0.1.'
+)
