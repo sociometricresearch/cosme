@@ -135,7 +135,8 @@ medesign <- function(model_syntax, .data, me_data) {
 
 }
 
-print.medesign <- function(x) {
+##' @export
+print.medesign <- function(x, ...) {
   sscore_df <- x$parsed_model[x$parsed_model$op == "=", ]
   split_sscore <- split(sscore_df, sscore_df$lhs)
   
