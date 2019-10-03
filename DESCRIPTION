@@ -1,6 +1,6 @@
 Package: measurementfree
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: An flexible tool to correct correlation and covariance matrices for measurement error
+Version: 0.0.1
 Authors@R: 
     c(
     person(given = "Jorge",
@@ -14,7 +14,7 @@ Authors@R:
 	   email = "wiebke.weber@upf.edu",
 	   comment = c(ORCID = "0000-0002-6754-1392"))
     )
-Description: What the package does (one paragraph).
+Description: Through a flexible syntax for model specification, measurementfree allows to define a measurement error design object which can be used to adjust for measurement error in correlation and covariance matrices.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
