@@ -50,7 +50,6 @@ me_data <- data.frame(stringsAsFactors = FALSE,
 
 # Define your measurement error design
 me_obj <- medesign(model_definition, mtcars, me_data)
-
 me_obj
 ```
 
