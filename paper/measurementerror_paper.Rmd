@@ -1,0 +1,48 @@
+---
+documentclass: jss
+author:
+  - name: Jorge Cimentada
+    affiliation: Max Planck Insitute for Demographic Research
+    address: >
+      First line
+      Second line
+    email: \email{cimentadaj@demogr.mpg.de}
+  - name: Wiebke Weber
+    affiliation: Pompeu Fabra University
+title:
+  formatted: "\\pkg{measurementerror}: A flexible tool to correct correlation and covariance matrices for measurement error"
+  # If you use tex in the formatted title, also supply version without
+  plain:     "measurementerror: A flexible tool to correct correlation and covariance matrices for measurement error"
+  # For running headers, if needed
+  short:     "\\pkg{measurementerror}: measurement error correction"
+abstract: >
+  The abstract of the article.
+keywords:
+  # at least one keyword must be supplied
+  formatted: ["\\proglang{R}", measurement error]
+  plain:     [R, measurement error]
+preamble: >
+  \usepackage{amsmath}
+output: rticles::jss_article
+---
+
+# Introduction
+
+This template demonstrates some of the basic latex you'll need to know to create a JSS article.
+
+## Code formatting
+
+Don't use markdown, instead use the more precise latex commands:
+
+* \proglang{Java}
+* \pkg{plyr}
+* \code{print("abc")}
+
+# R code
+
+Can be inserted in regular R markdown blocks.
+
+```{r}
+x <- 1:10
+x
+```

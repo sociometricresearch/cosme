@@ -6,3 +6,5 @@
 manifest/
 ^doc$
 ^Meta$
+^.*\.Rproj$
+^\.Rproj\.user$

@@ -1,0 +1,89 @@
+\documentclass[
+]{jss}
+
+\usepackage[utf8]{inputenc}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\author{
+Jorge Cimentada\\Max Planck Insitute for Demographic Research \And Wiebke Weber\\Pompeu Fabra University
+}
+\title{\pkg{measurementerror}: A flexible tool to correct correlation and
+covariance matrices for measurement error}
+
+\Plainauthor{Jorge Cimentada, Wiebke Weber}
+\Plaintitle{measurementerror: A flexible tool to correct correlation and covariance
+matrices for measurement error}
+\Shorttitle{\pkg{measurementerror}: measurement error correction}
+
+\Abstract{
+The abstract of the article.
+}
+
+\Keywords{\proglang{R}, measurement error}
+\Plainkeywords{R, measurement error}
+
+%% publication information
+%% \Volume{50}
+%% \Issue{9}
+%% \Month{June}
+%% \Year{2012}
+%% \Submitdate{}
+%% \Acceptdate{2012-06-04}
+
+\Address{
+    Jorge Cimentada\\
+  Max Planck Insitute for Demographic Research\\
+  First line Second line\\
+  E-mail: \email{cimentadaj@demogr.mpg.de}\\
+  
+    }
+
+% Pandoc header
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This template demonstrates some of the basic latex you'll need to know
+to create a JSS article.
+
+\hypertarget{code-formatting}{%
+\subsection{Code formatting}\label{code-formatting}}
+
+Don't use markdown, instead use the more precise latex commands:
+
+\begin{itemize}
+\item
+  \proglang{Java}
+\item
+  \pkg{plyr}
+\item
+  \code{print("abc")}
+\end{itemize}
+
+\hypertarget{r-code}{%
+\section{R code}\label{r-code}}
+
+Can be inserted in regular R markdown blocks.
+
+\begin{CodeChunk}
+
+\begin{CodeInput}
+R> x <- 1:10
+R> x
+\end{CodeInput}
+
+\begin{CodeOutput}
+ [1]  1  2  3  4  5  6  7  8  9 10
+\end{CodeOutput}
+\end{CodeChunk}
+
+
+
+\end{document}
+
