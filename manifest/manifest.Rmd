@@ -127,7 +127,7 @@ Let's define each step at a time.
 * Step 1: classic way of defining your complex survey design. Many references on how to do this such as [this](http://r-survey.r-forge.r-project.org/survey/) and [this](http://asdfree.com/).
 
 * Step 2.1: Define the relationship between your variables. Here the user might specify which variables share a common method, which variables are standardized, which variables are sumscores,
-among other things... This 'model definition' will borrow many  ideas from the `lavaan` package in stats::terms of parsing the model from a string. In any case, the syntax of this model definition should be very flexible and have syntax declarations for each operation described above (share common method, standardized variables, etc...)
+among other things... This 'model definition' will borrow many  ideas from the `lavaan` package in `stats::terms` of parsing the model from a string. In any case, the syntax of this model definition should be very flexible and have syntax declarations for each operation described above (share common method, standardized variables, etc...)
 
 * Step 2.2: Obtain measurement error estimates. This could be through SQP or your own set of the quality estimates.
 
@@ -319,11 +319,11 @@ tse_result <-
   )
 ```
 
-These are easy to understand steps and make the process linear when definition the Total Survey Error framework. The advantages of this process is that most of the estimation happening here is done through `lavaan` which is a package very mature. This means that all processes will revert back to the argument checking, estimation strategies and errors raised by the package. Moreover, the result will always be of class `lavaan`, which means that it can be used with **any** other function from the lavaan software (`summary`, `coef`, `parameterEstimates`, etc..) as well as other packages (`broom`).
+These are easy to understand steps and make the process linear when defining the Total Survey Error framework. The advantages of this process is that most of the estimation happening here is done through `lavaan` which is a very mature package. This means that all processes will revert back to the argument checking, estimation strategies and errors raised by `lavaan`. Moreover, the result will always be of class `lavaan`, which means that it can be used with **any** other function from the lavaan software (`summary`, `coef`, `parameterEstimates`, etc..) as well as other packages (`broom`).
 
 # Syntax parsing
 
-```{r}
+```{r, eval = FALSE}
 # Working example
 
 # Right now the quality of sscore is estimated with all variables in
