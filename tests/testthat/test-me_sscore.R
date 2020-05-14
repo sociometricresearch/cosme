@@ -60,7 +60,7 @@ test_that("me_sscore keeps variables that compose the sum score", {
       .data = sample_data,
       new_name = new_sumscore,
       V3, V4, V4,
-      drop = FALSE
+      .drop = FALSE
     )
 
   expect_s3_class(result, "data.frame")

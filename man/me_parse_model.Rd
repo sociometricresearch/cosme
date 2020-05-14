@@ -4,8 +4,12 @@
 \alias{me_parse_model}
 \title{Extract a model specification from the measurement error model}
 \usage{
-me_parse_model(model_syntax = " ", as_list = FALSE,
-  debug_code = FALSE, operators = c("~", "="))
+me_parse_model(
+  model_syntax = " ",
+  as_list = FALSE,
+  debug_code = FALSE,
+  operators = c("~", "=")
+)
 }
 \arguments{
 \item{model_syntax}{a string containing the model specification}

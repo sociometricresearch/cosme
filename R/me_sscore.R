@@ -24,7 +24,7 @@
 #' sum scores of all variable. Be default, all variables are given the same
 #' weight.
 #'
-#' @param drop a logical stating whether to drop the questions that compose
+#' @param .drop a logical stating whether to drop the questions that compose
 #' the sum score (specified in \code{...}) If \code{FALSE} it retains the
 #' original questions and the composite score.
 #'
@@ -74,7 +74,7 @@
 #' )
 #'
 #'
-me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, drop = TRUE) {
+me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
   e_dots <- eval(substitute(alist(...)))
   f_dots <- lapply(e_dots, function(x) {
     if (is.name(x)) as.character(x) else eval(x)
@@ -85,11 +85,12 @@ me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, drop = TRUE) {
 
   new_name <- unique(as.character(substitute(new_name)))
 
-  me_sscore_(me_data, .data, new_name, vars_names, wt, drop)
+  me_sscore_(me_data, .data, new_name, vars_names, wt, .drop)
 }
+
 #' @rdname me_sscore
 #' @export
-me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, drop = TRUE) {
+me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = TRUE) {
 
   # Check me data has correct class and formats
   me_data <- as_me(me_data)
@@ -138,12 +139,17 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, drop = T
 
   # Bind the unselected questions with the new sumscore
 
-  if (!drop) {
+  if (!.drop) {
     rows_to_pick <- rep(TRUE, length(rows_to_pick))
   } else {
     rows_to_pick <- !rows_to_pick
   }
-  combined_matrix <- dplyr::bind_rows(me_data[rows_to_pick, ], additional_rows)
+
+  # The only purpose of as_tibble here is to remove the class `me`
+  # so that bind_rows can work well. `as_me` converts it to me
+  # in the end, so it doesn't matter.
+  combined_matrix <- dplyr::bind_rows(dplyr::as_tibble(me_data[rows_to_pick, ]),
+                                      dplyr::as_tibble(additional_rows))
   correct_order <- c("question", me_env$me_columns)
   new_order <- combined_matrix[c(correct_order, setdiff(names(combined_matrix), correct_order))]
 

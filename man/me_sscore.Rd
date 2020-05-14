@@ -5,10 +5,9 @@
 \alias{me_sscore_}
 \title{Calculate quality of sum score of selected variables}
 \usage{
-me_sscore(me_data, .data, new_name, ..., wt = NULL, drop = TRUE)
+me_sscore(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE)
 
-me_sscore_(me_data, .data, new_name, vars_names, wt = NULL,
-  drop = TRUE)
+me_sscore_(me_data, .data, new_name, vars_names, wt = NULL, .drop = TRUE)
 }
 \arguments{
 \item{me_data}{a data frame of class \code{me} containing
@@ -30,7 +29,7 @@ specified in \code{...}. This will be used as weights in calculating the
 sum scores of all variable. Be default, all variables are given the same
 weight.}
 
-\item{drop}{a logical stating whether to drop the questions that compose
+\item{.drop}{a logical stating whether to drop the questions that compose
 the sum score (specified in \code{...}) If \code{FALSE} it retains the
 original questions and the composite score.}
 

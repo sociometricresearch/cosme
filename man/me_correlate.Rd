@@ -4,8 +4,13 @@
 \alias{me_correlate}
 \title{Calculate a correlation matrix with an adjusted diagonal}
 \usage{
-me_correlate(.data, diag_adj = 1, wt = NULL, use = "complete.obs",
-  method = "pearson")
+me_correlate(
+  .data,
+  diag_adj = 1,
+  wt = NULL,
+  use = "complete.obs",
+  method = "pearson"
+)
 }
 \arguments{
 \item{.data}{a matrix or data frame with numeric columns.}

@@ -8,3 +8,5 @@ manifest/
 ^Meta$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^docs$
+^paper$

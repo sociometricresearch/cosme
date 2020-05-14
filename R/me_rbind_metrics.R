@@ -49,6 +49,12 @@ me_bind_metrics <- function(me_data, question_name, metrics) {
 
   new_question <- as.character(substitute(question_name))
 
-  binded_me <- dplyr::bind_rows(me_data, me_construct_(new_question, metrics))
+  # The only purpose of as_tibble here is to remove the class `me`
+  # so that bind_rows can work well. `as_me` converts it to me
+  # in the end, so it doesn't matter.
+  binded_me <- dplyr::bind_rows(dplyr::as_tibble(me_data),
+                                dplyr::as_tibble(me_construct_(new_question, metrics)))
+
+  binded_me <- as_me(binded_me)
   binded_me
 }
