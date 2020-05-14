@@ -135,10 +135,9 @@ selected variables in <code>...</code>. Use <code>me_sscore_</code> if you're
 interested in programming with <code>me_sscore</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_sscore</span>(<span class='no'>me_data</span>, <span class='no'>.data</span>, <span class='no'>new_name</span>, <span class='no'>...</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>me_sscore</span>(<span class='no'>me_data</span>, <span class='no'>.data</span>, <span class='no'>new_name</span>, <span class='no'>...</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
-<span class='fu'>me_sscore_</span>(<span class='no'>me_data</span>, <span class='no'>.data</span>, <span class='no'>new_name</span>, <span class='no'>vars_names</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>me_sscore_</span>(<span class='no'>me_data</span>, <span class='no'>.data</span>, <span class='no'>new_name</span>, <span class='no'>vars_names</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,7 +172,7 @@ sum scores of all variable. Be default, all variables are given the same
 weight.</p></td>
     </tr>
     <tr>
-      <th>drop</th>
+      <th>.drop</th>
       <td><p>a logical stating whether to drop the questions that compose
 the sum score (specified in <code>...</code>) If <code>FALSE</code> it retains the
 original questions and the composite score.</p></td>
