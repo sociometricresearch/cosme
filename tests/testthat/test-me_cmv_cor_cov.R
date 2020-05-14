@@ -224,7 +224,6 @@ test_cor_cov <- function(fun, fun_str) {
 test_cor_cov(me_cmv_cor, "me_cmv_cor")
 test_cor_cov(me_cmv_cov, "me_cmv_cov")
 
-
 test_input_errors <- function(fun, fun_str) {
   test_that(paste0(fun_str, " throws specific errors"), {
     expect_error(fun(list()),
@@ -236,7 +235,6 @@ test_input_errors <- function(fun, fun_str) {
 
 test_input_errors(me_cmv_cor, "me_cmv_cor")
 test_input_errors(me_cmv_cov, "me_cmv_cov")
-
 
 library(essurvey)
 selected_vars <- c("polintr", "ppltrst", "trstplt")
@@ -271,10 +269,7 @@ test_that("me_cmv_cor returns correct calculation after cov2cor",  {
   # diag(original_corr_weighted) <- me_df$quality
 
   m_obj <- medesign("~ ppltrst + trstplt", ess7es3var, me_df)
-  m_obj$corr[1, 2] <- me_df$quality[1]
-
   tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
-
   correct_df <- data.frame(stringsAsFactors=FALSE,
                            rowname = c("polintr", "ppltrst", "trstplt"),
                            polintr = c(1, -0.307183576911697, -0.246956866582566),
