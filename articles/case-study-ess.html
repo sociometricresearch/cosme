@@ -82,7 +82,7 @@
       <h1 data-toc-skip>Case-study: Correcting for measurement error using the SQP database</h1>
                         <h4 class="author">Jorge Cimentada and Wiebke Weber</h4>
             
-            <h4 class="date">2020-05-14</h4>
+            <h4 class="date">2020-05-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/sociometricresearch/measurementfree/blob/master/vignettes/case-study-ess.Rmd"><code>vignettes/case-study-ess.Rmd</code></a></small>
       <div class="hidden name"><code>case-study-ess.Rmd</code></div>
@@ -91,14 +91,6 @@
 
     
     
-<!-- ```{r setup, include = FALSE} -->
-<!-- knitr::opts_chunk$set( -->
-<!--   collapse = TRUE, -->
-<!--   comment = "#>", -->
-<!--   message = FALSE, -->
-<!--   warning = FALSE -->
-<!-- ) -->
-<!-- ``` -->
 <!-- In this case study we will go through an applied example of the capabilities of the `measurementfree` package. -->
 <!-- We'll begin by loading some packages we'll use. -->
 <!-- ```{r} -->
@@ -114,7 +106,7 @@
 <!-- Let's read in the data from the European Social Survey using the `essurvey` package and create a sum score of a number of variables. A sum score is the weighted $(w)$ `sum` of a number of variables $(y_1, y_2, ..., y_k)$ to create a composite score $(CS)$: -->
 <!-- $$ -->
 <!-- \begin{align} -->
-<!--    Y_{cs} = \sum_{i=1}^{k}\frac{w_i}{{\delta_y}_{cs}} Y_i  && \text{where $\frac{w_i}{{\delta_y}_{cs}}$ is the weight of the $i$th observed variable}\\ -->
+<!-- Y_{cs} = \sum_{i=1}^{k}\frac{w_i}{{\delta_y}_{cs}} Y_i  && \text{where $\frac{w_i}{{\delta_y}_{cs}}$ is the weight of the $i$th observed variable}\\ -->
 <!-- \end{align} -->
 <!-- $$ -->
 <!-- Be sure to register at the Europen Social Survey website and run `set_email("your_email@email.com")` replacing the fake email with your registered one. -->
@@ -191,7 +183,7 @@
 <!--   me_data %>% -->
 <!--   me_sscore(data = ess7es, new_name = poltrst, trstprl, trstplt, trstprt) %>% -->
 <!--   me_sscore(data = ess7es, new_name = serv, stfedu, stfhlth) %>% -->
-<!--   me_sscore(data = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt)  -->
+<!--   me_sscore(data = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt) -->
 <!-- ``` -->
 <!-- Let's see how it looks like. -->
 <!-- ```{r} -->
@@ -199,7 +191,7 @@
 <!-- ``` -->
 <!-- Great! We have our summarized `tibble`. Sometimes you'll want to manually append predictions such as quality estimates not available in the SQP API. For our case, we want to add the `quality` estimates of the variables `agea` and `eised` (remember those two we were excluding from before? we were excluding them because they're not available in the SQP data base). For that we can use `me_bind_metrics`. -->
 <!-- ```{r} -->
-<!-- Quality <-  -->
+<!-- Quality <- -->
 <!--   Quality %>% -->
 <!--   me_bind_metrics(agea, list(quality = 1)) %>% -->
 <!--   me_bind_metrics(eisced, list(quality = 0.93)) -->
@@ -271,12 +263,12 @@
 <!-- fit <- -->
 <!--   sem(model, -->
 <!--       sample.cov=original_corr_2, -->
-<!--       sample.nobs= 1624)  -->
-<!-- # Model based on corrected correlation matrix  -->
+<!--       sample.nobs= 1624) -->
+<!-- # Model based on corrected correlation matrix -->
 <!-- fit.corrected <- -->
 <!--   sem(model, -->
 <!--       sample.cov=corrected_corr, -->
-<!--       sample.nobs= 1624)  -->
+<!--       sample.nobs= 1624) -->
 <!-- ``` -->
 <!-- Let's look at how much the coefficients differ -->
 <!-- ```{r, fig.width = 7, fig.with = 9} -->
