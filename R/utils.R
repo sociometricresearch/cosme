@@ -7,10 +7,10 @@
 # functions will check whether the data is in right format and assign
 # the class accordingly. It basically makes sure the data is good for
 # later processing.
-as_me <- function(me_data, variables_check = me_env$me_columns) {
+as_me <- function(me_data, available_cols = me_env$me_columns) {
 
   # If me_data is not in the correct format, throw an error
-  check_me_columns(me_data, variables_check)
+  check_me_columns(me_data, available_cols)
 
   # If it has a correct format, then simply add the me class if
   # it doesn't have it
@@ -165,7 +165,7 @@ me_env$all_estimate_variables <- c("question",
                                     "qualityCoefficientStdError"
                                     )
 
-.onAttach <- function(libname, pkgname) {
-   packageStartupMessage("\nPlease cite as: \n")
-   packageStartupMessage('Cimentada, J. & Weber, W. (2019). A flexible tool to correct correlation and covariance matrices for measurement error R package version 0.0.1.')
-}
+## .onAttach <- function(libname, pkgname) {
+##    packageStartupMessage("\nPlease cite as: \n")
+##    packageStartupMessage('Cimentada, J. & Weber, W. (2019). A flexible tool to correct correlation and covariance matrices for measurement error R package version 0.0.1.')
+## }
