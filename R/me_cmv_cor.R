@@ -44,7 +44,7 @@
 #' me_cmv_cor(m_obj)
 #'
 #' # The V5*V4 from both the upper/lower triangles
-#' # correlation matrix changed from -0.05 to -0.27
+#' # correlation matrix changed from -0.057 to -0.276
 #'
 me_cmv_cor <- function(.medesign, cmv = NULL) {
 
@@ -67,11 +67,11 @@ me_cmv_cor <- function(.medesign, cmv = NULL) {
   cmv_groups <- split(cmv_df, cmv_df$lhs)
   list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
 
+  # If it's the first iteration, provide the original correlation
+  # otherwise the looped corrected correlation
+  res <- .medesign$corr
   for (i in seq_along(list_cmv_vars)) {
-
-    # If it's the first iteration, provide the original correlation
-    # otherwise the looped corrected correlation
-    res <- me_cmv_cor_(x = if (i == 1) .medesign$corr else res,
+    res <- me_cmv_cor_(x = res,
                        me_data = .medesign$me_data,
                        cmv_vars = list_cmv_vars[[i]],
                        cmv = cmv[[i]])
@@ -184,12 +184,13 @@ matrix2tibble <- function(x) {
     return(tibble::as_tibble(x, rownames = "rowname", .name_repair = "minimal"))
   }
 
-  x <- tibble::as_tibble(x)
+  x <- tibble::as_tibble(x, .name_repair = "minimal")
 
   if (!tibble::has_rownames(x) & !has_rowname_col) {
     x <- tibble::add_column(x,
                             rowname = names(x),
-                            .before = 1)
+                            .before = 1,
+                            .name_repair = "minimal")
   }
   x
 }

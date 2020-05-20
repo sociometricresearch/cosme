@@ -49,7 +49,7 @@ me_correlate(original_df)
 me_cmv_cor(m_obj)
 
 # The V5*V4 from both the upper/lower triangles
-# correlation matrix changed from -0.05 to -0.27
+# correlation matrix changed from -0.057 to -0.276
 
 }
 \seealso{
