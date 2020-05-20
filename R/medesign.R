@@ -30,6 +30,9 @@
 ##' \code{model_syntax}
 ##' @param me_data A dataframe of class \code{me}. Can be created manually
 ##' with \code{me_construct}.
+##'
+##' @param ... arguments passed to \code{\link{me_sscore}}. 
+##' 
 ##' @return an \code{me} design object which can be passed to other functions
 ##' of measurementfree.
 ##' @author Jorge Cimentada
@@ -69,7 +72,7 @@
 ##'
 ##' medesign(me_syntax, mtcars, me_data)
 ##' 
-medesign <- function(model_syntax, .data, me_data) {
+medesign <- function(model_syntax, .data, me_data, ...) {
   me_data <- as_me(me_data)
 
   stopifnot(is.data.frame(.data),
@@ -91,48 +94,63 @@ medesign <- function(model_syntax, .data, me_data) {
 
   .data <- create_sscore(parsed_model, .data)
   
-  me_data <- adapted_sscore_quality(parsed_model,
+  me_data <- adapted_sscore_quality(parsed_model = parsed_model,
                                     .data = .data,
-                                    me_data = me_data)
+                                    me_data = me_data,
+                                    .drop = FALSE,
+                                    ...)
 
   # Because variables used to create the quality
   # of the sumscore are now excluded from me_data
   # if we checked whether they're there, it would
   # raise an error. Here we exclude them
-  vars_used <- unlist(vars_used[!which_sscore])
+  ## vars_used <- unlist(vars_used[!which_sscore])
 
-  # I checked he sscore vars above but I all variables here again
-  # just because I'm lazy
+  # I checked the sscore vars above but all variables here again just
+  # because I'm lazy
   check_number_cmv(parsed_model)
-  check_me_vars(me_data, vars_used)
+  check_me_vars(me_data, unlist(vars_used))
 
-  me_data_filt <- me_data[match(vars_used, me_data$question), ]
+  ## me_data_filt <- me_data[match(vars_used, me_data$question), ]
 
   # Only check NA's on variables used
-  check_me_na(me_data_filt, me_cols = c("reliability", "validity"))
-  check_data_vars(.data, vars_used)
-  check_data_na(.data, vars_used)
+  check_me_na(me_data[me_data$question %in% unlist(vars_used), ],
+              me_cols = c("reliability", "validity"))
+
+  check_data_vars(.data, unlist(vars_used))
+  check_data_na(.data, unlist(vars_used))
 
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")
 
-  # Replce the diagonal with the non-na quality of all variables
+  # Replace the diagonal with the non-na quality of all variables
   # in me_data (not the filtered one). This could change
   # to an explicit declaration of quality in model_syntax in the future
   me_data <- me_data[!is.na(me_data$quality), ]
-  pos_diag <- match(me_data$question, rownames(qual_cor))
-  diag(qual_cor)[pos_diag] <- me_data$quality
-  diag(qual_cov)[pos_diag] <- me_data$quality
+
+  vars_match <- intersect(me_data$question, rownames(qual_cor))
+  tmp_me <- me_data[me_data$question %in% vars_match, ]
+  pos_diag <- stats::na.omit(match(tmp_me$question, rownames(qual_cor)))
+  diag(qual_cor)[pos_diag] <- tmp_me$quality
+
+  # parsed_model is limited to sum scores here
+  ## .data_sd <- vapply(.data[parsed_model$lhs],
+  ##                    sd,
+  ##                    na.rm = TRUE,
+  ##                    FUN.VALUE = numeric(1))
+
+  # The covariance quality needs to be unstandardized
+  diag(qual_cov)[pos_diag] <- tmp_me$quality #* 2.676114^2
 
   structure(
     list(parsed_model = parsed_model,
          .data = .data,
-         me_data = me_data_filt,
+         me_data = me_data,
          corr = matrix2tibble(qual_cor),
-         covv = matrix2tibble(qual_cov)),
+         covv = matrix2tibble(qual_cov)
+         ),
     class = "medesign"
   )
-
 }
 
 ##' @export
@@ -208,7 +226,7 @@ create_sscore <- function(parsed_model, .data) {
   .data
 }
 
-adapted_sscore_quality <- function(parsed_model, .data, me_data) {
+adapted_sscore_quality <- function(parsed_model, .data, me_data, ...) {
   sscore_df <- parsed_model[parsed_model$op == "=", ]
 
   if (nrow(sscore_df) == 0) return(me_data)
@@ -223,7 +241,8 @@ adapted_sscore_quality <- function(parsed_model, .data, me_data) {
       me_sscore_(me_data = me_data,
                  .data = .data,
                  new_name = x$lhs,
-                 vars_names = all.vars(stats::as.formula(paste0("~", x$rhs)))
+                 vars_names = all.vars(stats::as.formula(paste0("~", x$rhs))),
+                 ...
                  )
   }
   

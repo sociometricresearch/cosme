@@ -4,7 +4,7 @@
 \alias{medesign}
 \title{Define your measurement error design}
 \usage{
-medesign(model_syntax, .data, me_data)
+medesign(model_syntax, .data, me_data, ...)
 }
 \arguments{
 \item{model_syntax}{A description of the user-specified model as a character
@@ -16,6 +16,8 @@ and example section for on how to write this syntax.}
 
 \item{me_data}{A dataframe of class \code{me}. Can be created manually
 with \code{me_construct}.}
+
+\item{...}{arguments passed to \code{\link{me_sscore}}.}
 }
 \value{
 an \code{me} design object which can be passed to other functions

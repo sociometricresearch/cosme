@@ -237,12 +237,11 @@ test_input_errors(me_cmv_cor, "me_cmv_cor")
 test_input_errors(me_cmv_cov, "me_cmv_cov")
 
 library(essurvey)
-selected_vars <- c("polintr", "ppltrst", "trstplt")
+selected_vars1 <- c("polintr", "ppltrst")
+selected_vars2 <- c("trstprl", "trstplt", "trstprt")
+wts <- c("pspwght", "pweight")
 ess_email <- Sys.getenv("ess_email")
-ess7es <- import_country("Spain", 7, ess_email)[c(selected_vars, "pspwght", "pweight")]
-
-ess7es <- ess7es[complete.cases(ess7es), ]
-ess7es3var <- ess7es[selected_vars]
+ess7es <- import_country("Spain", 7, ess_email)[c(selected_vars1, selected_vars2, wts)]
 
 ## Using sqpr
 library(sqpr)
@@ -251,7 +250,7 @@ sqp_login()
 me_df <-
   get_sqp(
     study = "ESS Round 7",
-    question_name = selected_vars,
+    question_name = c(selected_vars1, selected_vars2),
     country = "ES",
     lang = "spa"
   )
@@ -268,7 +267,12 @@ test_that("me_cmv_cor returns correct calculation after cov2cor",  {
   # diag(original_corr) <- me_df$quality
   # diag(original_corr_weighted) <- me_df$quality
 
-  m_obj <- medesign("~ ppltrst + trstplt", ess7es3var, me_df)
+  sel_vars <- c(selected_vars1, "trstplt")
+  .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
+  ## model_syntax <- "~ ppltrst + trstplt"
+  ## me_data <- me_df
+
+  m_obj <- medesign("~ ppltrst + trstplt", .data, me_df)
   tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
   correct_df <- data.frame(stringsAsFactors=FALSE,
                            rowname = c("polintr", "ppltrst", "trstplt"),
@@ -282,12 +286,17 @@ test_that("me_cmv_cor returns correct calculation after cov2cor",  {
 
 test_that("me_cmv_cov returns correct calculation", {
 
-  m_obj <- medesign("~ ppltrst + trstplt", ess7es3var, me_df)
+  sel_vars <- c(selected_vars1, "trstplt")
+  .data <- ess7es[complete.cases(ess7es[sel_vars]),]
+  wt <- .data$pspwght
+  .data <- .data[sel_vars]
+
+  m_obj <- medesign("~ ppltrst + trstplt", .data, me_df)
   # TODO: The first correct example you did was using weights
   # so I had to hack medesign a bit to produce weighted covariances
   # and make sure that the results are correct
-  m_obj$covv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)$cov
-  diag(m_obj$covv) <- diag(m_obj$covv) * me_df$quality
+  m_obj$covv <- cov.wt(.data, wt = wt, cor = TRUE)$cov
+  diag(m_obj$covv) <- diag(m_obj$covv) * me_df[me_df$question %in% sel_vars,]$quality
   m_obj$covv <- matrix2tibble(m_obj$covv)
   tmp_corrected_cov <- as.data.frame(me_cmv_cov(m_obj))
 
@@ -301,4 +310,16 @@ test_that("me_cmv_cov returns correct calculation", {
     )
 
   expect_equivalent(tmp_corrected_cov, correct_df)
+})
+
+test_that("medesign calculates quality of sumscore correctly for cor and cov", {
+  .data <- ess7es[complete.cases(ess7es[selected_vars2]),
+                  c(selected_vars1, selected_vars2)]
+
+  m_obj <- medesign("s1 = trstprl + trstplt + trstprt",
+                    .data,
+                    me_df)
+
+  expect_equal(m_obj$corr$s1[6], 0.8936532704, tol = 0.0001)
+  expect_equal(m_obj$covv$s1[6], 6.399974876, tol = 0.0001)
 })

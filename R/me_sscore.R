@@ -95,8 +95,6 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
   # Check me data has correct class and formats
   me_data <- as_me(me_data)
 
-  summary_name <- new_name
-
   # Check all variables present in .data
   vars_not_matched <- !vars_names %in% names(.data)
   if (any(vars_not_matched)) {
@@ -125,17 +123,21 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
   # Select the rows with only the selected variales
   # for the sumscore
   rows_to_pick <- me_data[[1]] %in% vars_names
-  me_scores <- me_data[rows_to_pick, me_env$me_columns]
+  me_scores <- me_data[rows_to_pick, c(me_env$me_question, me_env$me_columns)]
 
   if (anyNA(me_scores)) {
     stop("`me_data` must have non-missing values at variable/s: ",
          paste0(me_env$me_columns, collapse = ", "))
   }
 
-  new_estimate <-
-    columns_me("quality", estimate_sscore(me_scores, the_vars, wt = wt))
+  .data <- .data[vars_names]
+  estimate_of_sscore <- estimate_sscore(me_scores,
+                                        .data,
+                                        wt = wt)
+  
+  new_estimate <- columns_me("quality", estimate_of_sscore)
 
-  additional_rows <- generic_me(summary_name, new_estimate)
+  additional_rows <- generic_me(new_name, new_estimate)
 
   # Bind the unselected questions with the new sumscore
 
@@ -161,13 +163,13 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
 # Rather with measurement quality as a wrapper
 # because it checks all of the arguments are in
 # the correct format, etc..
-estimate_sscore <- function(me_data, .data, wt) {
+estimate_sscore <- function(me_scores, .data, wt) {
 
-  if (is.null(wt)) wt <- rep(1, length(.data))
+  if (is.null(wt)) wt <- rep(1, nrow(me_scores))
 
   is_numeric <- is.numeric(wt)
   is_na <- anyNA(wt)
-  correct_length <- length(wt) == ncol(.data)
+  correct_length <- length(wt) == nrow(me_scores)
 
   if (!is_numeric | is_na | !correct_length) {
     stop("`wt` must be a non-NA numeric vector with the same length as the number of variables")
@@ -177,21 +179,21 @@ estimate_sscore <- function(me_data, .data, wt) {
   validity <- grep("^v", me_env$me_columns, value = TRUE)
   quality <- grep("^q", me_env$me_columns, value = TRUE)
 
-  qy2 <- me_data[[quality]]
+  qy2 <- me_scores[[quality]]
 
   # By squaring this you actually get the reliability
   # coefficient.
-  ry <- sqrt(me_data[[reliability]])
-  vy <- sqrt(me_data[[validity]])
+  ry <- sqrt(me_scores[[reliability]])
+  vy <- sqrt(me_scores[[validity]])
+  qy <- sqrt(me_scores[[quality]])
 
   # Method effect
   method_e <- sqrt(1 - vy^2)
 
-  std_data <- vapply(.data, stats::sd, na.rm = TRUE, FUN.VALUE = numeric(1))
+  sd_sscore <- stats::sd(rowSums(.data, na.rm = TRUE))
 
-  # This is the 'quality coefficient'
-  # for the observed variable i. (1-qi2)var(yi)
-  q_coef <- qcoef_observed(qy2, std_data)
+  # Reorder so it has the same order the combination above
+  .data <- .data[me_scores[["question"]]]
 
   # Here you create
   # all combinations
@@ -202,38 +204,20 @@ estimate_sscore <- function(me_data, .data, wt) {
   # It's better not to use this in isolation but call
   # estimate_sscore as a whole.
   cov_e <- cov_both(comb, ry, method_e)
+  cor_e <- vapply(comb, function(x) stats::cor(.data[x], use = "complete.obs")[2, 1],
+                  FUN.VALUE = numeric(1))
 
-  weights_by_qcoef <- sum(wt^2 * q_coef)
+  adjusted_corr <- cor_e - cov_e
 
-  # you need to calculate the product of a combination
-  # of the weights by the covariance of errors.
-  intm <- sum(combn_multiplication(comb, wt, cov_e)) * 2
+  weights_by_qcoef <- adjusted_corr*wt/2.676114*wt/2.676114
 
-  var_ecs <- weights_by_qcoef + intm
-  var_composite <- stats::var(rowSums(.data, na.rm = TRUE))
+  final_qcoef <- sum(weights_by_qcoef)*2 + sum((wt / 2.676114*qy)^2)
 
-  1 - (var_ecs / var_composite)
-}
+  if (sign(final_qcoef) == -1) {
+    stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/measurementfree/issues")
+  }
 
-qcoef_observed <- function(quality, std_data) {
-  qcoef_formula <- function(i) (1 - quality[i]) * std_data[i]^2
-  vapply(seq_along(quality), qcoef_formula, FUN.VALUE = numeric(1))
-}
-
-combn_multiplication <- function(comb, wt, cov_e) {
-
-  intm <- vapply(seq_along(comb), function(i) {
-    # both_combn is the combination of variables like 1:2, 2:3 and c(3, 1)
-    # below I grab both ends
-    separ_first <- comb[[i]][1]
-    separ_second <- comb[[i]][2]
-
-    # and the multiply the weigghts with the cov_e
-    # so for example wt[1] * wt[2] * cov_e[1]
-    # so for example wt[1] * wt[3] * cov_e[3]
-    wt[separ_first] * wt[separ_second] * cov_e[i]
-
-  }, FUN.VALUE = numeric(1))
+  final_qcoef
 }
 
 # For an explanation of this see combn_multiplication

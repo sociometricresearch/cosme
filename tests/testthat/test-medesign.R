@@ -14,6 +14,25 @@ validate_medesign <- function(x) {
   expect_s3_class(x$me_data, "me")
 }
 
+quality <-
+  structure(list(question = c("ppltrst", "polintr", "psppsgv",
+                              "psppipl", "ptcpplt", "stflife", "stfeco", "stfedu", "stfhlth",
+                              "trstprl", "trstplt", "trstprt"), reliability = c(0.729, 0.659,
+                                                                                0.761, 0.757, 0.758, 0.716, 0.823, 0.729, 0.762, 0.815, 0.826,
+                                                                                0.854), validity = c(0.951, 0.964, 0.933, 0.932, 0.932, 0.899,
+                                                                                                     0.903, 0.827, 0.863, 0.944, 0.975, 0.898), quality = c(0.693,
+                                                                                                                                                            0.636, 0.71, 0.705, 0.707, 0.644, 0.743, 0.602, 0.658, 0.77,
+                                                                                                                                                            0.805, 0.767), r_coef = c(0.854, 0.812, 0.872, 0.87, 0.871, 0.846,
+                                                                                                                                                                                      0.907, 0.854, 0.873, 0.903, 0.909, 0.924), v_coef = c(0.975,
+                                                                                                                                                                                                                                            0.982, 0.966, 0.965, 0.965, 0.948, 0.95, 0.909, 0.929, 0.972,
+                                                                                                                                                                                                                                            0.987, 0.948), q_coef = c(0.833, 0.797, 0.843, 0.84, 0.841, 0.803,
+                                                                                                                                                                                                                                                                      0.862, 0.776, 0.811, 0.877, 0.897, 0.876)), .Names = c("question",
+                                                                                                                                                                                                                                                                                                                             "reliability", "validity", "quality", "r_coef", "v_coef", "q_coef"
+                                                                                                                                                                                                                                                                                                                             ), class = c("tbl_df", "tbl", "data.frame"), row.names = c(NA,
+                                                                                                                                                                                                                                                                                                                                                                                        -12L))
+
+
+
 test_that("medesign raises error when bad model_syntax", {
   # 1) The variables defined in the model are present in `me_data`.
   model_syntax <- "~ mpg + cyl + drat"
@@ -160,7 +179,7 @@ test_that("medesign returns expected format", {
 
 test_that("medesign ignores vars with NA in quality for diagonal", {
   # These three variables share a common method
-  me_syntax <- "~ mpg + cyl"
+  model_syntax <- "~ mpg + cyl"
   # Fake data for the example
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -169,7 +188,7 @@ test_that("medesign ignores vars with NA in quality for diagonal", {
                         quality = c(0.693, 0.77, NA)
                         )
 
-  res <- medesign(me_syntax, mtcars, me_data)
+  res <- medesign(model_syntax, mtcars, me_data)
 
   replaced_diag <- diag(as.matrix(res$corr[-1]))
   expect_true(
@@ -248,17 +267,20 @@ test_that("medesign replaces diag for vars in me_data despite model_syntax", {
   )
 })
 
-test_that("medesign creates sscore and removes vars from me_data", {
-  # These three variables share a common method
-  me_syntax <- "sscore_one = drat + disp; ~ mpg + cyl"
+test_that("medesign creates sscore and keeps vars from me_data", {
+
+  model_syntax <- "sscore_one = ppltrst + trstprl; ~ stfeco + stflife"
+
   # Fake data for the example
-  me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl", "drat", "disp"),
-                        reliability = c(0.729, 0.815, 0.68, 0.8),
-                        validity = c(0.951, 0.944, 0.79, 0.92),
-                        quality = c(0.693, 0.77, 0.89, 0.97)
-                        )
-  res <- medesign(me_syntax, mtcars, me_data)
+  me_data <- quality
+
+  set.seed(23141)
+  fake_data <- as.data.frame(
+    setNames(lapply(1:4, function(x) rnorm(100)),
+             c("ppltrst", "trstprl", "stfeco", "stflife"))
+  )
+
+  res <- medesign(model_syntax, fake_data, me_data)
   mod <- res$parsed_model
   sscore_names <- mod[mod$op == "=", 1]
 
@@ -280,24 +302,24 @@ test_that("medesign creates sscore and removes vars from me_data", {
 
   # create sscore exclude variables from me_data
   expect_true(
-    all(!(c("drat", "disp") %in% res$me_data$question))
+    all(c("ppltrst", "trstprl") %in% res$me_data$question)
   )
-
 })
 
 
 test_that("medesign creates two sscore and removes vars from me_data", {
-  # These three variables share a common method
-  me_syntax <- "sscore_one = drat + disp; sscore_two = am + gear; ~ mpg + cyl"
-  # Fake data for the example
-  me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl", "drat", "disp", "am", "gear"), #nolintr
-                        reliability = c(0.729, 0.815, 0.68, 0.8, 0.79, 0.98),
-                        validity = c(0.951, 0.944, 0.79, 0.92, 0.45, 0.78),
-                        quality = c(0.693, 0.77, 0.89, 0.97, 0.70, 0.49)
-                        )
+  model_syntax <- "sscore_one = ppltrst + trstprl; sscore_two = psppipl + psppsgv; ~ stfeco + stflife"
 
-  res <- medesign(me_syntax, mtcars, me_data)
+  # Fake data for the example
+  me_data <- quality
+
+  set.seed(23141)
+  fake_data <- as.data.frame(
+    setNames(lapply(1:6, function(x) rnorm(100)),
+             c("ppltrst", "trstprl", "psppipl", "psppsgv", "stfeco", "stflife"))
+  )
+
+  res <- medesign(model_syntax, fake_data, me_data)
   mod <- res$parsed_model
   sscore_names <- mod[mod$op == "=", 1]
 
@@ -319,12 +341,7 @@ test_that("medesign creates two sscore and removes vars from me_data", {
 
   # create sscore exclude variables from me_data
   expect_true(
-    all(!(c("drat", "disp") %in% res$me_data$question))
-  )
-
-  # create sscore exclude variables from me_data
-  expect_true(
-    all(!(c("drat", "disp", "am", "gear") %in% res$me_data$question))
+    all(c("ppltrst", "trstprl", "psppipl", "psppsgv") %in% res$me_data$question)
   )
 
 })
