@@ -18,305 +18,305 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this case study we will go through an applied example of the capabilities of the `measurementfree` package.
-
-We'll begin by loading some packages we'll use.
+<!-- In this case study we will go through an applied example of the capabilities of the `measurementfree` package. -->
+
+<!-- We'll begin by loading some packages we'll use. -->
 
-```{r}
-library(lavaan)
-library(dplyr)
-library(ggplot2)
-library(essurvey)
-library(sqpr)
+<!-- ```{r} -->
+<!-- library(lavaan) -->
+<!-- library(dplyr) -->
+<!-- library(ggplot2) -->
+<!-- library(essurvey) -->
+<!-- library(sqpr) -->
 
-# And measurementfree
-library(measurementfree)
-```
+<!-- # And measurementfree -->
+<!-- library(measurementfree) -->
+<!-- ``` -->
 
-## Read the data
+<!-- ## Read the data -->
 
-Let's read in the data from the European Social Survey using the `essurvey` package and create a sum score of a number of variables. A sum score is the weighted $(w)$ `sum` of a number of variables $(y_1, y_2, ..., y_k)$ to create a composite score $(CS)$:
+<!-- Let's read in the data from the European Social Survey using the `essurvey` package and create a sum score of a number of variables. A sum score is the weighted $(w)$ `sum` of a number of variables $(y_1, y_2, ..., y_k)$ to create a composite score $(CS)$: -->
 
-$$
-\begin{align}
-	Y_{cs} = \sum_{i=1}^{k}\frac{w_i}{{\delta_y}_{cs}} Y_i  && \text{where $\frac{w_i}{{\delta_y}_{cs}}$ is the weight of the $i$th observed variable}\\
-\end{align}
-$$
+<!-- $$ -->
+<!-- \begin{align} -->
+<!-- Y_{cs} = \sum_{i=1}^{k}\frac{w_i}{{\delta_y}_{cs}} Y_i  && \text{where $\frac{w_i}{{\delta_y}_{cs}}$ is the weight of the $i$th observed variable}\\ -->
+<!-- \end{align} -->
+<!-- $$ -->
 
-Be sure to register at the Europen Social Survey website and run `set_email("your_email@email.com")` replacing the fake email with your registered one.
+<!-- Be sure to register at the Europen Social Survey website and run `set_email("your_email@email.com")` replacing the fake email with your registered one. -->
 
-```{r, results = 'hide'}
-# Choose your selected variables
-selected_vars <- c("trstprl", "trstplt", "trstprt",
-                   "stfedu", "stfhlth", "psppsgv",
-                   "psppipl", "ptcpplt", "ppltrst",
-                   "polintr", "stflife", "stfeco",
-                   "agea", "eisced")
+<!-- ```{r, results = 'hide'} -->
+<!-- # Choose your selected variables -->
+<!-- selected_vars <- c("trstprl", "trstplt", "trstprt", -->
+<!--                    "stfedu", "stfhlth", "psppsgv", -->
+<!--                    "psppipl", "ptcpplt", "ppltrst", -->
+<!--                    "polintr", "stflife", "stfeco", -->
+<!--                    "agea", "eisced") -->
 
-# Download the ESS data and clear missing values
-ess7es <-
-  import_country("Spain", 7) %>%
-  select(selected_vars, pspwght) %>%
-  filter(complete.cases(.))
+<!-- # Download the ESS data and clear missing values -->
+<!-- ess7es <- -->
+<!--   import_country("Spain", 7) %>% -->
+<!--   select(selected_vars, pspwght) %>% -->
+<!--   filter(complete.cases(.)) -->
 
-# Calculate the standardized but unweighted sums cores
-ess7es <-
-  ess7es %>%
-  mutate(poltrst = scale(trstprl) + scale(trstplt) + scale(trstprt),
-         serv = scale(stfedu) + scale(stfhlth),
-         systmrsp = scale(psppsgv) + scale(psppipl) + scale(ptcpplt))
+<!-- # Calculate the standardized but unweighted sums cores -->
+<!-- ess7es <- -->
+<!--   ess7es %>% -->
+<!--   mutate(poltrst = scale(trstprl) + scale(trstplt) + scale(trstprt), -->
+<!--          serv = scale(stfedu) + scale(stfhlth), -->
+<!--          systmrsp = scale(psppsgv) + scale(psppipl) + scale(ptcpplt)) -->
 
-# Calculate the standard deviation of each sum score
-w_pol <- 1 / sd(ess7es$poltrst)
-w_serv <- 1 / sd(ess7es$serv)
-w_systmrsp <- 1 / sd(ess7es$systmrsp)
+<!-- # Calculate the standard deviation of each sum score -->
+<!-- w_pol <- 1 / sd(ess7es$poltrst) -->
+<!-- w_serv <- 1 / sd(ess7es$serv) -->
+<!-- w_systmrsp <- 1 / sd(ess7es$systmrsp) -->
 
-# Create the weighted and standardized composite score
-ess7es <-
-  ess7es %>%
-  mutate(poltrst = w_pol*scale(trstprl) + w_pol*scale(trstplt) + w_pol*scale(trstprt),
-         serv = w_serv*scale(stfedu) + w_serv*scale(stfhlth),
-         systmrsp = w_systmrsp*scale(psppsgv) + w_systmrsp*scale(psppipl) + w_systmrsp*scale(ptcpplt))
+<!-- # Create the weighted and standardized composite score -->
+<!-- ess7es <- -->
+<!--   ess7es %>% -->
+<!--   mutate(poltrst = w_pol*scale(trstprl) + w_pol*scale(trstplt) + w_pol*scale(trstprt), -->
+<!--          serv = w_serv*scale(stfedu) + w_serv*scale(stfhlth), -->
+<!--          systmrsp = w_systmrsp*scale(psppsgv) + w_systmrsp*scale(psppipl) + w_systmrsp*scale(ptcpplt)) -->
 
-composite_scores <- c("poltrst", "serv", "systmrsp")
+<!-- composite_scores <- c("poltrst", "serv", "systmrsp") -->
 
-all_vars <- c(composite_scores, selected_vars) # for later use
-```
+<!-- all_vars <- c(composite_scores, selected_vars) # for later use -->
+<!-- ``` -->
 
-So far we have the original `tibble` with a few extra columns containing the composite sum scores:
+<!-- So far we have the original `tibble` with a few extra columns containing the composite sum scores: -->
 
-```{r}
-ess7es
-```
+<!-- ```{r} -->
+<!-- ess7es -->
+<!-- ``` -->
 
-Let's read in the SQP data. The Survey Quality Predictor (SQP) database contains the quality information of thousands of questions. We can access this database with the `sqpr` package. To do that, you'll need to register with the SQP ([sqp.upf.edu](www.sqp.upf.edu)) and then we can login with `sqp_login()` using your valid SQP credentials:
+<!-- Let's read in the SQP data. The Survey Quality Predictor (SQP) database contains the quality information of thousands of questions. We can access this database with the `sqpr` package. To do that, you'll need to register with the SQP ([sqp.upf.edu](www.sqp.upf.edu)) and then we can login with `sqp_login()` using your valid SQP credentials: -->
 
-```{r, eval = FALSE}
-sqp_login("your user name", "your password")
-```
+<!-- ```{r, eval = FALSE} -->
+<!-- sqp_login("your user name", "your password") -->
+<!-- ``` -->
 
-```{r, echo = FALSE}
-sqp_login()
-```
+<!-- ```{r, echo = FALSE} -->
+<!-- sqp_login() -->
+<!-- ``` -->
 
-Once that's done, we can continue accessing the data.
+<!-- Once that's done, we can continue accessing the data. -->
 
-```{r}
+<!-- ```{r} -->
 
-me_data <-
-  get_sqp(
-    study = "ESS Round 7",
-    question_name = selected_vars[1:12],
-    country = "ES",
-    lang = "spa"
-  ) %>%
-  arrange(question)
+<!-- me_data <- -->
+<!--   get_sqp( -->
+<!--     study = "ESS Round 7", -->
+<!--     question_name = selected_vars[1:12], -->
+<!--     country = "ES", -->
+<!--     lang = "spa" -->
+<!--   ) %>% -->
+<!--   arrange(question) -->
 
-```
+<!-- ``` -->
 
-Let's confirm all of our questions were extracted.
+<!-- Let's confirm all of our questions were extracted. -->
 
-```{r}
-me_data
-```
+<!-- ```{r} -->
+<!-- me_data -->
+<!-- ``` -->
 
-Why are we only selecting 12 of our 14 variables? You'll see later on. We will add the measurement quality of the last two manually because they're not in the SQP database.
+<!-- Why are we only selecting 12 of our 14 variables? You'll see later on. We will add the measurement quality of the last two manually because they're not in the SQP database. -->
 
-## Analysis
+<!-- ## Analysis -->
 
-With the function `me_sscore` we can calculate the quality of a sum score. Remember those sum scores we calculated at the beginning? We can calculate the quality of the sum score by specifying the data from the SQP API, the data from the European Social Survey and provide `me_sscore` with the variables that contribute to the sum score.
+<!-- With the function `me_sscore` we can calculate the quality of a sum score. Remember those sum scores we calculated at the beginning? We can calculate the quality of the sum score by specifying the data from the SQP API, the data from the European Social Survey and provide `me_sscore` with the variables that contribute to the sum score. -->
 
-For example, this code..
+<!-- For example, this code.. -->
 
-```{r}
+<!-- ```{r} -->
 
-me_sscore(me_data = me_data,
-          data = ess7es,
-          new_name = poltrst,
-          trstprl, trstplt, trstprt)
+<!-- me_sscore(me_data = me_data, -->
+<!--           data = ess7es, -->
+<!--           new_name = poltrst, -->
+<!--           trstprl, trstplt, trstprt) -->
 
-```
+<!-- ``` -->
 
-creates a new variable called `poltrst` which will have the quality of the sum score of `trstprl`, `trstplt`, `trstprt`. Note that these three variables are **not** present anymore, but only `poltrst`, the summary of the three. For our analysis we want to repeat that for the three sum scores from the beginning. Let's extend it:
+<!-- creates a new variable called `poltrst` which will have the quality of the sum score of `trstprl`, `trstplt`, `trstprt`. Note that these three variables are **not** present anymore, but only `poltrst`, the summary of the three. For our analysis we want to repeat that for the three sum scores from the beginning. Let's extend it: -->
 
-```{r}
+<!-- ```{r} -->
 
-Quality <-
-  me_data %>%
-  me_sscore(data = ess7es, new_name = poltrst, trstprl, trstplt, trstprt) %>%
-  me_sscore(data = ess7es, new_name = serv, stfedu, stfhlth) %>%
-  me_sscore(data = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt)
+<!-- Quality <- -->
+<!--   me_data %>% -->
+<!--   me_sscore(data = ess7es, new_name = poltrst, trstprl, trstplt, trstprt) %>% -->
+<!--   me_sscore(data = ess7es, new_name = serv, stfedu, stfhlth) %>% -->
+<!--   me_sscore(data = ess7es, new_name = systmrsp, psppsgv, psppipl, ptcpplt) -->
 
-```
+<!-- ``` -->
 
-Let's see how it looks like.
+<!-- Let's see how it looks like. -->
 
-```{r}
-Quality
-```
+<!-- ```{r} -->
+<!-- Quality -->
+<!-- ``` -->
 
-Great! We have our summarized `tibble`. Sometimes you'll want to manually append predictions such as quality estimates not available in the SQP API. For our case, we want to add the `quality` estimates of the variables `agea` and `eised` (remember those two we were excluding from before? we were excluding them because they're not available in the SQP data base). For that we can use `me_bind_metrics`.
+<!-- Great! We have our summarized `tibble`. Sometimes you'll want to manually append predictions such as quality estimates not available in the SQP API. For our case, we want to add the `quality` estimates of the variables `agea` and `eised` (remember those two we were excluding from before? we were excluding them because they're not available in the SQP data base). For that we can use `me_bind_metrics`. -->
 
-```{r}
-Quality <-
-  Quality %>%
-  me_bind_metrics(agea, list(quality = 1)) %>%
-  me_bind_metrics(eisced, list(quality = 0.93))
+<!-- ```{r} -->
+<!-- Quality <- -->
+<!--   Quality %>% -->
+<!--   me_bind_metrics(agea, list(quality = 1)) %>% -->
+<!--   me_bind_metrics(eisced, list(quality = 0.93)) -->
 
-Quality
-```
+<!-- Quality -->
+<!-- ``` -->
 
-Note that `me_bind_metrics` is very strict, it accepts an `me` data frame (given by `sqpr::get_sqp`) and it will match that the names of your estimates (`quality` here) matches exactly the same names in the SQP API. You can read more about it in `?me_bind_metrics`. Finally, let's order our results.
+<!-- Note that `me_bind_metrics` is very strict, it accepts an `me` data frame (given by `sqpr::get_sqp`) and it will match that the names of your estimates (`quality` here) matches exactly the same names in the SQP API. You can read more about it in `?me_bind_metrics`. Finally, let's order our results. -->
 
-```{r}
+<!-- ```{r} -->
 
-variables_order <- c("poltrst",
-                     "serv",
-                     "systmrsp",
-                     "ppltrst",
-                     "polintr",
-                     "stflife",
-                     "stfeco",
-                     "agea",
-                     "eisced")
+<!-- variables_order <- c("poltrst", -->
+<!--                      "serv", -->
+<!--                      "systmrsp", -->
+<!--                      "ppltrst", -->
+<!--                      "polintr", -->
+<!--                      "stflife", -->
+<!--                      "stfeco", -->
+<!--                      "agea", -->
+<!--                      "eisced") -->
 
-Quality <- Quality[match(variables_order, Quality$question), ]
+<!-- Quality <- Quality[match(variables_order, Quality$question), ] -->
 
-```
+<!-- ``` -->
 
-Briefly, let's also select these variables for ESS data.
+<!-- Briefly, let's also select these variables for ESS data. -->
 
-```{r}
-ess7escorr <- ess7es %>% select(variables_order, pspwght)
-```
+<!-- ```{r} -->
+<!-- ess7escorr <- ess7es %>% select(variables_order, pspwght) -->
+<!-- ``` -->
 
-## Correlations and correcting for measurement error
+<!-- ## Correlations and correcting for measurement error -->
 
-Let's get the correlation of all the variables in the ESS data.
+<!-- Let's get the correlation of all the variables in the ESS data. -->
 
-```{r}
-# Exploratory correlation matrix (in order of the columns in data frame):
-original_corr_2 <- cor(ess7escorr, use = "complete.obs", method = "pearson")
-original_corr_2
-```
+<!-- ```{r} -->
+<!-- # Exploratory correlation matrix (in order of the columns in data frame): -->
+<!-- original_corr_2 <- cor(ess7escorr, use = "complete.obs", method = "pearson") -->
+<!-- original_corr_2 -->
+<!-- ``` -->
 
-`measurementfree` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey.
+<!-- `measurementfree` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey. -->
 
-```{r}
+<!-- ```{r} -->
 
-corr_q2 <-
-  me_correlate(data = ess7escorr,
-               diag_adj = Quality$quality,
-               wt = pspwght,
-               use = "complete.obs",
-               method = "pearson")
+<!-- corr_q2 <- -->
+<!--   me_correlate(data = ess7escorr, -->
+<!--                diag_adj = Quality$quality, -->
+<!--                wt = pspwght, -->
+<!--                use = "complete.obs", -->
+<!--                method = "pearson") -->
 
-corr_q2
+<!-- corr_q2 -->
 
-```
+<!-- ``` -->
 
-It's the same correlation coefficients but with the diagonal set to the quality of the estimates. But **note** that both the order of the variables `Quality` and the order of the variables in `ess7corr` should be the same! Otherwise we might confuse quality estimates between variables.
+<!-- It's the same correlation coefficients but with the diagonal set to the quality of the estimates. But **note** that both the order of the variables `Quality` and the order of the variables in `ess7corr` should be the same! Otherwise we might confuse quality estimates between variables. -->
 
-For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `measurementfree` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation.
+<!-- For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `measurementfree` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation. -->
 
-```{r}
+<!-- ```{r} -->
 
-#subtract the cmv from the observed correlation
-corr_q2_cmv <-
-  me_cmv_cor(x = corr_q2,
-             me_data = Quality,
-             stfeco, stflife)
+<!-- #subtract the cmv from the observed correlation -->
+<!-- corr_q2_cmv <- -->
+<!--   me_cmv_cor(x = corr_q2, -->
+<!--              me_data = Quality, -->
+<!--              stfeco, stflife) -->
 
-corr_q2_cmv
+<!-- corr_q2_cmv -->
 
-```
+<!-- ``` -->
 
-Perhaps you can't see it but the coefficient of the `stfeco` and `stflife` combination has gone down from `0.272` to `0.205`. More concretely, `me_cmv_cor` calculates the CMV and subtracts it from the correlation coefficient. A more directly example is:
+<!-- Perhaps you can't see it but the coefficient of the `stfeco` and `stflife` combination has gone down from `0.272` to `0.205`. More concretely, `me_cmv_cor` calculates the CMV and subtracts it from the correlation coefficient. A more directly example is: -->
 
-```{r}
+<!-- ```{r} -->
 
-cmv <-
-  Quality %>%
-  filter(question %in% c("stflife", "stfeco")) %>%
-  measurementfree::estimate_cmv()
+<!-- cmv <- -->
+<!--   Quality %>% -->
+<!--   filter(question %in% c("stflife", "stfeco")) %>% -->
+<!--   measurementfree::estimate_cmv() -->
 
-0.272 - cmv
+<!-- 0.272 - cmv -->
 
-```
+<!-- ``` -->
 
-To finish off correcting for the measurement error, we consider this matrix with quality estimates on the diagonal and CMV subtracted from the correlations, a covariance matrix and transform it to a correlation matrix.
+<!-- To finish off correcting for the measurement error, we consider this matrix with quality estimates on the diagonal and CMV subtracted from the correlations, a covariance matrix and transform it to a correlation matrix. -->
 
-```{r}
-corrected_corr <- corr_q2_cmv %>% select(-rowname) %>% as.matrix() %>% cov2cor()
+<!-- ```{r} -->
+<!-- corrected_corr <- corr_q2_cmv %>% select(-rowname) %>% as.matrix() %>% cov2cor() -->
 
-corrected_corr
-```
+<!-- corrected_corr -->
+<!-- ``` -->
 
-Here we have a corrected matrix for both measurement error and for the common method variance of some variables. We can dump this into our `sem` models and get estimates corrected for measurement error.
+<!-- Here we have a corrected matrix for both measurement error and for the common method variance of some variables. We can dump this into our `sem` models and get estimates corrected for measurement error. -->
 
-## Regression model
+<!-- ## Regression model -->
 
-Let's run two regression models taken from Weber & Werner (2018) and see how the results differ.
+<!-- Let's run two regression models taken from Weber & Werner (2018) and see how the results differ. -->
 
-```{r}
+<!-- ```{r} -->
 
-model<- "poltrst ~ ppltrst + stflife + polintr + stfeco + serv + systmrsp + agea + eisced"
+<!-- model<- "poltrst ~ ppltrst + stflife + polintr + stfeco + serv + systmrsp + agea + eisced" -->
 
-# Model based on original correlation matrix
-fit <-
-  sem(model,
-      sample.cov=original_corr_2,
-      sample.nobs= 1624)
+<!-- # Model based on original correlation matrix -->
+<!-- fit <- -->
+<!--   sem(model, -->
+<!--       sample.cov=original_corr_2, -->
+<!--       sample.nobs= 1624) -->
 
-# Model based on corrected correlation matrix
-fit.corrected <-
-  sem(model,
-      sample.cov=corrected_corr,
-      sample.nobs= 1624)
+<!-- # Model based on corrected correlation matrix -->
+<!-- fit.corrected <- -->
+<!--   sem(model, -->
+<!--       sample.cov=corrected_corr, -->
+<!--       sample.nobs= 1624) -->
 
-```
+<!-- ``` -->
 
-Let's look at how much the coefficients differ
+<!-- Let's look at how much the coefficients differ -->
 
-```{r, fig.width = 7, fig.with = 9}
+<!-- ```{r, fig.width = 7, fig.with = 9} -->
 
-coef_table <-
-  list(fit, fit.corrected) %>%
-  lapply(parameterestimates) %>%
-  lapply(function(.x) filter(.x, lhs == "poltrst")) %>%
-  lapply(function(.x) select(.x, rhs, est, ci.lower, ci.upper)) %>%
-  bind_rows() %>%
-  mutate(model = rep(c("original", "corrected"), each = 9))
+<!-- coef_table <- -->
+<!--   list(fit, fit.corrected) %>% -->
+<!--   lapply(parameterestimates) %>% -->
+<!--   lapply(function(.x) filter(.x, lhs == "poltrst")) %>% -->
+<!--   lapply(function(.x) select(.x, rhs, est, ci.lower, ci.upper)) %>% -->
+<!--   bind_rows() %>% -->
+<!--   mutate(model = rep(c("original", "corrected"), each = 9)) -->
 
-coef_table %>%
-  ggplot(aes(rhs, est, colour = model)) +
-  geom_linerange(aes(ymin = ci.lower, ymax = ci.upper), position = position_dodge(width = 0.5)) +
-  geom_point(position = position_dodge(width = 0.5)) +
-  labs(x = "Predictors", y = "Estimated coefficients") +
-  theme_bw()
+<!-- coef_table %>% -->
+<!--   ggplot(aes(rhs, est, colour = model)) + -->
+<!--   geom_linerange(aes(ymin = ci.lower, ymax = ci.upper), position = position_dodge(width = 0.5)) + -->
+<!--   geom_point(position = position_dodge(width = 0.5)) + -->
+<!--   labs(x = "Predictors", y = "Estimated coefficients") + -->
+<!--   theme_bw() -->
 
-```
+<!-- ``` -->
 
-It differs slightly between models (although strongly for the dependent variable). Another approach is getting the ratio between the corrected over the original model.
+<!-- It differs slightly between models (although strongly for the dependent variable). Another approach is getting the ratio between the corrected over the original model. -->
 
-```{r}
-# Relative increase (they don't only go up!):
-coef(fit.corrected) / coef(fit)
-```
+<!-- ```{r} -->
+<!-- # Relative increase (they don't only go up!): -->
+<!-- coef(fit.corrected) / coef(fit) -->
+<!-- ``` -->
 
-It looks like the results do differ substantially! Otherwise everything would be at `1`.
+<!-- It looks like the results do differ substantially! Otherwise everything would be at `1`. -->
 
-Moreover, the R-squares of the models differ quite substantially.
+<!-- Moreover, the R-squares of the models differ quite substantially. -->
 
-```{r}
-R2_uncorr <- inspect(fit, 'r2')
-R2 <- inspect(fit.corrected, 'r2')
+<!-- ```{r} -->
+<!-- R2_uncorr <- inspect(fit, 'r2') -->
+<!-- R2 <- inspect(fit.corrected, 'r2') -->
 
-# Change of R2:
-R2 - R2_uncorr
-```
+<!-- # Change of R2: -->
+<!-- R2 - R2_uncorr -->
+<!-- ``` -->
 
-This case-study shows how adjusting for measurement error and Common Method Variance (CMV) can improve your estimates. We hope that you find the `measurementfree` package useful for your estimations.
+<!-- This case-study shows how adjusting for measurement error and Common Method Variance (CMV) can improve your estimates. We hope that you find the `measurementfree` package useful for your estimations. -->
 
-* Wiebke Weber and Hannah Werner (under review). "The correct(ed) political trust. A step-by-step explanation to correct for measurement error in the study of trust in political institutions.", Working paper (available upon request)..
+<!-- * Wiebke Weber and Hannah Werner (under review). "The correct(ed) political trust. A step-by-step explanation to correct for measurement error in the study of trust in political institutions.", Working paper (available upon request).. -->
 
