@@ -7,10 +7,6 @@
 #' manually in the argument \code{cmv}.
 #'
 #' @param .medesign An \code{medesign} object given by \code{\link{medesign}}
-#' @param cmv an optional numeric vector of the same length as the number of
-#' common method variance specifications in \code{.mdesign}.This argument is
-#' left available if the user has reasons to input their own CMV. By default,
-#' it is set to NULL and it is calculated internally.
 #'
 #' @return The common-method-variance corrected correlation.
 #'
@@ -43,10 +39,8 @@
 #' # when adjusting for common method variance
 #' me_cmv_cor(m_obj)
 #'
-#' # The V5*V4 from both the upper/lower triangles
-#' # correlation matrix changed from -0.057 to -0.276
-#'
-me_cmv_cor <- function(.medesign, cmv = NULL) {
+me_cmv_cor <- function(.medesign) {
+  cmv <- NULL
 
   if (!inherits(.medesign, "medesign")) {
     stop("`.medesign` should be a measurement error design object given by `medesign`") #nolintr
@@ -89,10 +83,6 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 
   selected_rows <- me_data[[1]] %in% cmv_vars
   if (is.null(cmv)) cmv <- estimate_cmv(me_data[selected_rows, ])
-
-  # This is the standardized cmv given that the me coefficients
-  # are already standardized
-  cmv <- prod(cmv)
 
   corrected_corr <- tibble::as_tibble(replace_matrix_cmv(x, cmv, cmv_vars),
                                       .name_repair = "minimal")
@@ -139,7 +129,7 @@ estimate_cmv <- function(me_data) {
   reliability_coef <- sqrt(me_data[[me_cols[1]]])
   method_effect <- sqrt(1 - me_data[[me_cols[2]]])
 
-  m <- setNames(reliability_coef * method_effect, me_data$question)
+  m <- stats::setNames(reliability_coef * method_effect, me_data$question)
 
   all_combn <- utils::combn(seq_len(nrow(me_data)), 2, simplify = FALSE)
 
@@ -164,15 +154,21 @@ replace_matrix_cmv <- function(x, cmv, cmv_vars) {
   new_order <- sort(x[[1]])
   x  <- x[match(new_order, x$rowname), c("rowname", new_order)]
 
-  x_row_low <- sort(match(cmv_vars, x[[1]]))
-  x_col_low <- sort(match(cmv_vars, names(x)))
+  cmv_combn <- strsplit(names(cmv), "_")
 
   x <- as.data.frame(x)
 
-  p <- x[x_row_low, x_col_low] # subset only the select variables
-  p[lower.tri(p)] <- p[lower.tri(p)] - cmv # adjust the lower.tri
-  p[upper.tri(p)] <- p[upper.tri(p)] - cmv # adjust the upper.tri
-  x[x_row_low, x_col_low] <- p # replace in the original data.frame
+  # Subset only the select variables
+  for (i in seq_along(cmv_combn)) {
+    cmv_vars <- cmv_combn[[i]]
+    x_row_low <- match(cmv_vars, x$rowname)
+    x_col_low <- match(cmv_vars, names(x))
+    p <- x[x_row_low, x_col_low, drop = FALSE]
+    
+    p[lower.tri(p)] <- p[lower.tri(p)] - cmv[i] # adjust the lower.tri
+    p[upper.tri(p)] <- p[upper.tri(p)] - cmv[i] # adjust the upper.tri
+    x[x_row_low, x_col_low] <- p # replace in the original data.frame
+  }
 
   x[match(order_rows, x[[1]]), order_columns]
 }

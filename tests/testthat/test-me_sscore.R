@@ -223,23 +223,15 @@ test_that("me_sscore returns the exact result to decimal points", {
               "trstprl", "trstplt", "trstprt")
 
   # # Quality estimates
-  quality <-
-    structure(list(question = c("ppltrst", "polintr", "psppsgv",
-                                "psppipl", "ptcpplt", "stflife", "stfeco", "stfedu", "stfhlth",
-                                "trstprl", "trstplt", "trstprt"), reliability = c(0.729, 0.659,
-                                                                                  0.761, 0.757, 0.758, 0.716, 0.823, 0.729, 0.762, 0.815, 0.826,
-                                                                                  0.854), validity = c(0.951, 0.964, 0.933, 0.932, 0.932, 0.899,
-                                                                                                       0.903, 0.827, 0.863, 0.944, 0.975, 0.898), quality = c(0.693,
-                                                                                                                                                              0.636, 0.71, 0.705, 0.707, 0.644, 0.743, 0.602, 0.658, 0.77,
-                                                                                                                                                              0.805, 0.767), r_coef = c(0.854, 0.812, 0.872, 0.87, 0.871, 0.846,
-                                                                                                                                                                                        0.907, 0.854, 0.873, 0.903, 0.909, 0.924), v_coef = c(0.975,
-                                                                                                                                                                                                                                              0.982, 0.966, 0.965, 0.965, 0.948, 0.95, 0.909, 0.929, 0.972,
-                                                                                                                                                                                                                                              0.987, 0.948), q_coef = c(0.833, 0.797, 0.843, 0.84, 0.841, 0.803,
-                                                                                                                                                                                                                                                                        0.862, 0.776, 0.811, 0.877, 0.897, 0.876)), .Names = c("question",
-                                                                                                                                                                                                                                                                                                                               "reliability", "validity", "quality", "r_coef", "v_coef", "q_coef"
-                                                                                                                                                                                                                                                                        ), class = c("tbl_df", "tbl", "data.frame"), row.names = c(NA,
-                                                                                                                                                                                                                                                                                                                                   -12L))
+  quality <- structure(list(question = c("trstprl", "trstplt", "trstprt"), 
+                            reliability = c(0.812, 0.852, 0.858), validity = c(0.959, 
+                                                                               0.965, 0.956), quality = c(0.779, 0.822, 0.821)), row.names = 6:8, class = "data.frame")
 
-  score <- estimate_sscore(quality[quality$question %in% selected_vars, ], the_data, wt = NULL)
-  expect_equal(score, 0.899183, tolerance = 0.01)
+  the_data <- scale_add_sscore(the_data, "s1", paste0(selected_vars, collapse = "+"))
+  score <- estimate_sscore(quality[quality$question %in% selected_vars, ],
+                           the_data,
+                           new_name = "s1",
+                           wt = NULL)
+  
+  expect_equal(score, 0.8914, tolerance = 0.01)
 })

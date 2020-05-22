@@ -40,9 +40,6 @@ correct_format <- function(p) {
   invisible(TRUE)
 }
 
-fun <- me_cmv_cor
-fun_str <- "me_cmv_cor"
-
 test_cor_cov <- function(fun, fun_str) {
 
   test_that(paste0(fun_str, " returns correct output"), {
@@ -73,33 +70,35 @@ test_cor_cov <- function(fun, fun_str) {
     correct_format(cmv_matr)
   })
 
-  test_that(paste0(fun_str, " works with cmv argument"), {
-    me_df <-
-      tibble(question = paste0("V", 1:5),
-             quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-             reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
-             validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
+  ## TODO: when you add the CMV argument again to cmv_cor and cov
+  ## uncomment this test
+  ## test_that(paste0(fun_str, " works with cmv argument"), {
+  ##   me_df <-
+  ##     tibble(question = paste0("V", 1:5),
+  ##            quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
+  ##            reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
+  ##            validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    # For one CMV
-    filtered_df <- subset(me_df, question %in% c("V4", "V5"))
-    model <- "~ V4 + V5"
-    m_des <- medesign(model, original_df, me_df)
-    cmv_aut <- fun(m_des)
-    cmv_manual <- fun(m_des, cmv = estimate_cmv(filtered_df))
-    expect_equal(cmv_aut, cmv_manual)
+  ##   # For one CMV
+  ##   filtered_df <- subset(me_df, question %in% c("V4", "V5"))
+  ##   model <- "~ V4 + V5"
+  ##   m_des <- medesign(model, original_df, me_df)
+  ##   cmv_aut <- fun(m_des)
+  ##   cmv_manual <- fun(m_des, cmv = estimate_cmv(filtered_df))
+  ##   expect_equal(cmv_aut, cmv_manual)
 
-    # For multiple CMV
-    filtered_df <- subset(me_df, question %in% c("V2", "V3", "V4", "V5"))
-    model <- "~ V2 + V3;~ V4 + V5"
-    m_des <- medesign(model, original_df, me_df)
-    cmv_aut <- fun(m_des)
+  ##   # For multiple CMV
+  ##   filtered_df <- subset(me_df, question %in% c("V2", "V3", "V4", "V5"))
+  ##   model <- "~ V2 + V3;~ V4 + V5"
+  ##   m_des <- medesign(model, original_df, me_df)
+  ##   cmv_aut <- fun(m_des)
 
-    list_df <- list(filtered_df[1:2, ], filtered_df[3:4, ])
-    cmv_manual <- fun(m_des, cmv = vapply(list_df,
-                                          estimate_cmv,
-                                          FUN.VALUE = numeric(1)))
-    expect_equal(cmv_aut, cmv_manual)
-  })
+  ##   list_df <- list(filtered_df[1:2, ], filtered_df[3:4, ])
+  ##   cmv_manual <- fun(m_des, cmv = vapply(list_df,
+  ##                                         estimate_cmv,
+  ##                                         FUN.VALUE = numeric(1)))
+  ##   expect_equal(cmv_aut, cmv_manual)
+  ## })
 
   test_that(paste0(fun_str, " gives same result when variables in .data are shuffled"), { #nolintr
     me_df <-
@@ -239,9 +238,11 @@ test_input_errors(me_cmv_cov, "me_cmv_cov")
 library(essurvey)
 selected_vars1 <- c("polintr", "ppltrst")
 selected_vars2 <- c("trstprl", "trstplt", "trstprt")
+selected_vars3 <- c("stfedu", "stfhlth")
 wts <- c("pspwght", "pweight")
+all_vars <- c(selected_vars1, selected_vars2, selected_vars3, wts)
 ess_email <- Sys.getenv("ess_email")
-ess7es <- import_country("Spain", 7, ess_email)[c(selected_vars1, selected_vars2, wts)]
+ess7es <- import_country("Spain", 7, ess_email)[all_vars]
 
 ## Using sqpr
 library(sqpr)
@@ -250,14 +251,25 @@ sqp_login()
 me_df <-
   get_sqp(
     study = "ESS Round 7",
-    question_name = c(selected_vars1, selected_vars2),
+    question_name = c(selected_vars1, selected_vars2, selected_vars3),
     country = "ES",
     lang = "spa"
   )
 
 me_df <- me_df[order(me_df$question), ]
 
-test_that("me_cmv_cor returns correct calculation after cov2cor",  {
+## TODO - erase this
+## sel_vars <- c(selected_vars2)
+## .data <- ess7es[complete.cases(ess7es[sel_vars]), c(sel_vars)]
+## me_data <- me_df
+## model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
+## tst <- medesign(model_syntax, .data, me_data)
+## dput(as.matrix(me_cmv_cor(tst)[-1]))
+
+test_that("me_cmv_cor returns correct calculation after cov2cor - political trust",  {
+  ############################# Political trust example #########################
+  ###############################################################################
+
   ## TODO: Leaving this here for when you decide whether you want
   ## to include the weights arg in me_correlate/me_covariance
   ## Apply weighted correlation with pspwght
@@ -267,30 +279,90 @@ test_that("me_cmv_cor returns correct calculation after cov2cor",  {
   # diag(original_corr) <- me_df$quality
   # diag(original_corr_weighted) <- me_df$quality
 
-  sel_vars <- c(selected_vars1, "trstplt")
+  sel_vars <- c(selected_vars2, "polintr")
   .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
-  ## model_syntax <- "~ ppltrst + trstplt"
-  ## me_data <- me_df
-
-  m_obj <- medesign("~ ppltrst + trstplt", .data, me_df)
+  m_obj <- medesign("~ trstprl + trstplt + trstprt", .data, me_df)
   tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
-  correct_df <- data.frame(stringsAsFactors=FALSE,
-                           rowname = c("polintr", "ppltrst", "trstplt"),
-                           polintr = c(1, -0.307183576911697, -0.246956866582566),
-                           ppltrst = c(-0.307183576911697, 1, 0.195267934255757),
-                           trstplt = c(-0.246956866582566, 0.195267934255757, 1)
-                           )
+  
+  correct_df <- structure(list(rowname = c("trstprl", "trstplt", "trstprt", "polintr"
+                                           ), trstprl = c(1, 0.773478172548603, 0.707083130161171, -0.217732553457805
+                                                          ), trstplt = c(0.773478172548603, 1, 0.984173394837744, -0.248145950309348
+                                                                         ), trstprt = c(0.707083130161171, 0.984173394837744, 1, -0.29670248109113
+                                                                                        ), polintr = c(-0.217732553457805, -0.248145950309348, -0.29670248109113, 
+                                                                                                       1)), row.names = c(NA, -4L), class = "data.frame")
 
+  # Results are matched after cov2cor
   expect_equivalent(tmp_corrected_cor, correct_df)
+
+  # Results are matched before cov2cor. This code is convert
+  # back the correlation to the covariance. We need to supply
+  # the variances in the diagonal manually here.
+  cor_variances <- c(0.779, 0.822, 0.821, 0.601)
+  d <- sqrt(cor_variances)
+  opposite_cov2cor <- outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+
+  original_cov <- structure(c(0.779, 0.618945913734983, 0.565471580756803, -0.14898046677033, 
+                              0.618945913734983, 0.822, 0.808498294106698, -0.174413596180498, 
+                              0.565471580756803, 0.808498294106698, 0.821, -0.208415489422785, 
+                              -0.14898046677033, -0.174413596180498, -0.208415489422785, 0.601
+                              ), .Dim = c(4L, 4L), .Dimnames = list(NULL, c("trstprl", "trstplt", 
+                                                                            "trstprt", "polintr")))
+
+  # Opposite cov2cor contains the actual values from Wiebke's
+  # Excel file. If you want to always check whether the estimates
+  # match precisely, this is the test to check.
+  expect_equal(opposite_cov2cor, original_cov, tol = 0.00001)
 })
+
+test_that("me_cmv_cor returns correct calculation after cov2cor - state service",  {
+  ############################# State services examples #########################
+  ###############################################################################
+
+  ## TODO: Leaving this here for when you decide whether you want
+  ## to include the weights arg in me_correlate/me_covariance
+  ## Apply weighted correlation with pspwght
+  # wt_cor_cv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)
+  # original_corr_weighted <- wt_cor_cv$cor
+  # original_corr <- cor(ess7es3var)
+  # diag(original_corr) <- me_df$quality
+  # diag(original_corr_weighted) <- me_df$quality
+
+  sel_vars <- c(selected_vars3, "trstplt")
+  .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
+  m_obj <- medesign("~ stfedu + stfhlth", .data, me_df)
+  tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
+  
+  correct_df <- structure(list(rowname = c("stfedu", "stfhlth", "trstplt"), stfedu = c(1, 
+                                                                                       0.772686712915193, 0.467064171958538), stfhlth = c(0.772686712915193, 
+                                                                                                                                          1, 0.501378224441568), trstplt = c(0.467064171958538, 0.501378224441568, 
+                                                                                                                                                                             1)), row.names = c(NA, -3L), class = "data.frame")
+
+  # Results are matched after cov2cor
+  expect_equivalent(tmp_corrected_cor, correct_df)
+
+  # Results are matched before cov2cor. This code is convert
+  # back the correlation to the covariance. We need to supply
+  # the variances in the diagonal manually here.
+  cor_variances <- c(0.635, 0.607, 0.822)
+  d <- sqrt(cor_variances)
+  opposite_cov2cor <- outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+
+  original_cov <- structure(c(0.635, 0.479716495545129, 0.337442147028845, 0.479716495545129, 
+                              0.607, 0.354156912063628, 0.337442147028845, 0.354156912063628, 
+                              0.822), .Dim = c(3L, 3L), .Dimnames = list(NULL, c("stfedu", 
+                                                                                 "stfhlth", "trstplt")))
+
+  # Opposite cov2cor contains the actual values from Wiebke's
+  # Excel file. If you want to always check whether the estimates
+  # match precisely, this is the test to check.
+  expect_equal(opposite_cov2cor, original_cov, tol = 0.00001)
+})
+
 
 test_that("me_cmv_cov returns correct calculation", {
 
-  sel_vars <- c(selected_vars1, "trstplt")
-  .data <- ess7es[complete.cases(ess7es[sel_vars]),]
-  wt <- .data$pspwght
-  .data <- .data[sel_vars]
-
+  sel_vars <- c(selected_vars2, "trstplt")
+  .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
   m_obj <- medesign("~ ppltrst + trstplt", .data, me_df)
   # TODO: The first correct example you did was using weights
   # so I had to hack medesign a bit to produce weighted covariances
@@ -316,10 +388,20 @@ test_that("medesign calculates quality of sumscore correctly for cor and cov", {
   .data <- ess7es[complete.cases(ess7es[selected_vars2]),
                   c(selected_vars1, selected_vars2)]
 
-  m_obj <- medesign("s1 = trstprl + trstplt + trstprt",
+  m_obj <- medesign("std(s1) = trstprl + trstplt + trstprt",
                     .data,
                     me_df)
 
-  expect_equal(m_obj$corr$s1[6], 0.8936532704, tol = 0.0001)
-  expect_equal(m_obj$covv$s1[6], 6.399974876, tol = 0.0001)
+  expect_equal(m_obj$corr$s1[6], 0.8914, tol = 0.001)
+  expect_equal(m_obj$covv$s1[6], 6.3999, tol = 0.001)
+
+  .data <- ess7es[complete.cases(ess7es[selected_vars3]),
+                  c(selected_vars1, selected_vars3)]
+
+  m_obj <- medesign("std(s1) = stfedu + stfhlth",
+                    .data,
+                    me_df)
+
+  expect_equal(m_obj$corr$s1[5], 0.6811, tol = 0.001)
+  expect_equal(m_obj$covv$s1[5], 2.205, tol = 0.001)
 })

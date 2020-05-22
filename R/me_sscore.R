@@ -130,9 +130,10 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
          paste0(me_env$me_columns, collapse = ", "))
   }
 
-  .data <- .data[vars_names]
+  .data <- scale_add_sscore(.data, new_name, paste0(vars_names, collapse = "+"))
   estimate_of_sscore <- estimate_sscore(me_scores,
                                         .data,
+                                        new_name,
                                         wt = wt)
   
   new_estimate <- columns_me("quality", estimate_of_sscore)
@@ -163,7 +164,10 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
 # Rather with measurement quality as a wrapper
 # because it checks all of the arguments are in
 # the correct format, etc..
-estimate_sscore <- function(me_scores, .data, wt) {
+estimate_sscore <- function(me_scores, .data, new_name, wt) {
+  sscore <- .data[[new_name]]
+  # Exclude sumscore
+  .data <- .data[!names(.data) %in% new_name]
 
   if (is.null(wt)) wt <- rep(1, nrow(me_scores))
 
@@ -190,7 +194,7 @@ estimate_sscore <- function(me_scores, .data, wt) {
   # Method effect
   method_e <- sqrt(1 - vy^2)
 
-  sd_sscore <- stats::sd(rowSums(.data, na.rm = TRUE))
+  sd_sscore <- stats::sd(sscore, na.rm = TRUE)
 
   # Reorder so it has the same order the combination above
   .data <- .data[me_scores[["question"]]]
@@ -209,9 +213,9 @@ estimate_sscore <- function(me_scores, .data, wt) {
 
   adjusted_corr <- cor_e - cov_e
 
-  weights_by_qcoef <- adjusted_corr*wt/2.676114*wt/2.676114
+  weights_by_qcoef <- unique(adjusted_corr*wt/sd_sscore*wt/sd_sscore)
 
-  final_qcoef <- sum(weights_by_qcoef)*2 + sum((wt / 2.676114*qy)^2)
+  final_qcoef <- sum(weights_by_qcoef)*2 + sum((wt / sd_sscore*qy)^2)
 
   if (sign(final_qcoef) == -1) {
     stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/measurementfree/issues")

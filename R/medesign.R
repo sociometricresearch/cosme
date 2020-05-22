@@ -94,11 +94,11 @@ medesign <- function(model_syntax, .data, me_data, ...) {
 
   .data <- create_sscore(parsed_model, .data)
   
-  me_data <- adapted_sscore_quality(parsed_model = parsed_model,
-                                    .data = .data,
-                                    me_data = me_data,
-                                    .drop = FALSE,
-                                    ...)
+  me_data_sscore <- adapted_sscore_quality(parsed_model = parsed_model,
+                                           .data = .data,
+                                           me_data = me_data,
+                                           .drop = FALSE,
+                                           ...)
 
   # Because variables used to create the quality
   # of the sumscore are now excluded from me_data
@@ -109,12 +109,12 @@ medesign <- function(model_syntax, .data, me_data, ...) {
   # I checked the sscore vars above but all variables here again just
   # because I'm lazy
   check_number_cmv(parsed_model)
-  check_me_vars(me_data, unlist(vars_used))
+  check_me_vars(me_data_sscore, unlist(vars_used))
 
   ## me_data_filt <- me_data[match(vars_used, me_data$question), ]
 
   # Only check NA's on variables used
-  check_me_na(me_data[me_data$question %in% unlist(vars_used), ],
+  check_me_na(me_data_sscore[me_data_sscore$question %in% unlist(vars_used), ],
               me_cols = c("reliability", "validity"))
 
   check_data_vars(.data, unlist(vars_used))
@@ -124,28 +124,27 @@ medesign <- function(model_syntax, .data, me_data, ...) {
   qual_cov <- stats::cov(.data, use = "complete.obs")
 
   # Replace the diagonal with the non-na quality of all variables
-  # in me_data (not the filtered one). This could change
+  # in me_data_sscore (not the filtered one). This could change
   # to an explicit declaration of quality in model_syntax in the future
-  me_data <- me_data[!is.na(me_data$quality), ]
+  me_data_sscore <- me_data_sscore[!is.na(me_data_sscore$quality), ]
 
-  vars_match <- intersect(me_data$question, rownames(qual_cor))
-  tmp_me <- me_data[me_data$question %in% vars_match, ]
+  vars_match <- intersect(me_data_sscore$question, rownames(qual_cor))
+  tmp_me <- me_data_sscore[me_data_sscore$question %in% vars_match, ]
   pos_diag <- stats::na.omit(match(tmp_me$question, rownames(qual_cor)))
   diag(qual_cor)[pos_diag] <- tmp_me$quality
 
-  # parsed_model is limited to sum scores here
-  ## .data_sd <- vapply(.data[parsed_model$lhs],
-  ##                    sd,
-  ##                    na.rm = TRUE,
-  ##                    FUN.VALUE = numeric(1))
-
   # The covariance quality needs to be unstandardized
-  diag(qual_cov)[pos_diag] <- tmp_me$quality #* 2.676114^2
+  sscores <- setdiff(tmp_me$question, me_data$question)
+  sd_sscore <- vapply(.data[sscores], stats::sd, na.rm = TRUE, FUN.VALUE = numeric(1))
+  sd_pos <- match(names(sd_sscore), tmp_me$question)
+  tmp_me$quality[sd_pos] <- tmp_me$quality[sd_pos] * (sd_sscore^2)
+
+  diag(qual_cov)[pos_diag] <- tmp_me$quality
 
   structure(
     list(parsed_model = parsed_model,
          .data = .data,
-         me_data = me_data,
+         me_data = me_data_sscore,
          corr = matrix2tibble(qual_cor),
          covv = matrix2tibble(qual_cov)
          ),
@@ -191,38 +190,45 @@ create_sscore <- function(parsed_model, .data) {
   separate_ss <- separate_ss[unique(sscore_df$lhs)]
 
   for (x in separate_ss) {
-
-    ss_name <- unique(x$lhs)
-    if (x$std) x$rhs <- paste0("scale(", x$rhs, ")")
-    
-    sscore_for <-
-      stats::as.formula(
-        paste("~ I(", x$rhs, ")")
-      )
-
-    available <- all.vars(sscore_for) %in% names(.data)
-
-    if (sum(available) != length(available)) {
-      stop(paste0("Variable(s) ",
-                  paste0(all.vars(sscore_for)[!available], collapse = ", "),
-                  " from sumscore",
-                  ss_name,
-                  " not available in `data`")
-           )
-    }
-
-    created_ss <-
-      stats::setNames(
-        # Leave NA's as they are
-        stats::model.frame(sscore_for, .data, na.action = NULL),
-        ss_name
-      )
-
-    # This is because stats::model.frame returns the new variables with class
-    # AsIs from the I() in the formula
-    created_ss[ss_name] <- as.numeric(created_ss[[ss_name]])
-    .data <- cbind(.data, created_ss)
+    .data <- scale_add_sscore(.data, x$lhs, x$rhs)
   }
+
+  .data
+}
+
+scale_add_sscore <- function(.data, new_name, vars_names) {
+  ss_name <- unique(new_name)
+  vars_names <- paste0("scale(", strsplit(vars_names, "\\+")[[1]], ")",
+                       collapse = "+")
+
+  sscore_for <-
+    stats::as.formula(
+      paste("~ I(", vars_names, ")")
+    )
+
+  available <- all.vars(sscore_for) %in% names(.data)
+
+  if (sum(available) != length(available)) {
+    stop(paste0("Variable(s) ",
+                paste0(all.vars(sscore_for)[!available], collapse = ", "),
+                " from sumscore",
+                ss_name,
+                " not available in `data`")
+         )
+  }
+
+  created_ss <-
+    stats::setNames(
+      # Leave NA's as they are
+      stats::model.frame(sscore_for, .data, na.action = NULL),
+      ss_name
+    )
+
+  # This is because stats::model.frame returns the new variables with class
+  # AsIs from the I() in the formula
+  created_ss[ss_name] <- as.numeric(created_ss[[ss_name]])
+  .data[[ss_name]] <- created_ss[[ss_name]]
+  
   .data
 }
 

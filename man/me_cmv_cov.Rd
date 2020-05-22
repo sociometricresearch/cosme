@@ -4,15 +4,10 @@
 \alias{me_cmv_cov}
 \title{Adjust a covariance matrix for Common Method Variance (CMV)}
 \usage{
-me_cmv_cov(.medesign, cmv = NULL)
+me_cmv_cov(.medesign)
 }
 \arguments{
 \item{.medesign}{An \code{medesign} object given by \code{\link{medesign}}}
-
-\item{cmv}{an optional numeric vector of the same length as the number of
-common method variance specifications in \code{.mdesign}. This argument is
-left available if the user has reasons to input their own CMV. By default,
-it is set to NULL and it is calculated internally.}
 }
 \value{
 The common-method-variance corrected correlation.

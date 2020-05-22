@@ -4,15 +4,10 @@
 \alias{me_cmv_cor}
 \title{Adjust a correlation matrix for Common Method Variance (CMV)}
 \usage{
-me_cmv_cor(.medesign, cmv = NULL)
+me_cmv_cor(.medesign)
 }
 \arguments{
 \item{.medesign}{An \code{medesign} object given by \code{\link{medesign}}}
-
-\item{cmv}{an optional numeric vector of the same length as the number of
-common method variance specifications in \code{.mdesign}.This argument is
-left available if the user has reasons to input their own CMV. By default,
-it is set to NULL and it is calculated internally.}
 }
 \value{
 The common-method-variance corrected correlation.
@@ -47,9 +42,6 @@ me_correlate(original_df)
 # Coefficient of correlation changes
 # when adjusting for common method variance
 me_cmv_cor(m_obj)
-
-# The V5*V4 from both the upper/lower triangles
-# correlation matrix changed from -0.057 to -0.276
 
 }
 \seealso{
