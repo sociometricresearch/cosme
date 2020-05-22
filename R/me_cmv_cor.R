@@ -137,9 +137,16 @@ estimate_cmv <- function(me_data) {
   me_cols <- c("reliability", "validity")
   check_me_na(me_data, me_cols)
   reliability_coef <- sqrt(me_data[[me_cols[1]]])
-  validity_coef <- sqrt(1 - me_data[[me_cols[2]]])
+  method_effect <- sqrt(1 - me_data[[me_cols[2]]])
 
-  cmv <- prod(c(reliability_coef, validity_coef))
+  m <- setNames(reliability_coef * method_effect, me_data$question)
+
+  all_combn <- utils::combn(seq_len(nrow(me_data)), 2, simplify = FALSE)
+
+  cmv <- unlist(lapply(all_combn, function(i) {
+    setNames(prod(m[i]), paste0(names(m[i]), collapse = "_"))
+  }))
+  
   cmv
 }
 
