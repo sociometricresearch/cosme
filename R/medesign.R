@@ -71,7 +71,8 @@
 ##'                       )
 ##'
 ##' medesign(me_syntax, mtcars, me_data)
-##' 
+##'
+##'
 medesign <- function(model_syntax, .data, me_data, ...) {
   me_data <- as_me(me_data)
 
@@ -88,7 +89,7 @@ medesign <- function(model_syntax, .data, me_data, ...) {
   # Check only for sscore variables because this is done first
   which_sscore <- vapply(split_model, function(x) all(x$op == "="),
                          FUN.VALUE = logical(1))
-  
+ 
   for (i in vars_used[which_sscore]) check_data_vars(.data, i)
   for (i in vars_used[which_sscore]) check_me_vars(me_data, i)
 
@@ -119,6 +120,10 @@ medesign <- function(model_syntax, .data, me_data, ...) {
 
   check_data_vars(.data, unlist(vars_used))
   check_data_na(.data, unlist(vars_used))
+
+  # method effect
+  me_data_sscore$method_eff <- with(me_data_sscore,
+                                    reliability * sqrt(1 - validity^2))
 
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")

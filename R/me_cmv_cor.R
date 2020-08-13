@@ -45,7 +45,7 @@ me_cmv_cor <- function(.medesign) {
   if (!inherits(.medesign, "medesign")) {
     stop("`.medesign` should be a measurement error design object given by `medesign`") #nolintr
   }
-  
+
   # cmv vector equals the same length as the number of cmv definitions
   if (!is.null(cmv)) {
     stopifnot(is.numeric(cmv))
@@ -75,7 +75,7 @@ me_cmv_cor <- function(.medesign) {
 }
 
 me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
-  # Althought this check is carried in `medesign`,
+  # Although this check is carried in `medesign`,
   # I leave this one here again because it's specific towards
   # two columns. Doesn't make a difference, but I'd rather
   # err on the side of safety
@@ -84,25 +84,25 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
   selected_rows <- me_data[[1]] %in% cmv_vars
   if (is.null(cmv)) cmv <- estimate_cmv(me_data[selected_rows, ])
 
-  corrected_corr <- tibble::as_tibble(replace_matrix_cmv(x, cmv, cmv_vars),
-                                      .name_repair = "minimal")
+  corrected_corr <-
+    tibble::as_tibble(
+              replace_matrix_cmv(x, cmv, cmv_vars),
+              .name_repair = "minimal"
+            )
 
-  # Turn the correlation back to a correlation for the diagonal
-  # to be one
+  # Turn the correlation back to a correlation for the diagonal to be one
   corrected_corr[, -1] <- stats::cov2cor(as.matrix(corrected_corr[, -1]))
   corrected_corr
 }
 
-
-
-
 #' Estimate the Common Method Variance (CMV) coefficient of a set of variables
-#'
 #'
 #' @param me_data a data frame or tibble of class \code{me}
 #' which contains the desired variables from which to estimate the CMV.
 #'
-#' @return a numeric vector of length one with the estimated coefficient
+#' @return a numeric vector of length one with the estimated coefficient. The
+#' result is a named vector where the name indicates the CMV between the
+#' two variables.
 #'
 #' @seealso \code{\link{me_cmv_cor}} for automatically adjusting a correlation
 #' matrix for the CMV, \code{\link{me_cmv_cov}} for automatically adjusting a
@@ -114,11 +114,15 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 #' # Don't remove don't run: since this fun is not exported
 #' # it throws an error. Keeping docs jsut for me here.
 #' \dontrun{
+#' 
 #' me_df <-
-#'  tibble(question = paste0("V", 1:5),
-#'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-#'  reliability = c(0.2, 0.4, 0.5, 0.5, 0.7),
-#'  validity = c(0.5, 0.1, 0.6, 0.7, 0.8))
+#'  tibble(
+#'  question = c("trstprl", "trstplt", "trstprt"),
+#'  quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
+#'  reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+#'  validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+#'  method_eff = c(0.182460954727307, 0.17268468374468, 0.194298739059214)
+#' )
 #'
 #' estimate_cmv(me_df)
 #' }
@@ -126,51 +130,50 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 estimate_cmv <- function(me_data) {
   me_cols <- c("reliability", "validity")
   check_me_na(me_data, me_cols)
-  reliability_coef <- sqrt(me_data[[me_cols[1]]])
-  method_effect <- sqrt(1 - me_data[[me_cols[2]]])
-
-  m <- stats::setNames(reliability_coef * method_effect, me_data$question)
 
   all_combn <- utils::combn(seq_len(nrow(me_data)), 2, simplify = FALSE)
 
   cmv <- unlist(lapply(all_combn, function(i) {
-    setNames(prod(m[i]), paste0(names(m[i]), collapse = "_"))
+    m <- me_data[i, ]
+    setNames(prod(m$method_eff), paste0(m$question, collapse = "_"))
   }))
-  
+
   cmv
 }
 
 # This function is the one doing the replacement of the upper
 # and lower of the correlation matrix.
 replace_matrix_cmv <- function(x, cmv, cmv_vars) {
-
-  # In case the order of rows is shuffled,
-  # recode the initial order, order the data frame
-  # calculate everything and then reorder back
-  # when return the x data frame
-  order_rows <- x[[1]]
-  order_columns <- names(x)
-
-  new_order <- sort(x[[1]])
-  x  <- x[match(new_order, x$rowname), c("rowname", new_order)]
-
-  cmv_combn <- strsplit(names(cmv), "_")
-
   x <- as.data.frame(x)
+  row_order <- x$rowname
+  col_order <- names(x)
+  x_long <- reshape(x,
+                    idvar = "rowname",
+                    times = setdiff(names(x), "rowname"),
+                    timevar = "rowname2",
+                    varying = list(setdiff(names(x), "rowname")),
+                    v.names = "values",
+                    direction = "long")
 
-  # Subset only the select variables
-  for (i in seq_along(cmv_combn)) {
-    cmv_vars <- cmv_combn[[i]]
-    x_row_low <- match(cmv_vars, x$rowname)
-    x_col_low <- match(cmv_vars, names(x))
-    p <- x[x_row_low, x_col_low, drop = FALSE]
-    
-    p[lower.tri(p)] <- p[lower.tri(p)] - cmv[i] # adjust the lower.tri
-    p[upper.tri(p)] <- p[upper.tri(p)] - cmv[i] # adjust the upper.tri
-    x[x_row_low, x_col_low] <- p # replace in the original data.frame
-  }
+  cmv_df <- data.frame(rowname = gsub("_.+$", "", names(cmv)),
+                       rowname2 = gsub("^.+_", "", names(cmv)),
+                       values2 = cmv)
 
-  x[match(order_rows, x[[1]]), order_columns]
+  cmv_df2 <- cmv_df[c("rowname2", "rowname", "values2")]
+  names(cmv_df2) <- c("rowname", "rowname2", "values2")
+  cmv_df <- rbind(cmv_df, cmv_df2)
+
+  merge_long <- merge(x_long, cmv_df, all.x = TRUE, sort = FALSE)
+  merge_long$values2[is.na(merge_long$values2)] <- 0
+  merge_long$values <- with(merge_long, values - values2)
+  merge_long$values2 <- NULL
+
+  x_wide <- reshape(merge_long,
+                    idvar = "rowname",
+                    timevar = "rowname2",
+                    direction = "wide")
+  names(x_wide) <- gsub("values.", "", names(x_wide))
+  x_wide[match(row_order, x_wide$rowname), col_order]
 }
 
 
