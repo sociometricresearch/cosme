@@ -43,25 +43,33 @@ test_that("estimate_cmv returns correct output", {
 
   # Political trust example
   me_df <-
-    structure(list(question = c("trstplt", "trstprl", "trstprt"), 
-                   reliability = c(0.852, 0.812, 0.858), validity = c(0.965, 
-                                                                      0.959, 0.956), quality = c(0.822, 0.779, 0.821)), row.names = c(NA, 
-                                                                                                                                      -3L), class = "data.frame")
+    data.frame(
+      question = c("trstprl", "trstplt", "trstprt"),
+      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
+      method_eff = c(0.1824610, 0.1726847, 0.1942987)
+    )
 
   result <- round(estimate_cmv(me_df), 5)
-  correct_res <- c(trstplt_trstprl = 0.03151,
-                   trstplt_trstprt = 0.03355,
-                   trstprl_trstprt = 0.03545)
+  correct_res <- c(trstprl_trstplt = 0.03151,
+                   trstprl_trstprt = 0.03545,
+                   trstplt_trstprt = 0.03355)
+
   expect_is(result, "numeric")
   expect_length(result, nrow(me_df))
   expect_identical(result, correct_res)
 
-
   # State services example
-  me_df <- structure(list(question = c("stfedu", "stfhlth"), reliability = c(0.757, 
-                                                                             0.76), validity = c(0.838, 0.798), quality = c(0.635, 0.607)), row.names = c(NA, 
-                                                                                                                                                          -2L), class = "data.frame")
-  
+  me_df <-
+    data.frame(
+      question = c("stfedu", "stfhlth"),
+      reliability = c(0.870057469366248, 0.871779788708135),
+      validity = c(0.915423399307664, 0.893308457365092),
+      quality = c(0.796868872525461, 0.779102047231298),
+      method_eff = c(0.3501914, 0.3918163)
+    )
+
   result <- round(estimate_cmv(me_df), 5)
   correct_res <- c(stfedu_stfhlth = 0.13721)
   expect_is(result, "numeric")

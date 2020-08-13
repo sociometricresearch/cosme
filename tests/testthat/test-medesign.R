@@ -276,8 +276,8 @@ test_that("medesign creates sscore and keeps vars from me_data", {
 
   set.seed(23141)
   fake_data <- as.data.frame(
-    setNames(lapply(1:4, function(x) rnorm(100)),
-             c("ppltrst", "trstprl", "stfeco", "stflife"))
+    stats::setNames(lapply(1:4, function(x) rnorm(100)),
+                    c("ppltrst", "trstprl", "stfeco", "stflife"))
   )
 
   res <- medesign(model_syntax, fake_data, me_data)
@@ -308,15 +308,15 @@ test_that("medesign creates sscore and keeps vars from me_data", {
 
 
 test_that("medesign creates two sscore and removes vars from me_data", {
-  model_syntax <- "sscore_one = ppltrst + trstprl; sscore_two = psppipl + psppsgv; ~ stfeco + stflife"
+  model_syntax <- "sscore_one = ppltrst + trstprl; sscore_two = psppipl + psppsgv; ~ stfeco + stflife" #nolintr
 
   # Fake data for the example
   me_data <- quality
 
   set.seed(23141)
   fake_data <- as.data.frame(
-    setNames(lapply(1:6, function(x) rnorm(100)),
-             c("ppltrst", "trstprl", "psppipl", "psppsgv", "stfeco", "stflife"))
+    stats::setNames(lapply(1:6, function(x) rnorm(100)),
+                    c("ppltrst", "trstprl", "psppipl", "psppsgv", "stfeco", "stflife"))
   )
 
   res <- medesign(model_syntax, fake_data, me_data)
@@ -379,10 +379,10 @@ test_that("medesign checks for wrong format of me_data", {
   names(mtcars)[1:3] <- c("V1", "V2", "V3")
 
   me_df <-
-    tibble(question = paste0("V", 1:3),
-           not_indf = c(0.2, 0.3, 0.5),
-           reliability = c(NA, 0.4, 0.5),
-           validity = c(NA, NA, 0.6))
+    tibble::tibble(question = paste0("V", 1:3),
+                   not_indf = c(0.2, 0.3, 0.5),
+                   reliability = c(NA, 0.4, 0.5),
+                   validity = c(NA, NA, 0.6))
 
   me_syntax <- "~ V1 + V2"
   expect_error(
@@ -391,10 +391,10 @@ test_that("medesign checks for wrong format of me_data", {
   )
 
   me_df <-
-    tibble(question = paste0("V", 1:3),
-           not_indf = c(0.2, 0.3, 0.5),
-           reliability = c(NA, 0.4, 0.5),
-           validity = c(NA, NA, 0.6))
+    tibble::tibble(question = paste0("V", 1:3),
+                   not_indf = c(0.2, 0.3, 0.5),
+                   reliability = c(NA, 0.4, 0.5),
+                   validity = c(NA, NA, 0.6))
 
   expect_error(
     medesign(me_syntax, mtcars, me_df),
@@ -402,10 +402,10 @@ test_that("medesign checks for wrong format of me_data", {
   )
 
   me_df <-
-    tibble(question = c("V1", "V2", "V3"),
-           quality = c(0.2, 0.3, 0.5),
-           reliability = c(NA, 0.4, 0.5),
-           validity = c(NA, NA, 1.2))
+    tibble::tibble(question = c("V1", "V2", "V3"),
+                   quality = c(0.2, 0.3, 0.5),
+                   reliability = c(NA, 0.4, 0.5),
+                   validity = c(NA, NA, 1.2))
 
   expect_error(
     medesign(me_syntax, mtcars, me_df),
@@ -415,10 +415,10 @@ test_that("medesign checks for wrong format of me_data", {
   )
 
   me_df <-
-    tibble(question = 1:3,
-           quality = c(0.2, 0.3, 0.5),
-           reliability = c(0.5, 0.4, 0.5),
-           validity = c(0.1, 0.2, 0.9))
+    tibble::tibble(question = 1:3,
+                   quality = c(0.2, 0.3, 0.5),
+                   reliability = c(0.5, 0.4, 0.5),
+                   validity = c(0.1, 0.2, 0.9))
 
   expect_error(
     medesign(me_syntax, mtcars, me_df),
@@ -427,5 +427,58 @@ test_that("medesign checks for wrong format of me_data", {
            " must be a character vector containing the question names"
            )
   )
-  
+
+})
+
+test_that("medesign calculates quality and method effect correctly for sumscore", {
+
+  me_df <-
+    data.frame(
+      question = c("trstprl", "trstplt", "trstprt"),
+      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+    )
+
+  data(ess7es)
+  .data <- ess7es[c("trstprl", "trstplt", "trstprt")]
+  me_data <- me_df
+  model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
+  medesign_tst <- medesign(model_syntax, .data, me_data)
+
+  sscore_subset <- medesign_tst$me_data$question == "s1"
+  res <- medesign_tst$me_data[sscore_subset, c("quality", "method_eff")]
+
+  expect_equal(round(as.data.frame(res), 4),
+               data.frame(quality = 0.8936, method_eff = 0.0422),
+               tol = 0.000001)
+
+})
+
+test_that("medesign replaces quality in diagonal of cor and cov correctly", {
+
+  me_df <-
+    data.frame(
+      question = c("trstprl", "trstplt", "trstprt"),
+      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+    )
+
+  data(ess7es)
+  .data <- ess7es[c("trstprl", "trstplt", "trstprt")]
+  me_data <- me_df
+  model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
+  medesign_tst <- medesign(model_syntax, .data, me_data)
+
+  expect_equal(
+    diag(as.matrix(medesign_tst$corr[-1])),
+    medesign_tst$me_data$quality
+  )
+
+  expect_equal(
+    diag(as.matrix(medesign_tst$covv[-1])),
+    c(0.8826098, 0.9066422, 0.9060905, 6.3998926),
+    tol = 0.00001
+  )
 })

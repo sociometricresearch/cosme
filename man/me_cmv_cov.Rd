@@ -21,6 +21,8 @@ manually in the argument \code{cmv}.
 }
 \examples{
 
+\dontrun{
+## TODO - Fix when me_cmv_cov works well
 set.seed(2131)
 library(tibble)
 
@@ -45,7 +47,7 @@ me_cmv_cov(m_obj)
 
 # The V5*V4 from both the upper/lower triangles
 # covariance matrix changed from -181 to -634
-
+}
 }
 \seealso{
 \code{link{medesign}} and \code{\link{me_cmv_cor}} for the same

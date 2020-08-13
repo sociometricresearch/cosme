@@ -79,6 +79,7 @@ me_data <- data.frame(stringsAsFactors = FALSE,
 
 medesign(me_syntax, mtcars, me_data)
 
+
 }
 \author{
 Jorge Cimentada

@@ -50,38 +50,44 @@ selected variables in \code{...}. Use \code{me_sscore_} if you're
 interested in programming with \code{me_sscore}
 }
 \examples{
+# Political trust example
+data(ess7es)
 
-# Toy data
+quality <-
+  data.frame(
+    question = c("trstprl", "trstplt", "trstprt"),
+    reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+    validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+    quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+  )
 
-library(tibble)
-me_df <-
-tibble(question = paste0("V", 1:5),
-       quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-       reliability = c(0.2, 0.4, 0.5, 0.5, 0.7),
-       validity = c(0.8, 0.1, 0.6, 0.7, 0.8))
+selected_vars <- c("trstprl", "trstplt", "trstprt")
+score <- me_sscore(quality[quality$question \%in\% selected_vars, ],
+                   ess7es,
+                   new_name = "s1",
+                   trstprl, trstplt, trstprt,
+                   wt = NULL)
 
+# Returns the quality and method effect of any given sum score
+score
 
-sample_data <-
- as_tibble(
- stats::setNames(
-  replicate(5, rbinom(1000, 5, 0.6), simplify = FALSE),
- paste0("V", 1:5))
- )
+# State services example
+quality <-
+  data.frame(
+    question = c("stfedu", "stfhlth"),
+    reliability = c(0.870057469366248, 0.871779788708135),
+    validity = c(0.915423399307664, 0.893308457365092),
+    quality = c(0.796868872525461, 0.779102047231298)
+  )
 
+score <- me_sscore(quality,
+                   ess7es,
+                   new_name = "s1",
+                   stfedu, stfhlth,
+                   wt = NULL)
 
-me_sscore(
-me_data = me_df,
-.data = sample_data,
-new_name = new_sumscore,
-V3, V4
-)
-
-me_sscore(
-me_data = me_df,
-.data = sample_data,
-new_name = new_sumscore,
-"V1", "V2"
-)
+# Returns the quality and method effect of any given sum score
+score
 
 
 }

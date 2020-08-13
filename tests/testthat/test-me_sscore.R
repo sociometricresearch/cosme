@@ -176,7 +176,6 @@ test_that("me_sscore checks that there's non_NA's in important arguments", {
 
   me_df$validity[is.na(me_df$validity)] <- 0.5
 
-
   expect_error(
     me_sscore(
       me_df,
@@ -184,7 +183,7 @@ test_that("me_sscore checks that there's non_NA's in important arguments", {
       new_name = new_sumscore,
       V1, V2,
       wt = NA,
-    "`weights` must be a non-NA numeric vector with the same length as the number of variables")
+    "`weights` must be a non-NA numeric vector with the same length as the number of variables") #nolintr
   )
 
   expect_error(
@@ -194,7 +193,7 @@ test_that("me_sscore checks that there's non_NA's in important arguments", {
       new_name = new_sumscore,
       V1, V2,
       wt = 1,
-      "`weights` must be a non-NA numeric vector with the same length as the number of variables")
+      "`weights` must be a non-NA numeric vector with the same length as the number of variables") #nolintr
   )
 
   expect_error(
@@ -204,34 +203,108 @@ test_that("me_sscore checks that there's non_NA's in important arguments", {
       new_name = new_sumscore,
       V1, V2,
       wt = c(1, 2),
-      "`weights` must be a non-NA numeric vector with the same length as the number of variables")
+      "`weights` must be a non-NA numeric vector with the same length as the number of variables") #nolintr
   )
 })
 
-ess_email <- Sys.getenv("ess_email")
 
-test_that("me_sscore returns the exact result to decimal points", {
+test_that("me_sscore returns the correct quality and method effect of a sscore", {
+
+  # Political trust example
+  data(ess7es)
   selected_vars <- c("trstprl", "trstplt", "trstprt")
-
-  the_data  <-
-    essurvey::recode_missings(
-      essurvey::import_country("Spain", 7, ess_email)[selected_vars]
-    )
-
+  .data <- ess7es
   all_qs <- c("ppltrst", "polintr", "psppsgv",
-              "psppipl", "ptcpplt", "stflife", "stfeco", "stfedu", "stfhlth",
+              "psppipl", "ptcpplt", "stflife",
+              "stfeco", "stfedu", "stfhlth",
               "trstprl", "trstplt", "trstprt")
 
-  # # Quality estimates
-  quality <- structure(list(question = c("trstprl", "trstplt", "trstprt"), 
-                            reliability = c(0.812, 0.852, 0.858), validity = c(0.959, 
-                                                                               0.965, 0.956), quality = c(0.779, 0.822, 0.821)), row.names = 6:8, class = "data.frame")
+   quality <-
+     data.frame(
+       question = c("trstprl", "trstplt", "trstprt"),
+       reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+       validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+       quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+     )
 
-  the_data <- scale_add_sscore(the_data, "s1", paste0(selected_vars, collapse = "+"))
+   .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
+   score <- me_sscore(quality[quality$question %in% selected_vars, ],
+                      .data,
+                      new_name = "s1",
+                      trstprl, trstplt, trstprt,
+                      wt = NULL)
+
+  expect_equal(score$quality, 0.8936, tolerance = 0.0001)
+  expect_equal(score$method_eff, 0.04215, tolerance = 0.0001)
+
+  # State services example
+  quality <-
+    data.frame(
+      question = c("stfedu", "stfhlth"),
+      reliability = c(0.870057469366248, 0.871779788708135),
+      validity = c(0.915423399307664, 0.893308457365092),
+      quality = c(0.796868872525461, 0.779102047231298)
+    )
+
+  selected_vars <- c("stfedu", "stfhlth")
+  .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
+  score <- me_sscore(quality,
+                     .data,
+                     new_name = "s1",
+                     stfedu, stfhlth,
+                     wt = NULL)
+
+  expect_equal(score$quality, 0.6841, tolerance = 0.0001)
+  expect_equal(score$method_eff, 0.17079, tolerance = 0.0001)
+})
+
+
+test_that("estimate_sscore returns the correct quality and method effect of a sscore", {
+
+  # Political trust example
+  data(ess7es)
+  selected_vars <- c("trstprl", "trstplt", "trstprt")
+  .data <- ess7es
+  all_qs <- c("ppltrst", "polintr", "psppsgv",
+              "psppipl", "ptcpplt", "stflife",
+              "stfeco", "stfedu", "stfhlth",
+              "trstprl", "trstplt", "trstprt")
+
+   quality <-
+     data.frame(
+       question = c("trstprl", "trstplt", "trstprt"),
+       reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+       validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+       quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
+       method_eff = c(0.1824610, 0.1726847, 0.1942987)
+     )
+
+  .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
   score <- estimate_sscore(quality[quality$question %in% selected_vars, ],
-                           the_data,
+                           .data,
                            new_name = "s1",
                            wt = NULL)
-  
-  expect_equal(score, 0.8914, tolerance = 0.01)
+
+  expect_equal(score$quality, 0.8936, tolerance = 0.0001)
+  expect_equal(score$method_eff, 0.04215, tolerance = 0.0001)
+
+  # State services example
+  quality <-
+    data.frame(
+      question = c("stfedu", "stfhlth"),
+      reliability = c(0.870057469366248, 0.871779788708135),
+      validity = c(0.915423399307664, 0.893308457365092),
+      quality = c(0.796868872525461, 0.779102047231298),
+      method_eff = c(0.3501914, 0.3918163)
+    )
+
+  selected_vars <- c("stfedu", "stfhlth")
+  .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
+  score <- estimate_sscore(quality,
+                           .data,
+                           new_name = "s1",
+                           wt = NULL)
+
+  expect_equal(score$quality, 0.6841, tolerance = 0.0001)
+  expect_equal(score$method_eff, 0.17079, tolerance = 0.0001)
 })

@@ -114,17 +114,34 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 #' # Don't remove don't run: since this fun is not exported
 #' # it throws an error. Keeping docs jsut for me here.
 #' \dontrun{
-#' 
-#' me_df <-
-#'  tibble(
-#'  question = c("trstprl", "trstplt", "trstprt"),
-#'  quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
-#'  reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-#'  validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-#'  method_eff = c(0.182460954727307, 0.17268468374468, 0.194298739059214)
-#' )
 #'
+#' # Example with political trust
+#' me_df <-
+#'   data.frame(
+#'     question = c("trstprl", "trstplt", "trstprt"),
+#'     reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+#'     validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+#'     quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
+#'     method_eff = c(0.1824610, 0.1726847, 0.1942987)
+#'   )
+#'
+#' # CMV between each variable
 #' estimate_cmv(me_df)
+#'
+#' # State services example
+#'
+#' me_df <-
+#'   data.frame(
+#'     question = c("stfedu", "stfhlth"),
+#'     reliability = c(0.870057469366248, 0.871779788708135),
+#'     validity = c(0.915423399307664, 0.893308457365092),
+#'     quality = c(0.796868872525461, 0.779102047231298),
+#'     method_eff = c(0.3501914, 0.3918163)
+#'   )
+#'
+#' # CMV between these two variables
+#' estimate_cmv(me_df)
+#'
 #' }
 #'
 estimate_cmv <- function(me_data) {
@@ -135,7 +152,7 @@ estimate_cmv <- function(me_data) {
 
   cmv <- unlist(lapply(all_combn, function(i) {
     m <- me_data[i, ]
-    setNames(prod(m$method_eff), paste0(m$question, collapse = "_"))
+    stats::setNames(prod(m$method_eff), paste0(m$question, collapse = "_"))
   }))
 
   cmv
@@ -147,13 +164,13 @@ replace_matrix_cmv <- function(x, cmv, cmv_vars) {
   x <- as.data.frame(x)
   row_order <- x$rowname
   col_order <- names(x)
-  x_long <- reshape(x,
-                    idvar = "rowname",
-                    times = setdiff(names(x), "rowname"),
-                    timevar = "rowname2",
-                    varying = list(setdiff(names(x), "rowname")),
-                    v.names = "values",
-                    direction = "long")
+  x_long <- stats::reshape(x,
+                           idvar = "rowname",
+                           times = setdiff(names(x), "rowname"),
+                           timevar = "rowname2",
+                           varying = list(setdiff(names(x), "rowname")),
+                           v.names = "values",
+                           direction = "long")
 
   cmv_df <- data.frame(rowname = gsub("_.+$", "", names(cmv)),
                        rowname2 = gsub("^.+_", "", names(cmv)),
@@ -168,10 +185,11 @@ replace_matrix_cmv <- function(x, cmv, cmv_vars) {
   merge_long$values <- with(merge_long, values - values2)
   merge_long$values2 <- NULL
 
-  x_wide <- reshape(merge_long,
-                    idvar = "rowname",
-                    timevar = "rowname2",
-                    direction = "wide")
+  x_wide <- stats::reshape(merge_long,
+                           idvar = "rowname",
+                           timevar = "rowname2",
+                           direction = "wide")
+
   names(x_wide) <- gsub("values.", "", names(x_wide))
   x_wide[match(row_order, x_wide$rowname), col_order]
 }

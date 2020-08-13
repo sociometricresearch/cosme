@@ -40,38 +40,44 @@
 #' @export
 #'
 #' @examples
+#' # Political trust example
+#' data(ess7es)
 #'
-#' # Toy data
+#' quality <-
+#'   data.frame(
+#'     question = c("trstprl", "trstplt", "trstprt"),
+#'     reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+#'     validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+#'     quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+#'   )
 #'
-#' library(tibble)
-#' me_df <-
-#' tibble(question = paste0("V", 1:5),
-#'        quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
-#'        reliability = c(0.2, 0.4, 0.5, 0.5, 0.7),
-#'        validity = c(0.8, 0.1, 0.6, 0.7, 0.8))
+#' selected_vars <- c("trstprl", "trstplt", "trstprt")
+#' score <- me_sscore(quality[quality$question %in% selected_vars, ],
+#'                    ess7es,
+#'                    new_name = "s1",
+#'                    trstprl, trstplt, trstprt,
+#'                    wt = NULL)
 #'
+#' # Returns the quality and method effect of any given sum score
+#' score
 #'
-#' sample_data <-
-#'  as_tibble(
-#'  stats::setNames(
-#'   replicate(5, rbinom(1000, 5, 0.6), simplify = FALSE),
-#'  paste0("V", 1:5))
-#'  )
+#' # State services example
+#' quality <-
+#'   data.frame(
+#'     question = c("stfedu", "stfhlth"),
+#'     reliability = c(0.870057469366248, 0.871779788708135),
+#'     validity = c(0.915423399307664, 0.893308457365092),
+#'     quality = c(0.796868872525461, 0.779102047231298)
+#'   )
 #'
+#' score <- me_sscore(quality,
+#'                    ess7es,
+#'                    new_name = "s1",
+#'                    stfedu, stfhlth,
+#'                    wt = NULL)
 #'
-#' me_sscore(
-#' me_data = me_df,
-#' .data = sample_data,
-#' new_name = new_sumscore,
-#' V3, V4
-#' )
-#'
-#' me_sscore(
-#' me_data = me_df,
-#' .data = sample_data,
-#' new_name = new_sumscore,
-#' "V1", "V2"
-#' )
+#' # Returns the quality and method effect of any given sum score
+#' score
 #'
 #'
 me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
@@ -79,7 +85,7 @@ me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
   f_dots <- lapply(e_dots, function(x) {
     if (is.name(x)) as.character(x) else eval(x)
   })
-  
+
   vars_names <- unique(unlist(f_dots))
   if (is.null(vars_names)) vars_names <- character()
 
@@ -91,7 +97,6 @@ me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
 #' @rdname me_sscore
 #' @export
 me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = TRUE) {
-
   # Check me data has correct class and formats
   me_data <- as_me(me_data)
 
@@ -123,7 +128,13 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
   # Select the rows with only the selected variales
   # for the sumscore
   rows_to_pick <- me_data[[1]] %in% vars_names
-  me_scores <- me_data[rows_to_pick, c(me_env$me_question, me_env$me_columns)]
+  cols_sel <- c(me_env$me_question, me_env$me_columns, "method_eff")
+
+  if (!"method_eff" %in% names(me_data)) {
+    me_data$method_eff <- with(me_data, reliability * sqrt(1 - validity^2))
+  }
+
+  me_scores <- me_data[rows_to_pick, cols_sel]
 
   if (anyNA(me_scores)) {
     stop("`me_data` must have non-missing values at variable/s: ",
@@ -135,8 +146,9 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
                                         .data,
                                         new_name,
                                         wt = wt)
-  
-  new_estimate <- columns_me("quality", estimate_of_sscore)
+
+  new_estimate <- columns_me("quality", estimate_of_sscore$quality)
+  new_estimate$method_eff <- estimate_of_sscore$method_eff
 
   additional_rows <- generic_me(new_name, new_estimate)
 
@@ -166,62 +178,59 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
 # the correct format, etc..
 estimate_sscore <- function(me_scores, .data, new_name, wt) {
   sscore <- .data[[new_name]]
-  # Exclude sumscore
-  .data <- .data[!names(.data) %in% new_name]
 
-  if (is.null(wt)) wt <- rep(1, nrow(me_scores))
+  # If there are two variables, the number of combinations are
+  # is one (so just one weight value). If there are three variables
+  # the number of combinations are three and we need three
+  # weight values, and so on..
+  num_combn <- utils::combn(seq_len(nrow(me_scores)), 2, simplify = FALSE)
+  if (is.null(wt)) wt <- rep(1, length(num_combn))
 
   is_numeric <- is.numeric(wt)
   is_na <- anyNA(wt)
-  correct_length <- length(wt) == nrow(me_scores)
+  correct_combinations <- length(wt) == length(num_combn)
 
-  if (!is_numeric | is_na | !correct_length) {
-    stop("`wt` must be a non-NA numeric vector with the same length as the number of variables")
+  if (!is_numeric | is_na | !correct_combinations) {
+    stop("`wt` must be a non-NA numeric vector with the same length as the number of combinations") #nolintr
   }
 
-  reliability <- grep("^r", me_env$me_columns, value = TRUE)
-  validity <- grep("^v", me_env$me_columns, value = TRUE)
+  sd_sscore <- stats::sd(.data[[new_name]], na.rm = TRUE)
   quality <- grep("^q", me_env$me_columns, value = TRUE)
+  sum_res <- sum((wt / sd_sscore * me_scores[[quality]])^2)
 
-  qy2 <- me_scores[[quality]]
+  correlation_res <-
+    matrix2tibble(
+      stats::cor(.data[me_scores$question], use = "complete.obs")
+    )
 
-  # By squaring this you actually get the reliability
-  # coefficient.
-  ry <- sqrt(me_scores[[reliability]])
-  vy <- sqrt(me_scores[[validity]])
-  qy <- sqrt(me_scores[[quality]])
+  cor_res <-
+    me_cmv_cor_(
+      correlation_res,
+      me_scores,
+      me_scores$question
+    )
 
-  # Method effect
-  method_e <- sqrt(1 - vy^2)
+  corr_adapted_cmv <- cor_res[-1][lower.tri(cor_res[-1])]
+  sum_adapted_corr <-
+    sum(
+      corr_adapted_cmv * wt / sd_sscore * wt / sd_sscore
+    ) * 2
 
-  sd_sscore <- stats::sd(sscore, na.rm = TRUE)
+  final_qcoef <- sum_adapted_corr + sum_res
 
-  # Reorder so it has the same order the combination above
-  .data <- .data[me_scores[["question"]]]
-
-  # Here you create
-  # all combinations
-  comb <- utils::combn(seq_along(.data), 2, simplify = FALSE)
-
-  # This the multiplication of all variable combinations
-  # using ri * mi * mj * rj * si * sj
-  # It's better not to use this in isolation but call
-  # estimate_sscore as a whole.
-  cov_e <- cov_both(comb, ry, method_e)
-  cor_e <- vapply(comb, function(x) stats::cor(.data[x], use = "complete.obs")[2, 1],
-                  FUN.VALUE = numeric(1))
-
-  adjusted_corr <- cor_e - cov_e
-
-  weights_by_qcoef <- unique(adjusted_corr*wt/sd_sscore*wt/sd_sscore)
-
-  final_qcoef <- sum(weights_by_qcoef)*2 + sum((wt / sd_sscore*qy)^2)
+  validity <- grep("^v", me_env$me_columns, value = TRUE)
+  reliability <- grep("^r", me_env$me_columns, value = TRUE)
+  methodeff <- sqrt(1 - me_scores[[validity]]^2)
+  final_meff <- sum(wt / sd_sscore * me_scores[[reliability]] * methodeff)^2
 
   if (sign(final_qcoef) == -1) {
     stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/measurementfree/issues")
   }
 
-  final_qcoef
+  list(
+    quality = final_qcoef,
+    method_eff = final_meff
+  )
 }
 
 # For an explanation of this see combn_multiplication

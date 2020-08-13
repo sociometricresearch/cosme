@@ -36,7 +36,7 @@ by manually inserting new metrics such as quality or validity.
 the question name and the estimates for \code{quality}, \code{reliability}
 and \code{validity}. However, if \code{all_columns} is set to \code{TRUE}
 the returned \code{\link[tibble]{tibble}} contains new columns. Below you can
-find the descriptionof of all columns:
+find the description of of all columns:
 
 \itemize{
 \item question: the literal name of the question in the questionnaire of the study
@@ -50,7 +50,7 @@ find the descriptionof of all columns:
 \item error: Whether there was an error in making the prediction. For an example,
  see \url{http://sqp.upf.edu/loadui/#questionPrediction/12552/42383}
 \item errorMessage: The error message, if there was an error
-\item reliability: The strenght between the true score factor and the observed
+\item reliability: The strength between the true score factor and the observed
  variable or 1 - proportion random error in the observed variance. Computed as
  the squared of the reliability coefficient
 \item validity: The strength between the latent concept factor and the
