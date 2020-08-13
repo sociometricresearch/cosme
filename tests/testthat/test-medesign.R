@@ -435,9 +435,9 @@ test_that("medesign calculates quality and method effect correctly for sumscore"
   me_df <-
     data.frame(
       question = c("trstprl", "trstplt", "trstprt"),
-      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+      reliability = c(0.812, 0.852, 0.858),
+      validity = c(0.959, 0.965, 0.956),
+      quality = c(0.779, 0.822, 0.821)
     )
 
   data(ess7es)
@@ -457,17 +457,16 @@ test_that("medesign calculates quality and method effect correctly for sumscore"
 
 test_that("medesign replaces quality in diagonal of cor and cov correctly", {
 
-  me_df <-
+  me_data <-
     data.frame(
       question = c("trstprl", "trstplt", "trstprt"),
-      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+      reliability = c(0.812, 0.852, 0.858),
+      validity = c(0.959, 0.965, 0.956),
+      quality = c(0.779, 0.822, 0.821)
     )
 
   data(ess7es)
   .data <- ess7es[c("trstprl", "trstplt", "trstprt")]
-  me_data <- me_df
   model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
   medesign_tst <- medesign(model_syntax, .data, me_data)
 

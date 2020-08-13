@@ -248,9 +248,9 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly", { #no
   me_data <-
     data.frame(
       question = c("trstprl", "trstplt", "trstprt"),
-      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+      reliability = c(0.812, 0.852, 0.858),
+      validity = c(0.959, 0.965, 0.956),
+      quality = c(0.779, 0.822, 0.821)
     )
 
   .medesign <- medesign(model_syntax, .data, me_data)
@@ -308,15 +308,15 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly", { #no
   expect_equal(res1, correct_res, tol = 0.0000001)
 })
 
-selected_vars1 <- c("polintr", "ppltrst")
-selected_vars2 <- c("trstprl", "trstplt", "trstprt")
-selected_vars3 <- c("stfedu", "stfhlth")
-selected_vars4 <- "agea"
-wts <- c("pspwght", "pweight")
-all_vars <- c(selected_vars1, selected_vars2, selected_vars3, selected_vars4, wts)
-data(ess7es)
+## selected_vars1 <- c("polintr", "ppltrst")
+## selected_vars2 <- c("trstprl", "trstplt", "trstprt")
+## selected_vars3 <- c("stfedu", "stfhlth")
+## selected_vars4 <- "agea"
+## wts <- c("pspwght", "pweight")
+## all_vars <- c(selected_vars1, selected_vars2, selected_vars3, selected_vars4, wts)
+## data(ess7es)
 
-## TODO
+## ## TODO
 ## ## Using sqpr
 ## library(sqpr)
 ## sqp_login()

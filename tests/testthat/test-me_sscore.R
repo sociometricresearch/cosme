@@ -207,27 +207,20 @@ test_that("me_sscore checks that there's non_NA's in important arguments", {
   )
 })
 
-
 test_that("me_sscore returns the correct quality and method effect of a sscore", {
-
   # Political trust example
   data(ess7es)
   selected_vars <- c("trstprl", "trstplt", "trstprt")
   .data <- ess7es
-  all_qs <- c("ppltrst", "polintr", "psppsgv",
-              "psppipl", "ptcpplt", "stflife",
-              "stfeco", "stfedu", "stfhlth",
-              "trstprl", "trstplt", "trstprt")
 
-   quality <-
-     data.frame(
-       question = c("trstprl", "trstplt", "trstprt"),
-       reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-       validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-       quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
-     )
+  quality <-
+    data.frame(
+      question = c("trstprl", "trstplt", "trstprt"),
+      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
+      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+    )
 
-   .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
    score <- me_sscore(quality[quality$question %in% selected_vars, ],
                       .data,
                       new_name = "s1",
@@ -247,7 +240,6 @@ test_that("me_sscore returns the correct quality and method effect of a sscore",
     )
 
   selected_vars <- c("stfedu", "stfhlth")
-  .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
   score <- me_sscore(quality,
                      .data,
                      new_name = "s1",
