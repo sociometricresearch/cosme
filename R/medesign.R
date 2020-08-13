@@ -96,6 +96,9 @@ medesign <- function(model_syntax, .data, me_data, ...) {
 
   .data <- create_sscore(parsed_model, .data)
 
+  # Get square root of validity, quality and reliability
+  me_data[-1] <- lapply(me_data[-1], sqrt)
+
   # method effect
   me_data$method_eff <- with(me_data, reliability * sqrt(1 - validity^2))
 

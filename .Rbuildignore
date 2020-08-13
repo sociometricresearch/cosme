@@ -10,3 +10,4 @@ manifest/
 ^\.Rproj\.user$
 ^docs$
 ^paper$
+^\.github$

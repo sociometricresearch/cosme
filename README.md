@@ -5,14 +5,12 @@
 
 <!-- badges: start -->
 
-[![CRAN
-status](https://www.r-pkg.org/badges/version/measurementfree)](https://cran.r-project.org/package=measurementfree)
-[![Travis build
-status](https://travis-ci.org/sociometricresearch/measurementfree.svg?branch=master)](https://travis-ci.org/sociometricresearch/measurementfree)
-[![AppVeyor build
-status](https://ci.appveyor.com/api/projects/status/github/sociometricresearch/measurementfree?branch=master&svg=true)](https://ci.appveyor.com/project/sociometricresearch/measurementfree)
+[![R build
+status](https://github.com/sociometricresearch/measurementfree/workflows/R-CMD-check/badge.svg)](https://github.com/sociometricresearch/measurementfree/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/sociometricresearch/measurementfree/branch/master/graph/badge.svg)](https://codecov.io/gh/sociometricresearch/measurementfree?branch=master)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/measurementfree)](https://cran.r-project.org/package=measurementfree)
 <!-- badges: end -->
 
 The `measurementfree` package allows you to calculate several
@@ -67,20 +65,20 @@ well as their quality:
 ``` r
 me_cmv_cor(me_obj)
 #> # A tibble: 11 x 12
-#>    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs
-#>    <chr>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>
-#>  1 mpg      1     -1.19  -1.10  -0.932  0.818  -1.04   0.503   0.798
-#>  2 cyl     -1.19   1      1.07   0.949 -0.798   0.892 -0.674  -0.924
-#>  3 disp    -1.10   1.07   1      0.838 -0.753   0.941 -0.460  -0.753
-#>  4 hp      -0.932  0.949  0.838  1     -0.449   0.659 -0.708  -0.723
-#>  5 drat     0.818 -0.798 -0.753 -0.449  1      -0.712  0.0912  0.440
-#>  6 wt      -1.04   0.892  0.941  0.659 -0.712   1     -0.175  -0.555
-#>  7 qsec     0.503 -0.674 -0.460 -0.708  0.0912 -0.175  1       0.745
-#>  8 vs       0.798 -0.924 -0.753 -0.723  0.440  -0.555  0.745   1    
-#>  9 am       0.721 -0.596 -0.627 -0.243  0.713  -0.692 -0.230   0.168
-#> 10 gear     0.577 -0.561 -0.589 -0.126  0.700  -0.583 -0.213   0.206
-#> 11 carb    -0.662  0.601  0.419  0.750 -0.0908  0.428 -0.656  -0.570
-#> # … with 3 more variables: am <dbl>, gear <dbl>, carb <dbl>
+#>    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs      am
+#>    <chr>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>   <dbl>
+#>  1 mpg      1     -1.04  -1.04  -0.851  0.747  -0.951  0.459   0.728  0.657 
+#>  2 cyl     -1.04   1      0.903  0.889 -0.747   0.835 -0.631  -0.866 -0.558 
+#>  3 disp    -1.04   0.903  1      0.814 -0.731   0.914 -0.447  -0.731 -0.609 
+#>  4 hp      -0.851  0.889  0.814  1     -0.449   0.659 -0.708  -0.723 -0.243 
+#>  5 drat     0.747 -0.747 -0.731 -0.449  1      -0.712  0.0912  0.440  0.713 
+#>  6 wt      -0.951  0.835  0.914  0.659 -0.712   1     -0.175  -0.555 -0.692 
+#>  7 qsec     0.459 -0.631 -0.447 -0.708  0.0912 -0.175  1       0.745 -0.230 
+#>  8 vs       0.728 -0.866 -0.731 -0.723  0.440  -0.555  0.745   1      0.168 
+#>  9 am       0.657 -0.558 -0.609 -0.243  0.713  -0.692 -0.230   0.168  1     
+#> 10 gear     0.526 -0.526 -0.572 -0.126  0.700  -0.583 -0.213   0.206  0.794 
+#> 11 carb    -0.604  0.563  0.407  0.750 -0.0908  0.428 -0.656  -0.570  0.0575
+#> # … with 2 more variables: gear <dbl>, carb <dbl>
 ```
 
 ## Another simple example
@@ -121,20 +119,20 @@ well as their quality:
 ``` r
 me_cmv_cor(me_obj)
 #> # A tibble: 11 x 12
-#>    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs
-#>    <chr>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>
-#>  1 mpg      1     -1.22  -1.08  -0.932  0.848  -1.04   0.503   0.798
-#>  2 cyl     -1.22   1      1.09   0.949 -0.827   0.892 -0.674  -0.924
-#>  3 disp    -1.08   1.09   1      0.838 -0.885   0.941 -0.460  -0.753
-#>  4 hp      -0.932  0.949  0.838  1     -0.465   0.659 -0.708  -0.723
-#>  5 drat     0.848 -0.827 -0.885 -0.465  1      -0.739  0.0946  0.457
-#>  6 wt      -1.04   0.892  0.941  0.659 -0.739   1     -0.175  -0.555
-#>  7 qsec     0.503 -0.674 -0.460 -0.708  0.0946 -0.175  1       0.745
-#>  8 vs       0.798 -0.924 -0.753 -0.723  0.457  -0.555  0.745   1    
-#>  9 am       0.721 -0.596 -0.627 -0.243  0.739  -0.692 -0.230   0.168
-#> 10 gear     0.577 -0.561 -0.589 -0.126  0.725  -0.583 -0.213   0.206
-#> 11 carb    -0.662  0.601  0.419  0.750 -0.0941  0.428 -0.656  -0.570
-#> # … with 3 more variables: am <dbl>, gear <dbl>, carb <dbl>
+#>    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs      am
+#>    <chr>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>   <dbl>
+#>  1 mpg      1     -1.04  -0.956 -0.851  0.760  -0.951  0.459   0.728  0.657 
+#>  2 cyl     -1.04   1      0.991  0.889 -0.761   0.835 -0.631  -0.866 -0.558 
+#>  3 disp    -0.956  0.991  1      0.814 -0.849   0.914 -0.447  -0.731 -0.609 
+#>  4 hp      -0.851  0.889  0.814  1     -0.457   0.659 -0.708  -0.723 -0.243 
+#>  5 drat     0.760 -0.761 -0.849 -0.457  1      -0.725  0.0929  0.448  0.726 
+#>  6 wt      -0.951  0.835  0.914  0.659 -0.725   1     -0.175  -0.555 -0.692 
+#>  7 qsec     0.459 -0.631 -0.447 -0.708  0.0929 -0.175  1       0.745 -0.230 
+#>  8 vs       0.728 -0.866 -0.731 -0.723  0.448  -0.555  0.745   1      0.168 
+#>  9 am       0.657 -0.558 -0.609 -0.243  0.726  -0.692 -0.230   0.168  1     
+#> 10 gear     0.526 -0.526 -0.572 -0.126  0.712  -0.583 -0.213   0.206  0.794 
+#> 11 carb    -0.604  0.563  0.407  0.750 -0.0925  0.428 -0.656  -0.570  0.0575
+#> # … with 2 more variables: gear <dbl>, carb <dbl>
 ```
 
 Alternatively, you can use `me_cmv_cov` to adjust a covariance matrix
