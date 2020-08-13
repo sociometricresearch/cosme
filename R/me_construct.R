@@ -5,11 +5,11 @@
 #'
 #' @param question_name a character string or a bare unquoted name that will be
 #' used as the question name
-#' 
+#'
 #' @param metrics a list containing new measurement error metrics. Currently it only
 #' supports quality, reliability and validity. Can also specify one of the metrics
 #' and the remaining are set to NA by default
-#' 
+#'
 #' @param all_columns if \code{TRUE} will return all columns (quite a few) that are
 #' supported by the \code{measurementfree} package. If \code{FALSE} (default) it
 #' will return only columns \code{question}, \code{quality}, \code{reliability}
@@ -25,7 +25,7 @@
 #' the question name and the estimates for \code{quality}, \code{reliability}
 #' and \code{validity}. However, if \code{all_columns} is set to \code{TRUE}
 #' the returned \code{\link[tibble]{tibble}} contains new columns. Below you can
-#' find the descriptionof of all columns:
+#' find the description of of all columns:
 #'
 #' \itemize{
 #' \item question: the literal name of the question in the questionnaire of the study
@@ -39,7 +39,7 @@
 #' \item error: Whether there was an error in making the prediction. For an example,
 #'  see \url{http://sqp.upf.edu/loadui/#questionPrediction/12552/42383}
 #' \item errorMessage: The error message, if there was an error
-#' \item reliability: The strenght between the true score factor and the observed
+#' \item reliability: The strength between the true score factor and the observed
 #'  variable or 1 - proportion random error in the observed variance. Computed as
 #'  the squared of the reliability coefficient
 #' \item validity: The strength between the latent concept factor and the

@@ -27,18 +27,18 @@ me_parse_model <- function(model_syntax = " ",
   model <- unlist(strsplit(model_syntax, "\n"))
 
   # Figure out lines which have operators to exclude other lines
-  start.idx <-
+  start_idx <-
     grep(
       paste0("[", paste0(operators, collapse = ""), "]", collapse = ""),
       model
     )
 
-  if (length(start.idx) == 0L) {
+  if (length(start_idx) == 0L) {
     stop("Model does not contain measurement error syntax (operators must be one of ", paste0("'", operators, "'", collapse = ", "), ")") #nolintr
   }
-  
-  if (start.idx[1] > 1L) {
-    for (el in 1:(start.idx[1] - 1L)) {
+
+  if (start_idx[1] > 1L) {
+    for (el in 1:(start_idx[1] - 1L)) {
       if (nchar(model[el]) > 0L) {
         warning("No operator found in this syntax line: ",
                 model[el], "\n",
@@ -47,12 +47,12 @@ me_parse_model <- function(model_syntax = " ",
     }
   }
 
-  end.idx <- c(start.idx[-1] - 1, length(model))
+  end.idx <- c(start_idx[-1] - 1, length(model))
   model.orig <- model
-  model <- character(length(start.idx))
+  model <- character(length(start_idx))
 
-  for (i in 1:length(start.idx)) {
-    model[i] <- paste(model.orig[start.idx[i]:end.idx[i]], collapse = "")
+  for (i in 1:length(start_idx)) {
+    model[i] <- paste(model.orig[start_idx[i]:end.idx[i]], collapse = "")
   }
 
   idx.wrong <-
