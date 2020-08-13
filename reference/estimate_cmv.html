@@ -143,7 +143,9 @@ which contains the desired variables from which to estimate the CMV.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a numeric vector of length one with the estimated coefficient</p>
+    <p>a numeric vector of length one with the estimated coefficient. The
+result is a named vector where the name indicates the CMV between the
+two variables.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='me_cmv_cor.html'>me_cmv_cor</a></code> for automatically adjusting a correlation
@@ -156,13 +158,34 @@ covariance matrix for the CMV.</p></div>
 <span class='co'># Don't remove don't run: since this fun is not exported</span>
 <span class='co'># it throws an error. Keeping docs jsut for me here.</span>
 <span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='no'>me_df</span> <span class='kw'>&lt;-</span>
- <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(<span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"V"</span>, <span class='fl'>1</span>:<span class='fl'>5</span>),
- <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span>),
- <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span>),
- <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.5</span>, <span class='fl'>0.1</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span>))
 
+<span class='co'># Example with political trust</span>
+<span class='no'>me_df</span> <span class='kw'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+    <span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
+    <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.901110426085505</span>, <span class='fl'>0.923038460737146</span>, <span class='fl'>0.926282894152753</span>),
+    <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.979285453787607</span>, <span class='fl'>0.982344135219425</span>, <span class='fl'>0.977752524926425</span>),
+    <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.882609766544649</span>, <span class='fl'>0.906642156531451</span>, <span class='fl'>0.906090503205943</span>),
+    <span class='kw'>method_eff</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.1824610</span>, <span class='fl'>0.1726847</span>, <span class='fl'>0.1942987</span>)
+  )
+
+<span class='co'># CMV between each variable</span>
 <span class='fu'>estimate_cmv</span>(<span class='no'>me_df</span>)
+
+<span class='co'># State services example</span>
+
+<span class='no'>me_df</span> <span class='kw'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+    <span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
+    <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.870057469366248</span>, <span class='fl'>0.871779788708135</span>),
+    <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.915423399307664</span>, <span class='fl'>0.893308457365092</span>),
+    <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.796868872525461</span>, <span class='fl'>0.779102047231298</span>),
+    <span class='kw'>method_eff</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.3501914</span>, <span class='fl'>0.3918163</span>)
+  )
+
+<span class='co'># CMV between these two variables</span>
+<span class='fu'>estimate_cmv</span>(<span class='no'>me_df</span>)
+
 }</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

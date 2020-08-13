@@ -139,7 +139,7 @@ to satisfaction, these two questions were measured with the same method.
 The model syntax would specify them like <code>'~ stflife + stfwork'</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>medesign</span>(<span class='no'>model_syntax</span>, <span class='no'>.data</span>, <span class='no'>me_data</span>)</pre>
+    <pre class="usage"><span class='fu'>medesign</span>(<span class='no'>model_syntax</span>, <span class='no'>.data</span>, <span class='no'>me_data</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,6 +159,10 @@ and example section for on how to write this syntax.</p></td>
       <th>me_data</th>
       <td><p>A dataframe of class <code>me</code>. Can be created manually
 with <code>me_construct</code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>arguments passed to <code><a href='me_sscore.html'>me_sscore</a></code>.</p></td>
     </tr>
     </table>
 
@@ -217,6 +221,7 @@ to correct for the quality in the diagonal.</p>
 #&gt; Parsed model:
 #&gt;    ~ mpg + cyl
 #&gt;    ~ drat + disp</div><div class='input'>
+
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

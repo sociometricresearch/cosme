@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • measurementfree</title>
+<title>Data from the European Social Survey, Round 7 for Spain — ess7es • measurementfree</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,9 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Data from the European Social Survey, Round 7 for Spain — ess7es" />
+<meta property="og:description" content="A dataset containing some variables from the European Social Survey,
+Round 7 for Spain." />
 
 
 
@@ -58,7 +60,7 @@
   </head>
 
   <body data-spy="scroll" data-target="#toc">
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -117,102 +119,46 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Data from the European Social Survey, Round 7 for Spain</h1>
+    <small class="dont-index">Source: <a href='https://github.com/sociometricresearch/measurementfree/blob/master/R/data.R'><code>R/data.R</code></a></small>
+    <div class="hidden name"><code>ess7es.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>A dataset containing some variables from the European Social Survey,
+Round 7 for Spain.</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='no'>ess7es</span></pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      
-      
-    </tbody><tbody>
-      
-      
-      <tr>
-        
-        <td>
-          <p><code><a href="ess7es.html">ess7es</a></code> </p>
-        </td>
-        <td><p>Data from the European Social Survey, Round 7 for Spain</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="estimate_cmv.html">estimate_cmv()</a></code> </p>
-        </td>
-        <td><p>Estimate the Common Method Variance (CMV) coefficient of a set of variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_bind_metrics.html">me_bind_metrics()</a></code> </p>
-        </td>
-        <td><p>Manually bind new rows to an me data frame</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_cmv_cor.html">me_cmv_cor()</a></code> </p>
-        </td>
-        <td><p>Adjust a correlation matrix for Common Method Variance (CMV)</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_cmv_cov.html">me_cmv_cov()</a></code> </p>
-        </td>
-        <td><p>Adjust a covariance matrix for Common Method Variance (CMV)</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_construct.html">me_construct()</a></code> <code><a href="me_construct.html">me_construct_()</a></code> </p>
-        </td>
-        <td><p>Construct a measurement error tibble manually</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_correlate.html">me_correlate()</a></code> </p>
-        </td>
-        <td><p>Calculate a correlation matrix with an adjusted diagonal</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_covariance.html">me_covariance()</a></code> </p>
-        </td>
-        <td><p>Calculate a covariance matrix with an adjusted diagonal</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_parse_model.html">me_parse_model()</a></code> </p>
-        </td>
-        <td><p>Extract a model specification from the measurement error model</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="me_sscore.html">me_sscore()</a></code> <code><a href="me_sscore.html">me_sscore_()</a></code> </p>
-        </td>
-        <td><p>Calculate quality of sum score of selected variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="medesign.html">medesign()</a></code> </p>
-        </td>
-        <td><p>Define your measurement error design</p></td>
-      </tr>
-    </tbody>
-    </table>
+
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>A data frame with 1925 rows and 11 variables:</p><dl'>
+<dt>trstprl</dt><dd><p>How much political trust do you have in institutions/parliament</p></dd>
+<dt>trstplt</dt><dd><p>How much political trust do you have in authorities/politicians</p></dd>
+<dt>trstprt</dt><dd><p>How much political trust do you have in institutions/political parties</p></dd>
+<dt>stfedu</dt><dd><p>How much political satisfaction do you have in education</p></dd>
+<dt>stfhlth</dt><dd><p>How much political satisfaction do you have in health services</p></dd>
+<dt>psppsgv</dt><dd><p>Political system allows people to have a say in what government does</p></dd>
+<dt>psppipl</dt><dd><p>Political system allows people to have influence on politics</p></dd>
+<dt>ptcpplt</dt><dd><p>Politicians care what people think</p></dd>
+<dt>ppltrst</dt><dd><p>Social trust</p></dd>
+<dt>polintr</dt><dd><p>Political interest</p></dd>
+<dt>stflife</dt><dd><p>Subjective wellbeing , life satisfaction</p></dd>
+<dt>stfeco</dt><dd><p>Political satisfaction , country's economy</p></dd>
+<dt>agea</dt><dd><p>Age</p></dd>
+<dt>edulvlb</dt><dd><p>Education level</p></dd>
+
+</dl>
+
+    <h2 class="hasAnchor" id="source"><a class="anchor" href="#source"></a>Source</h2>
+
+    <p>Downloaded from the ESS website at https://www.europeansocialsurvey.org/download.html?file=ESS7ES&amp;c=ES&amp;y=2014</p>
+
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
       <h2 data-toc-skip>Contents</h2>

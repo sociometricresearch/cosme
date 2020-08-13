@@ -137,7 +137,7 @@ from <code>me_data</code>. Optionally, you can supply the CMV coefficients
 manually in the argument <code>cmv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_cmv_cov</span>(<span class='no'>.medesign</span>, <span class='kw'>cmv</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>me_cmv_cov</span>(<span class='no'>.medesign</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,13 +145,6 @@ manually in the argument <code>cmv</code>.</p>
     <tr>
       <th>.medesign</th>
       <td><p>An <code>medesign</code> object given by <code><a href='medesign.html'>medesign</a></code></p></td>
-    </tr>
-    <tr>
-      <th>cmv</th>
-      <td><p>an optional numeric vector of the same length as the number of
-common method variance specifications in <code>.mdesign</code>. This argument is
-left available if the user has reasons to input their own CMV. By default,
-it is set to NULL and it is calculated internally.</p></td>
     </tr>
     </table>
 
@@ -165,6 +158,8 @@ adjustment but for a covariance matrix.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
+<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>## TODO - Fix when me_cmv_cov works well</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>2131</span>)
 <span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>tibble</span>)
 
@@ -181,28 +176,15 @@ adjustment but for a covariance matrix.</p></div>
 <span class='no'>m_obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='st'>"~ V4 + V5"</span>, <span class='no'>original_df</span>, <span class='no'>me_df</span>)
 
 <span class='co'># Original correlation matrix</span>
-<span class='fu'><a href='me_covariance.html'>me_covariance</a></span>(<span class='no'>original_df</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
-#&gt;   rowname    V1    V2     V3     V4    V5
-#&gt;   &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;
-#&gt; 1 V1      2411.  129.   608.   445.  229.
-#&gt; 2 V2       129. 1653.   784.  -282.  618.
-#&gt; 3 V3       608.  784.  2446. -1146. -574.
-#&gt; 4 V4       445. -282. -1146.  2772. -181.
-#&gt; 5 V5       229.  618.  -574.  -181. 3531.</div><div class='input'>
+<span class='fu'><a href='me_covariance.html'>me_covariance</a></span>(<span class='no'>original_df</span>)
+
 <span class='co'># Coefficient of correlation changes</span>
 <span class='co'># when adjusting for common method variance</span>
-<span class='fu'>me_cmv_cov</span>(<span class='no'>m_obj</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
-#&gt;   rowname    V1     V2      V3      V4     V5
-#&gt;   &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;
-#&gt; 1 V1        0.2  129.    608.    445.   229. 
-#&gt; 2 V2      129.     0.3   784.   -282.   618. 
-#&gt; 3 V3      608.   784.      0.5 -1146.  -574. 
-#&gt; 4 V4      445.  -282.  -1146.      0.6 -634. 
-#&gt; 5 V5      229.   618.   -574.   -634.     0.9</div><div class='input'>
-# The V5*V4 from both the upper/lower triangles
-# covariance matrix changed from -181 to -634
+<span class='fu'>me_cmv_cov</span>(<span class='no'>m_obj</span>)
 
-</div></pre>
+<span class='co'># The V5*V4 from both the upper/lower triangles</span>
+<span class='co'># covariance matrix changed from -181 to -634</span>
+}</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
