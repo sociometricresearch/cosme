@@ -26,7 +26,7 @@
 #' to satisfaction, these two questions were measured with the same method.
 #' The model syntax would specify them like:
 #'
-#' \code{'~ stflife + stfwork'}.
+#' \preformatted{~ stflife + stfwork}
 #'
 #' These two questions should also be in \code{.data} and in \code{me_data},
 #' otherwise no calculation can be performed. \code{.data} should be a data
@@ -44,17 +44,21 @@
 #' method with the variables \code{stflife} and \code{stfwork}. We would
 #' write it like this:
 #'
-#' \code{'std(new_variable) = trstplt + trstprl + trstprt;
-#'        ~ new_variable + stflife + stfwork'}
+#' \preformatted{
+#' std(new_variable) = trstplt + trstprl + trstprt
+#' ~ new_variable + stflife + stfwork
+#'}
 #'
 #' You can also combine these building blocks to specify a shared
 #' common method between two new variables. For example:
 #'
-#' \code{'std(new_variable1) = trstplt + trstprl + trstprt;
-#'        std(new_variable2) = stflife + stfwork;
-#'        ~ new_variable1 + new_variable2'}
+#' \preformatted{
+#' std(new_variable1) = trstplt + trstprl + trstprt
+#' std(new_variable2) = stflife + stfwork
+#' ~ new_variable1 + new_variable2
+#'}
 #'
-#' Note that the small operator \code{std()} just works to specify
+#' Note that the operator \code{std()} just works to specify
 #' the we want this new variable to be standardized.
 #'
 #' Currently, \code{medesign} replaces the non-NA quality of all variables

@@ -11,7 +11,9 @@ me_sscore_(me_data, .data, new_name, vars_names, wt = NULL, .drop = TRUE)
 }
 \arguments{
 \item{me_data}{a data frame of class \code{me} containing
-quality estimates from the variables specified in \code{...}.}
+quality estimates from the variables specified in \code{...}. It is
+expected that this measurement error data is not square rooted (reliability,
+validity and quality) as it will be done with \code{me_sscore}.}
 
 \item{.data}{a data frame which contains data for the variables specified
 in \code{...}.}

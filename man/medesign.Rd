@@ -15,7 +15,9 @@ details and example section for on how to write this syntax.}
 \code{model_syntax}}
 
 \item{me_data}{A data frame of class \code{me}. Can be created manually
-with \code{me_construct}.}
+with \code{me_construct}. It is expected that this measurement error data is
+not square rooted (reliability, validity and quality) as it will be done
+with \code{me_sscore}.}
 
 \item{...}{arguments passed to \code{\link{me_sscore}}.}
 }
@@ -34,12 +36,12 @@ and \code{stfwork} were both measured with a 1-10 likert scale related
 to satisfaction, these two questions were measured with the same method.
 The model syntax would specify them like:
 
-\code{'~ stflife + stfwork'}.
+\preformatted{~ stflife + stfwork}
 
 These two questions should also be in \code{.data} and in \code{me_data},
 otherwise no calculation can be performed. \code{.data} should be a data
 frame with all variables specified in the \code{model_syntax} while
-\code{me_data} should be a dataframe with 4 columns: question, reliability,
+\code{me_data} should be a data frame with 4 columns: question, reliability,
 validity an quality. The first column should contain the names of the
 variables as character vector, while the other three should be numeric
 vectors with their corresponding reliability, validity and quality
@@ -52,17 +54,21 @@ and then specify that the new 'sum score' variable shares a common
 method with the variables \code{stflife} and \code{stfwork}. We would
 write it like this:
 
-\code{'std(new_variable) = trstplt + trstprl + trstprt;
-       ~ new_variable + stflife + stfwork'}
+\preformatted{
+std(new_variable) = trstplt + trstprl + trstprt
+~ new_variable + stflife + stfwork
+}
 
 You can also combine these building blocks to specify a shared
 common method between two new variables. For example:
 
-\code{'std(new_variable1) = trstplt + trstprl + trstprt;
-       std(new_variable2) = stflife + stfwork;
-       ~ new_variable1 + new_variable2'}
+\preformatted{
+std(new_variable1) = trstplt + trstprl + trstprt
+std(new_variable2) = stflife + stfwork
+~ new_variable1 + new_variable2
+}
 
-Note that the small operator \code{std()} just works to specify
+Note that the operator \code{std()} just works to specify
 the we want this new variable to be standardized.
 
 Currently, \code{medesign} replaces the non-NA quality of all variables
