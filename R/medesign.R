@@ -8,7 +8,9 @@
 #' \code{model_syntax}
 #'
 #' @param me_data A data frame of class \code{me}. Can be created manually
-#' with \code{me_construct}.
+#' with \code{me_construct}. It is expected that this measurement error data is
+#' not square rooted (reliability, validity and quality) as it will be done
+#' with \code{me_sscore}.
 #'
 #' @param ... arguments passed to \code{\link{me_sscore}}.
 #'
@@ -29,7 +31,7 @@
 #' These two questions should also be in \code{.data} and in \code{me_data},
 #' otherwise no calculation can be performed. \code{.data} should be a data
 #' frame with all variables specified in the \code{model_syntax} while
-#' \code{me_data} should be a dataframe with 4 columns: question, reliability,
+#' \code{me_data} should be a data frame with 4 columns: question, reliability,
 #' validity an quality. The first column should contain the names of the
 #' variables as character vector, while the other three should be numeric
 #' vectors with their corresponding reliability, validity and quality

@@ -6,7 +6,9 @@
 #' interested in programming with \code{me_sscore}
 #'
 #' @param me_data a data frame of class \code{me} containing
-#' quality estimates from the variables specified in \code{...}.
+#' quality estimates from the variables specified in \code{...}. It is
+#' expected that this measurement error data is not square rooted (reliability,
+#' validity and quality) as it will be done with \code{me_sscore}.
 #'
 #' @param .data a data frame which contains data for the variables specified
 #' in \code{...}.
