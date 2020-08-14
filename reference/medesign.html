@@ -40,12 +40,7 @@
 
 
 <meta property="og:title" content="Define your measurement error design — medesign" />
-<meta property="og:description" content="The model syntax allows to define the relationship between variables
-in terms of whether they share a common method in the question
-that was asked. For example, if the questions called stflife
-and stfwork were both measured with a 1-10 likert scale related
-to satisfaction, these two questions were measured with the same method.
-The model syntax would specify them like '~ stflife + stfwork'." />
+<meta property="og:description" content="Define your measurement error design" />
 
 
 
@@ -131,15 +126,10 @@ The model syntax would specify them like '~ stflife + stfwork'." />
     </div>
 
     <div class="ref-description">
-    <p>The model syntax allows to define the relationship between variables
-in terms of whether they share a common method in the question
-that was asked. For example, if the questions called <code>stflife</code>
-and <code>stfwork</code> were both measured with a 1-10 likert scale related
-to satisfaction, these two questions were measured with the same method.
-The model syntax would specify them like <code>'~ stflife + stfwork'</code>.</p>
+    <p>Define your measurement error design</p>
     </div>
 
-    <pre class="usage"><span class='fu'>medesign</span>(<span class='no'>model_syntax</span>, <span class='no'>.data</span>, <span class='no'>me_data</span>, <span class='no'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>medesign</span>(<span class='kw'>model_syntax</span>, <span class='kw'>.data</span>, <span class='kw'>me_data</span>, <span class='kw'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -147,8 +137,8 @@ The model syntax would specify them like <code>'~ stflife + stfwork'</code>.</p>
     <tr>
       <th>model_syntax</th>
       <td><p>A description of the user-specified model as a character
-string. The model is described using the me model syntax. See the details
-and example section for on how to write this syntax.</p></td>
+string. The model is described using the <code>me</code> model syntax. See the
+details and example section for on how to write this syntax.</p></td>
     </tr>
     <tr>
       <th>.data</th>
@@ -157,8 +147,10 @@ and example section for on how to write this syntax.</p></td>
     </tr>
     <tr>
       <th>me_data</th>
-      <td><p>A dataframe of class <code>me</code>. Can be created manually
-with <code>me_construct</code>.</p></td>
+      <td><p>A data frame of class <code>me</code>. Can be created manually
+with <code>me_construct</code>. It is expected that this measurement error data is
+not square rooted (reliability, validity and quality) as it will be done
+with <code>me_sscore</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -169,60 +161,116 @@ with <code>me_construct</code>.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>an <code>me</code> design object which can be passed to other functions
-of measurementfree.</p>
+of <code>measurementfree</code> such as <code>me_cmv_cor</code> and <code>me_cmv_cov</code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>These two questions should also be in <code>.data</code> and in <code>me_data</code>,
+    <p>The model syntax allows to define the relationship between variables
+in terms of whether they share a common method in the question
+that was asked. For example, if the questions called <code>stflife</code>
+and <code>stfwork</code> were both measured with a 1-10 likert scale related
+to satisfaction, these two questions were measured with the same method.
+The model syntax would specify them like:</p>
+<pre><span class='op'>~</span> <span class='kw'>stflife</span> <span class='op'>+</span> <span class='kw'>stfwork</span></pre>
+
+<p>These two questions should also be in <code>.data</code> and in <code>me_data</code>,
 otherwise no calculation can be performed. <code>.data</code> should be a data
 frame with all variables specified in the <code>model_syntax</code> while
-<code>me_data</code> should be a dataframe with 4 columns: question, reliability,
+<code>me_data</code> should be a data frame with 4 columns: question, reliability,
 validity an quality. The first column should contain the names of the
 variables as character vector, while the other three should be numeric
 vectors with their corresponding reliability, validity and quality
 values.</p>
-<p>Currently, <code>medesign</code> replaces the non-NA quality of all variables found
-in <code>me_data</code> and <code>.data</code> in the correlation/covariance diagonal
-by default. This is then used by <code>me_cmv_cor</code> and <code>me_cmv_cov</code>
-to correct for the quality in the diagonal.</p>
+<p>The model syntax also allows you to create 'new variables' and also
+specify whether these new variables share a common method. For example,
+we can add the variables /codetrstplt, trstprl, trstprt together
+and then specify that the new 'sum score' variable shares a common
+method with the variables <code>stflife</code> and <code>stfwork</code>. We would
+write it like this:</p>
+<pre>
+<span class='fu'>std</span>(<span class='kw'>new_variable</span>) <span class='op'>=</span> <span class='kw'>trstplt</span> <span class='op'>+</span> <span class='kw'>trstprl</span> <span class='op'>+</span> <span class='kw'>trstprt</span>
+<span class='op'>~</span> <span class='kw'>new_variable</span> <span class='op'>+</span> <span class='kw'>stflife</span> <span class='op'>+</span> <span class='kw'>stfwork</span></pre>
+
+<p>You can also combine these building blocks to specify a shared
+common method between two new variables. For example:</p>
+<pre>
+<span class='fu'>std</span>(<span class='kw'>new_variable1</span>) <span class='op'>=</span> <span class='kw'>trstplt</span> <span class='op'>+</span> <span class='kw'>trstprl</span> <span class='op'>+</span> <span class='kw'>trstprt</span>
+<span class='fu'>std</span>(<span class='kw'>new_variable2</span>) <span class='op'>=</span> <span class='kw'>stflife</span> <span class='op'>+</span> <span class='kw'>stfwork</span>
+<span class='op'>~</span> <span class='kw'>new_variable1</span> <span class='op'>+</span> <span class='kw'>new_variable2</span></pre>
+
+<p>Note that the operator <code>std()</code> just works to specify
+the we want this new variable to be standardized.</p>
+<p>Currently, <code>medesign</code> replaces the non-NA quality of all variables
+found in <code>me_data</code> and <code>.data</code> in the correlation/covariance
+diagonal by default. This is then used by <code>me_cmv_cor</code> and
+<code>me_cmv_cov</code> to correct for the quality in the diagonal.</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Jorge Cimentada and Wiebke Weber</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>ess7es</span>)
 <span class='co'># These three variables share a common method</span>
-<span class='no'>me_syntax</span> <span class='kw'>&lt;-</span> <span class='st'>"~ mpg + cyl + drat"</span>
+<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span> <span class='st'>"~ trstplt + trstprl + trstprt"</span>
 
-<span class='co'># Fake data for the example</span>
-<span class='no'>me_data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-                      <span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"mpg"</span>, <span class='st'>"cyl"</span>, <span class='st'>"drat"</span>),
-                      <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.729</span>, <span class='fl'>0.815</span>, <span class='fl'>0.68</span>),
-                      <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.951</span>, <span class='fl'>0.944</span>, <span class='fl'>0.79</span>),
-                      <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.693</span>, <span class='fl'>0.77</span>, <span class='fl'>0.89</span>)
-                      )
+<span class='co'># Data from sqp</span>
+<span class='kw'>me_data</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
+    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span>),
+    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span>),
+    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span>)
+  )
 
-<span class='fu'>medesign</span>(<span class='no'>me_syntax</span>, <span class='no'>mtcars</span>, <span class='no'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
 #&gt; Parsed model:
-#&gt;    ~ mpg + cyl + drat</div><div class='input'>
-
+#&gt;    ~ trstplt + trstprl + trstprt</div><div class='input'>
 <span class='co'># Each pair of variables share a common method.</span>
-<span class='no'>me_syntax</span> <span class='kw'>&lt;-</span>
-<span class='st'>"# Let's assume these two variables share a common method
- ~ mpg + cyl
- # Let's assume these two variables as well
- ~ drat + disp"</span>
+<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+ <span class='st'>"~ trstplt + trstprl + trstprt
+  ~ stfedu + stfhlth"</span> + trstprt
+  ~ stfedu + stfhlth"
 
-<span class='co'># Fake data for the example</span>
-<span class='no'>me_data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(<span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-                      <span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"mpg"</span>, <span class='st'>"cyl"</span>, <span class='st'>"drat"</span>, <span class='st'>"disp"</span>),
-                      <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.729</span>, <span class='fl'>0.815</span>, <span class='fl'>0.68</span>, <span class='fl'>0.78</span>),
-                      <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.951</span>, <span class='fl'>0.944</span>, <span class='fl'>0.79</span>, <span class='fl'>0.97</span>),
-                      <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.693</span>, <span class='fl'>0.77</span>, <span class='fl'>0.89</span>, <span class='fl'>0.68</span>)
-                      )
+<span class='kw'>me_data2</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
+    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.757</span>, <span class='fl'>0.760</span>),
+    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.838</span>, <span class='fl'>0.798</span>),
+    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.635</span>, <span class='fl'>0.607</span>)
+  )
 
-<span class='fu'>medesign</span>(<span class='no'>me_syntax</span>, <span class='no'>mtcars</span>, <span class='no'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+<span class='kw'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='kw'>me_data</span>, <span class='kw'>me_data2</span>)
+
+<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
 #&gt; Parsed model:
-#&gt;    ~ mpg + cyl
-#&gt;    ~ drat + disp</div><div class='input'>
+#&gt;    ~ trstplt + trstprl + trstprt
+#&gt;    ~ stfedu + stfhlth</div><div class='input'>
+<span class='co'># We can also create new variables and use them</span>
+<span class='co'># as variables sharing a common method</span>
 
-</div></pre>
+<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+ <span class='st'>"std(new_sscore1) = trstplt + trstprl + trstprt;
+  ~ new_sscore1 + stfedu + stfhlth"</span>prl + trstprt;
+  ~ new_sscore1 + stfedu + stfhlth"
+
+<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+#&gt; Parsed model:
+#&gt;    new_sscore1 = trstplt+trstprl+trstprt
+#&gt;    ~ new_sscore1 + stfedu + stfhlth</div><div class='input'>
+<span class='co'># Alternatively, we can also combined two newly created variables</span>
+<span class='co'># as sharing a common method</span>
+<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+ <span class='st'>"std(new_sscore1) = trstplt + trstprl + trstprt;
+  std(new_sscore2) = stfedu + stfhlth;
+  ~ new_sscore1 + new_sscore2"</span> trstprl + trstprt;
+  std(new_sscore2) = stfedu + stfhlth;
+  ~ new_sscore1 + new_sscore2"
+
+<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+#&gt; Parsed model:
+#&gt;    new_sscore1 = trstplt+trstprl+trstprt
+#&gt;    new_sscore2 = stfedu+stfhlth
+#&gt;    ~ new_sscore1 + new_sscore2</div><div class='input'></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -238,7 +286,7 @@ to correct for the quality in the diagonal.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

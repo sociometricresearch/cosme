@@ -86,89 +86,93 @@
 <p>The <code>measurementfree</code> package allows you to calculate several estimations of the quality of your survey questions and also adjust your estimations for measurement error.</p>
 <p>Assuming you have a data frame with the <code>reliability</code>, <code>validity</code> and <code>quality</code> of your question, you can correct for the quality and common method variance easily.</p>
 <p>Load the package as:</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="co"># devtools::install_github("sociometricresearch/measurementfree")</span>
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">measurementfree</span>)</pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="co"># devtools::install_github("sociometricresearch/measurementfree")</span>
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="kw"><a href="https://sociometricresearch.github.io/measurementfree">measurementfree</a></span>)
+</pre></div>
 <div id="a-simple-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#a-simple-example" class="anchor"></a>A simple example</h2>
-<p><code>measurementfree</code> introduces the concept of a measurement error design, such as the <code>survey</code> package has a survey design object. You can define this measurement error design with three objects: your model design, your measurement error data and the data of the analysis. For a simple case, let’s assume that the columns <code>mpg</code>, <code>cyl</code> and <code>disp</code> for <code>mtcars</code> were measured with the same method (e.g. likert scale), then we could define the measurement error design object as this:</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="co"># This is the model definition</span>
-<span class="no">model_definition</span> <span class="kw">&lt;-</span> <span class="st">"~ mpg + cyl + disp"</span>
+<p><code>measurementfree</code> introduces the concept of a measurement error design, such as the <code>survey</code> package has a survey design object. You can define this measurement error design with three objects: your model design, your measurement error data and the data of the analysis. For a simple case, let’s use the data from the European Social Survey already loaded with the package. The variables <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code> were asked with the same type of the question. In other words, they share a common method (for example, a likert type scale question). Sharing a common method allows us to correct for their common method variance. We could define the measurement error design object as this:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit">
+<span class="co"># Data</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="kw">ess7es</span>)
+<span class="kw">ess_subset</span> <span class="op">&lt;-</span> <span class="kw">ess7es</span>[<span class="fl">1</span><span class="op">:</span><span class="fl">3</span>]
+
+<span class="co"># This is the model definition</span>
+<span class="kw">model_definition</span> <span class="op">&lt;-</span> <span class="st">"~ trstplt + trstprl + trstprt"</span>
 
 <span class="co"># The measurement error data</span>
-<span class="no">me_data</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">stringsAsFactors</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
-                        <span class="kw">question</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mpg"</span>, <span class="st">"cyl"</span>, <span class="st">"disp"</span>),
-                        <span class="kw">reliability</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.729</span>, <span class="fl">0.815</span>, <span class="fl">0.68</span>),
-                        <span class="kw">validity</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.951</span>, <span class="fl">0.944</span>, <span class="fl">0.79</span>),
-                        <span class="kw">quality</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.693</span>, <span class="fl">0.77</span>, <span class="fl">0.89</span>)
-                      )
+<span class="kw">me_data</span> <span class="op">&lt;-</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
+    question = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"trstprl"</span>, <span class="st">"trstplt"</span>, <span class="st">"trstprt"</span>),
+    reliability = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.812</span>, <span class="fl">0.852</span>, <span class="fl">0.858</span>),
+    validity = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.959</span>, <span class="fl">0.965</span>, <span class="fl">0.956</span>),
+    quality = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.779</span>, <span class="fl">0.822</span>, <span class="fl">0.821</span>)
+  )
 
 <span class="co"># Define your measurement error design</span>
-<span class="no">me_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/medesign.html">medesign</a></span>(<span class="no">model_definition</span>, <span class="no">mtcars</span>, <span class="no">me_data</span>)
-<span class="no">me_obj</span>
+<span class="kw">me_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/medesign.html">medesign</a></span>(<span class="kw">model_definition</span>, <span class="kw">ess_subset</span>, <span class="kw">me_data</span>)
+<span class="kw">me_obj</span>
 <span class="co">#&gt; &lt;Measurement error design&gt;</span>
 <span class="co">#&gt; Parsed model:</span>
-<span class="co">#&gt;    ~ mpg + cyl + disp</span></pre></div>
-<p>Once you have that object, we simply pass it to <code>me_cmv_cor</code> to adjust the correlation of <code>mpg</code>, <code>cyl</code>, and <code>cyl</code> for common method variance as well as their quality:</p>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span>(<span class="no">me_obj</span>)
-<span class="co">#&gt; # A tibble: 11 x 12</span>
-<span class="co">#&gt;    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs</span>
-<span class="co">#&gt;    &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 mpg      1     -1.19  -1.10  -0.932  0.818  -1.04   0.503   0.798</span>
-<span class="co">#&gt;  2 cyl     -1.19   1      1.07   0.949 -0.798   0.892 -0.674  -0.924</span>
-<span class="co">#&gt;  3 disp    -1.10   1.07   1      0.838 -0.753   0.941 -0.460  -0.753</span>
-<span class="co">#&gt;  4 hp      -0.932  0.949  0.838  1     -0.449   0.659 -0.708  -0.723</span>
-<span class="co">#&gt;  5 drat     0.818 -0.798 -0.753 -0.449  1      -0.712  0.0912  0.440</span>
-<span class="co">#&gt;  6 wt      -1.04   0.892  0.941  0.659 -0.712   1     -0.175  -0.555</span>
-<span class="co">#&gt;  7 qsec     0.503 -0.674 -0.460 -0.708  0.0912 -0.175  1       0.745</span>
-<span class="co">#&gt;  8 vs       0.798 -0.924 -0.753 -0.723  0.440  -0.555  0.745   1    </span>
-<span class="co">#&gt;  9 am       0.721 -0.596 -0.627 -0.243  0.713  -0.692 -0.230   0.168</span>
-<span class="co">#&gt; 10 gear     0.577 -0.561 -0.589 -0.126  0.700  -0.583 -0.213   0.206</span>
-<span class="co">#&gt; 11 carb    -0.662  0.601  0.419  0.750 -0.0908  0.428 -0.656  -0.570</span>
-<span class="co">#&gt; # … with 3 more variables: am &lt;dbl&gt;, gear &lt;dbl&gt;, carb &lt;dbl&gt;</span></pre></div>
+<span class="co">#&gt;    ~ trstplt + trstprl + trstprt</span>
+</pre></div>
+<p>This object describes your measurement error design. With this, we simply pass it to <code>me_cmv_cor</code> to adjust the correlation of <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code> for common method variance as well as their quality:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span>(<span class="kw">me_obj</span>)
+<span class="co">#&gt; # A tibble: 3 x 4</span>
+<span class="co">#&gt;   rowname trstprl trstplt trstprt</span>
+<span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt; 1 trstprl   1       0.690   0.630</span>
+<span class="co">#&gt; 2 trstplt   0.690   1       0.892</span>
+<span class="co">#&gt; 3 trstprt   0.630   0.892   1</span>
+</pre></div>
 </div>
 <div id="another-simple-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#another-simple-example" class="anchor"></a>Another simple example</h2>
-<p>For this example let’s assume that <code>mpg</code> and <code>cyl</code> were measured with the same method and <code>disp</code> and <code>drat</code> were measured with another method, then we can simply supply a new line to the model above and make sure that the variable has data on <code>me_data</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="co"># This is the model definition</span>
-<span class="no">model_definition</span> <span class="kw">&lt;-</span>
-  <span class="st">"~ mpg + cyl
-   ~ disp + drat"</span>
+<p>The previous example corrected only variables <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code>. What if we have more groups of variables that share a common method? Just keep adding them to the model syntax! For example, <code>stfedu</code> and <code>stfhlth</code> also share a common method, let’s add them to the model syntax and make sure we have data on <code>me_data</code> for them:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="co"># Data</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="kw">ess7es</span>)
+<span class="kw">ess_subset</span> <span class="op">&lt;-</span> <span class="kw">ess7es</span>[<span class="fl">1</span><span class="op">:</span><span class="fl">5</span>]
 
-<span class="co"># The (fake) measurement error data</span>
-<span class="no">me_data</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">stringsAsFactors</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
-                        <span class="kw">question</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"mpg"</span>, <span class="st">"cyl"</span>, <span class="st">"disp"</span>, <span class="st">"drat"</span>),
-                        <span class="kw">reliability</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.729</span>, <span class="fl">0.815</span>, <span class="fl">0.68</span>, <span class="fl">0.69</span>),
-                        <span class="kw">validity</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.951</span>, <span class="fl">0.944</span>, <span class="fl">0.79</span>, <span class="fl">0.89</span>),
-                        <span class="kw">quality</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.693</span>, <span class="fl">0.77</span>, <span class="fl">0.89</span>, <span class="fl">0.93</span>)
-                      )
+<span class="co"># This is the model definition</span>
+<span class="kw">model_definition</span> <span class="op">&lt;-</span>
+  <span class="st">"~ trstplt + trstprl + trstprt;
+   ~ stfedu + stfhlth"</span> + trstprt;
+   ~ stfedu + stfhlth"
+
+<span class="co"># The measurement error data</span>
+<span class="kw">me_data</span> <span class="op">&lt;-</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
+    question = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"trstprl"</span>, <span class="st">"trstplt"</span>, <span class="st">"trstprt"</span>, <span class="st">"stfedu"</span>, <span class="st">"stfhlth"</span>),
+    reliability = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.812</span>, <span class="fl">0.852</span>, <span class="fl">0.858</span>, <span class="fl">0.870</span>, <span class="fl">0.871</span>),
+    validity = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.959</span>, <span class="fl">0.965</span>, <span class="fl">0.956</span>, <span class="fl">0.915</span>, <span class="fl">0.893</span>),
+    quality = <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.779</span>, <span class="fl">0.822</span>, <span class="fl">0.821</span>, <span class="fl">0.796</span>, <span class="fl">0.779</span>)
+  )
 
 <span class="co"># Define your measurement error design</span>
-<span class="no">me_obj</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/medesign.html">medesign</a></span>(<span class="no">model_definition</span>, <span class="no">mtcars</span>, <span class="no">me_data</span>)
-
-<span class="no">me_obj</span>
+<span class="kw">me_obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/medesign.html">medesign</a></span>(<span class="kw">model_definition</span>, <span class="kw">ess_subset</span>, <span class="kw">me_data</span>)
+<span class="kw">me_obj</span>
 <span class="co">#&gt; &lt;Measurement error design&gt;</span>
 <span class="co">#&gt; Parsed model:</span>
-<span class="co">#&gt;    ~ mpg + cyl</span>
-<span class="co">#&gt;    ~ disp + drat</span></pre></div>
-<p>Once you have that object, we simply pass it to <code>me_cmv_cor</code> to adjust the correlation of <code>mpg</code>, <code>cyl</code>, and <code>cyl</code> for common method variance as well as their quality:</p>
-<div class="sourceCode" id="cb5"><pre class="r"><span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span>(<span class="no">me_obj</span>)
-<span class="co">#&gt; # A tibble: 11 x 12</span>
-<span class="co">#&gt;    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs</span>
-<span class="co">#&gt;    &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 mpg      1     -1.22  -1.08  -0.932  0.848  -1.04   0.503   0.798</span>
-<span class="co">#&gt;  2 cyl     -1.22   1      1.09   0.949 -0.827   0.892 -0.674  -0.924</span>
-<span class="co">#&gt;  3 disp    -1.08   1.09   1      0.838 -0.885   0.941 -0.460  -0.753</span>
-<span class="co">#&gt;  4 hp      -0.932  0.949  0.838  1     -0.465   0.659 -0.708  -0.723</span>
-<span class="co">#&gt;  5 drat     0.848 -0.827 -0.885 -0.465  1      -0.739  0.0946  0.457</span>
-<span class="co">#&gt;  6 wt      -1.04   0.892  0.941  0.659 -0.739   1     -0.175  -0.555</span>
-<span class="co">#&gt;  7 qsec     0.503 -0.674 -0.460 -0.708  0.0946 -0.175  1       0.745</span>
-<span class="co">#&gt;  8 vs       0.798 -0.924 -0.753 -0.723  0.457  -0.555  0.745   1    </span>
-<span class="co">#&gt;  9 am       0.721 -0.596 -0.627 -0.243  0.739  -0.692 -0.230   0.168</span>
-<span class="co">#&gt; 10 gear     0.577 -0.561 -0.589 -0.126  0.725  -0.583 -0.213   0.206</span>
-<span class="co">#&gt; 11 carb    -0.662  0.601  0.419  0.750 -0.0941  0.428 -0.656  -0.570</span>
-<span class="co">#&gt; # … with 3 more variables: am &lt;dbl&gt;, gear &lt;dbl&gt;, carb &lt;dbl&gt;</span></pre></div>
+<span class="co">#&gt;    ~ trstplt + trstprl + trstprt</span>
+<span class="co">#&gt;    ~ stfedu + stfhlth</span>
+</pre></div>
+<p>Once you have your measurement error design, we simply pass it to <code>me_cmv_cor</code> to adjust the correlation for common method variance as well as their quality:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit">
+<span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span>(<span class="kw">me_obj</span>)
+<span class="co">#&gt; # A tibble: 5 x 6</span>
+<span class="co">#&gt;   rowname trstprl trstplt trstprt stfedu stfhlth</span>
+<span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt; 1 trstprl   1       0.693   0.629  0.392   0.380</span>
+<span class="co">#&gt; 2 trstplt   0.693   1       0.889  0.392   0.413</span>
+<span class="co">#&gt; 3 trstprt   0.629   0.889   1      0.351   0.332</span>
+<span class="co">#&gt; 4 stfedu    0.392   0.392   0.351  1       0.616</span>
+<span class="co">#&gt; 5 stfhlth   0.380   0.413   0.332  0.616   1</span>
+</pre></div>
 <p>Alternatively, you can use <code>me_cmv_cov</code> to adjust a covariance matrix for common method variance as well as quality.</p>
 </div>
 </div>
@@ -206,10 +210,9 @@
   <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=measurementfree"><img src="https://www.r-pkg.org/badges/version/measurementfree" alt="CRAN status"></a></li>
-<li><a href="https://travis-ci.org/sociometricresearch/measurementfree"><img src="https://travis-ci.org/sociometricresearch/measurementfree.svg?branch=master" alt="Travis build status"></a></li>
-<li><a href="https://ci.appveyor.com/project/sociometricresearch/measurementfree"><img src="https://ci.appveyor.com/api/projects/status/github/sociometricresearch/measurementfree?branch=master&amp;svg=true" alt="AppVeyor build status"></a></li>
+<li><a href="https://github.com/sociometricresearch/measurementfree/actions"><img src="https://github.com/sociometricresearch/measurementfree/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
 <li><a href="https://codecov.io/gh/sociometricresearch/measurementfree?branch=master"><img src="https://codecov.io/gh/sociometricresearch/measurementfree/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://cran.r-project.org/package=measurementfree"><img src="https://www.r-pkg.org/badges/version/measurementfree" alt="CRAN status"></a></li>
 </ul>
 </div>
 </div>
@@ -221,7 +224,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

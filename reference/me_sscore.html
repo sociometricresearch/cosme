@@ -135,9 +135,9 @@ selected variables in <code>...</code>. Use <code>me_sscore_</code> if you're
 interested in programming with <code>me_sscore</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_sscore</span>(<span class='no'>me_data</span>, <span class='no'>.data</span>, <span class='no'>new_name</span>, <span class='no'>...</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>me_sscore</span>(<span class='kw'>me_data</span>, <span class='kw'>.data</span>, <span class='kw'>new_name</span>, <span class='kw'>...</span>, wt = <span class='kw'>NULL</span>, .drop = <span class='fl'>TRUE</span>)
 
-<span class='fu'>me_sscore_</span>(<span class='no'>me_data</span>, <span class='no'>.data</span>, <span class='no'>new_name</span>, <span class='no'>vars_names</span>, <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>.drop</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>me_sscore_</span>(<span class='kw'>me_data</span>, <span class='kw'>.data</span>, <span class='kw'>new_name</span>, <span class='kw'>vars_names</span>, wt = <span class='kw'>NULL</span>, .drop = <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,7 +145,9 @@ interested in programming with <code>me_sscore</code></p>
     <tr>
       <th>me_data</th>
       <td><p>a data frame of class <code>me</code> containing
-quality estimates from the variables specified in <code>...</code>.</p></td>
+quality estimates from the variables specified in <code>...</code>. It is
+expected that this measurement error data is not square rooted (reliability,
+validity and quality) as it will be done with <code>me_sscore</code>.</p></td>
     </tr>
     <tr>
       <th>.data</th>
@@ -161,7 +163,7 @@ of the new sum score.</p></td>
       <th>...</th>
       <td><p>bare unquoted names or separate strings specifying
 the variable names from which to estimate quality of their sum score.
-They all must be present in <code>me_data</code> and <code>df</code>. At minimum,
+They all must be present in <code>me_data</code> and <code>.data</code>. At minimum,
 it must be two or more variable names.</p></td>
     </tr>
     <tr>
@@ -174,14 +176,14 @@ weight.</p></td>
     <tr>
       <th>.drop</th>
       <td><p>a logical stating whether to drop the questions that compose
-the sum score (specified in <code>...</code>) If <code>FALSE</code> it retains the
-original questions and the composite score.</p></td>
+the sum score (these are the variables specified in <code>...</code>) If
+<code>FALSE</code> it retains the original questions and the sum score.</p></td>
     </tr>
     <tr>
       <th>vars_names</th>
       <td><p>character vector specifying the variable names from
-which to estimate quality of their sum score. They all must be present
-in <code>me_data</code> and <code>df</code>. At minimum, it must be two or more
+which to estimate the quality of the sum score. They all must be present
+in <code>me_data</code> and <code>.data</code>. At minimum, it must be two or more
 variable names.</p></td>
     </tr>
     </table>
@@ -189,55 +191,50 @@ variable names.</p></td>
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p>a <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> similar to <code>me_data</code> but
-with a new row containing the quality of a sum score with the name
-specified in <code>new_name</code>.</p>
+with a new row containing the quality of a sum score.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Political trust example</span>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>ess7es</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>ess7es</span>)
 
-<span class='no'>quality</span> <span class='kw'>&lt;-</span>
+<span class='kw'>me_data</span> <span class='op'>&lt;-</span>
   <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    <span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
-    <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.901110426085505</span>, <span class='fl'>0.923038460737146</span>, <span class='fl'>0.926282894152753</span>),
-    <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.979285453787607</span>, <span class='fl'>0.982344135219425</span>, <span class='fl'>0.977752524926425</span>),
-    <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.882609766544649</span>, <span class='fl'>0.906642156531451</span>, <span class='fl'>0.906090503205943</span>)
+    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
+    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span>),
+    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span>),
+    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span>)
   )
 
-<span class='no'>selected_vars</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>)
-<span class='no'>score</span> <span class='kw'>&lt;-</span> <span class='fu'>me_sscore</span>(<span class='no'>quality</span>[<span class='no'>quality</span>$<span class='no'>question</span> <span class='kw'>%in%</span> <span class='no'>selected_vars</span>, ],
-                   <span class='no'>ess7es</span>,
-                   <span class='kw'>new_name</span> <span class='kw'>=</span> <span class='st'>"s1"</span>,
-                   <span class='no'>trstprl</span>, <span class='no'>trstplt</span>, <span class='no'>trstprt</span>,
-                   <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+<span class='kw'>selected_vars</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>)
+<span class='kw'>score</span> <span class='op'>&lt;-</span> <span class='fu'>me_sscore</span>(<span class='kw'>me_data</span>[<span class='kw'>me_data</span><span class='op'>$</span><span class='kw'>question</span> <span class='op'>%in%</span> <span class='kw'>selected_vars</span>, ],
+                   <span class='kw'>ess7es</span>,
+                   new_name = <span class='st'>"s1"</span>,
+                   <span class='kw'>trstprl</span>, <span class='kw'>trstplt</span>, <span class='kw'>trstprt</span>)
 
 <span class='co'># Returns the quality and method effect of any given sum score</span>
-<span class='no'>score</span></div><div class='output co'>#&gt; # A tibble: 1 x 5
+<span class='kw'>score</span></div><div class='output co'>#&gt; # A tibble: 1 x 5
 #&gt;   question reliability validity quality method_eff
 #&gt;   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
-#&gt; 1 s1                NA       NA   0.894     0.0422</div><div class='input'>
+#&gt; 1 s1                 0        0   0.894     0.0422</div><div class='input'>
 <span class='co'># State services example</span>
-<span class='no'>quality</span> <span class='kw'>&lt;-</span>
+<span class='kw'>me_data</span> <span class='op'>&lt;-</span>
   <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    <span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
-    <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.870057469366248</span>, <span class='fl'>0.871779788708135</span>),
-    <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.915423399307664</span>, <span class='fl'>0.893308457365092</span>),
-    <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.796868872525461</span>, <span class='fl'>0.779102047231298</span>)
+    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
+    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.757</span>, <span class='fl'>0.760</span>),
+    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.838</span>, <span class='fl'>0.798</span>),
+    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.635</span>, <span class='fl'>0.607</span>)
   )
 
-<span class='no'>score</span> <span class='kw'>&lt;-</span> <span class='fu'>me_sscore</span>(<span class='no'>quality</span>,
-                   <span class='no'>ess7es</span>,
-                   <span class='kw'>new_name</span> <span class='kw'>=</span> <span class='st'>"s1"</span>,
-                   <span class='no'>stfedu</span>, <span class='no'>stfhlth</span>,
-                   <span class='kw'>wt</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+<span class='kw'>score</span> <span class='op'>&lt;-</span> <span class='fu'>me_sscore</span>(<span class='kw'>me_data</span>,
+                   <span class='kw'>ess7es</span>,
+                   new_name = <span class='st'>"s2"</span>,
+                   <span class='kw'>stfedu</span>, <span class='kw'>stfhlth</span>)
 
 <span class='co'># Returns the quality and method effect of any given sum score</span>
-<span class='no'>score</span></div><div class='output co'>#&gt; # A tibble: 1 x 5
+<span class='kw'>score</span></div><div class='output co'>#&gt; # A tibble: 1 x 5
 #&gt;   question reliability validity quality method_eff
 #&gt;   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;      &lt;dbl&gt;
-#&gt; 1 s1                NA       NA   0.684      0.171</div><div class='input'>
-
-</div></pre>
+#&gt; 1 s2                 0        0   0.684      0.171</div><div class='input'></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -253,7 +250,7 @@ specified in <code>new_name</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

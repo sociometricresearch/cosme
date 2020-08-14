@@ -137,7 +137,7 @@ from <code>me_data</code>. Optionally, you can supply the CMV coefficients
 manually in the argument <code>cmv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_cmv_cov</span>(<span class='no'>.medesign</span>)</pre>
+    <pre class="usage"><span class='fu'>me_cmv_cov</span>(<span class='kw'>.medesign</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,29 +158,29 @@ adjustment but for a covariance matrix.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
 <span class='co'>## TODO - Fix when me_cmv_cov works well</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>2131</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>tibble</span>)
+<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://tibble.tidyverse.org'>tibble</a></span>)
 
-<span class='no'>original_df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>100</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>50</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>20</span>))
+<span class='kw'>original_df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>100</span>, sd = <span class='fl'>50</span>), nrow = <span class='fl'>20</span>))
 
 <span class='co'># Toy quality dataset</span>
-<span class='no'>me_df</span> <span class='kw'>&lt;-</span>
- <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(<span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"V"</span>, <span class='fl'>1</span>:<span class='fl'>5</span>),
- <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span>),
- <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.6</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span>),
- <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.79</span>, <span class='fl'>0.9</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span>))
+<span class='kw'>me_df</span> <span class='op'>&lt;-</span>
+ <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(question = <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"V"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>),
+ quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span>),
+ reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.6</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span>),
+ validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.79</span>, <span class='fl'>0.9</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span>))
 
 <span class='co'># Define mdesign object</span>
-<span class='no'>m_obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='st'>"~ V4 + V5"</span>, <span class='no'>original_df</span>, <span class='no'>me_df</span>)
+<span class='kw'>m_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='st'>"~ V4 + V5"</span>, <span class='kw'>original_df</span>, <span class='kw'>me_df</span>)
 
 <span class='co'># Original correlation matrix</span>
-<span class='fu'><a href='me_covariance.html'>me_covariance</a></span>(<span class='no'>original_df</span>)
+<span class='fu'><a href='me_covariance.html'>me_covariance</a></span>(<span class='kw'>original_df</span>)
 
 <span class='co'># Coefficient of correlation changes</span>
 <span class='co'># when adjusting for common method variance</span>
-<span class='fu'>me_cmv_cov</span>(<span class='no'>m_obj</span>)
+<span class='fu'>me_cmv_cov</span>(<span class='kw'>m_obj</span>)
 
 <span class='co'># The V5*V4 from both the upper/lower triangles</span>
 <span class='co'># covariance matrix changed from -181 to -634</span>
@@ -200,7 +200,7 @@ adjustment but for a covariance matrix.</p></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

@@ -131,9 +131,9 @@ by manually inserting new metrics such as quality or validity." />
 by manually inserting new metrics such as quality or validity.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_construct</span>(<span class='no'>question_name</span>, <span class='no'>metrics</span>, <span class='kw'>all_columns</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>me_construct</span>(<span class='kw'>question_name</span>, <span class='kw'>metrics</span>, all_columns = <span class='fl'>FALSE</span>)
 
-<span class='fu'>me_construct_</span>(<span class='no'>question_name</span>, <span class='no'>metrics</span>, <span class='kw'>all_columns</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>me_construct_</span>(<span class='kw'>question_name</span>, <span class='kw'>metrics</span>, all_columns = <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,9 +145,9 @@ used as the question name</p></td>
     </tr>
     <tr>
       <th>metrics</th>
-      <td><p>a list containing new measurement error metrics. Currently it only
-supports quality, reliability and validity. Can also specify one of the metrics
-and the remaining are set to NA by default</p></td>
+      <td><p>a list containing new measurement error metrics. Currently it
+only supports quality, reliability and validity. Can also specify one of the
+metrics and the remaining are set to <code>0</code> by default</p></td>
     </tr>
     <tr>
       <th>all_columns</th>
@@ -161,8 +161,9 @@ columns.</p></td>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>a <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> of one row with the supplied metrics. It also has
-class <code>me</code> for further manipulations within the <code>measurementfree</code> package.</p>
+    <p>a <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> of one row with the supplied metrics.
+It also has class <code>me</code> for further manipulations within the
+<code>measurementfree</code> package.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p><code>me_construct</code> returns a four column <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> with
@@ -171,27 +172,31 @@ and <code>validity</code>. However, if <code>all_columns</code> is set to <code>
 the returned <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> contains new columns. Below you can
 find the description of of all columns:</p>
 <ul>
-<li><p>question: the literal name of the question in the questionnaire of the study</p></li>
+<li><p>question: the literal name of the question in the questionnaire of the
+study</p></li>
 <li><p>question_id: the API internal ID of the question</p></li>
-<li><p>id: this is the coding ID, that is, the coding of the authorized prediction</p></li>
+<li><p>id: this is the coding ID, that is, the coding of the authorized
+prediction</p></li>
 <li><p>created: Date of the API request</p></li>
-<li><p>routing_id: Version of the coding scheme applied to get that prediction.</p></li>
-<li><p>authorized: Whether it is an 'authorized' prediction or not. See the details section</p></li>
+<li><p>routing_id: Version of the coding scheme applied to get that prediction</p></li>
+<li><p>authorized: Whether it is an 'authorized' prediction or not. Authorized
+ predictions come from the SQP software directly. Unauthorized predictions
+ come from other users which provide their own measurement error statistics.</p></li>
 <li><p>complete: Whether all fields of the coding are complete</p></li>
 <li><p>user_id: The id of the user that crowd-sourced the prediction</p></li>
-<li><p>error: Whether there was an error in making the prediction. For an example,
- see <a href='http://sqp.upf.edu/loadui/#questionPrediction/12552/42383'>http://sqp.upf.edu/loadui/#questionPrediction/12552/42383</a></p></li>
+<li><p>error: Whether there was an error in making the prediction. For an
+example, see <a href='http://sqp.upf.edu/loadui/#questionPrediction/12552/42383'>http://sqp.upf.edu/loadui/#questionPrediction/12552/42383</a></p></li>
 <li><p>errorMessage: The error message, if there was an error</p></li>
-<li><p>reliability: The strength between the true score factor and the observed
- variable or 1 - proportion random error in the observed variance. Computed as
- the squared of the reliability coefficient</p></li>
+<li><p>reliability: The strength between the true score factor and the
+observed variable or 1 - proportion random error in the observed variance.
+Computed as the squared of the reliability coefficient</p></li>
 <li><p>validity: The strength between the latent concept factor and the
  true score factor or 1 - proportion method error variance in the true
  score variance. Computed as the square of the validity coefficient</p></li>
 <li><p>quality: The strength between the latent concept factor and the
  observed variable or 1 - proportion of random and method error variance
  in the latent concept's variance. Computed as the product of reliability
-  and validity.</p></li>
+ and validity.</p></li>
 <li><p>reliabilityCoefficient: The effect between the true score factor and
  the observed variable</p></li>
 <li><p>validityCoefficient: The effect between the latent concept factor and
@@ -199,35 +204,40 @@ find the description of of all columns:</p>
 <li><p>methodEffectCoefficient: The effect between the method factor and the
  true score factor</p></li>
 <li><p>qualityCoefficient: It is computed as the square root of the quality</p></li>
-<li><p>reliabilityCoefficientInterquartileRange: Interquartile range for the reliability coefficient</p></li>
-<li><p>validityCoefficientInterquartileRange: Interquartile range for the validity coefficient</p></li>
-<li><p>qualityCoefficientInterquartileRange: Interquartile range for the quality coefficient</p></li>
-<li><p>reliabilityCoefficientStdError: Predicted standard error of the reliability coefficient</p></li>
-<li><p>validityCoefficientStdError: Predicted standard error of the validity coefficient</p></li>
-<li><p>qualityCoefficientStdError: Predicted standard error of the quality coefficient</p></li>
+<li><p>reliabilityCoefficientInterquartileRange: Interquartile range for the
+ reliability coefficient</p></li>
+<li><p>validityCoefficientInterquartileRange: Interquartile range for the
+ validity coefficient</p></li>
+<li><p>qualityCoefficientInterquartileRange: Interquartile range for the
+ quality coefficient</p></li>
+<li><p>reliabilityCoefficientStdError: Predicted standard error of the
+ reliability coefficient</p></li>
+<li><p>validityCoefficientStdError: Predicted standard error of the validity
+ coefficient</p></li>
+<li><p>qualityCoefficientStdError: Predicted standard error of the quality
+ coefficient</p></li>
 </ul>
 
 
 <p><code>me_construct_</code> is useful if you're interested in programming
-with <code>measurementfree</code> rather than using it interactively. If you want to use
-<code>me_construct</code> inside a function, use the equivalent <code>me_construct_</code>
-which uses standard evaluation.</p>
+with <code>measurementfree</code> rather than using it interactively. If you want
+to use <code>me_construct</code> inside a function, use the equivalent
+<code>me_construct_</code> which uses standard evaluation.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'>me_construct</span>(<span class='no'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>quality</span> <span class='kw'>=</span> <span class='fl'>0.3</span>))</div><div class='output co'>#&gt; # A tibble: 1 x 4
+<span class='fu'>me_construct</span>(<span class='kw'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(quality = <span class='fl'>0.3</span>))</div><div class='output co'>#&gt; # A tibble: 1 x 4
 #&gt;   question     reliability validity quality
 #&gt;   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 new_question          NA       NA     0.3</div><div class='input'>
-<span class='fu'>me_construct</span>(<span class='no'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>quality</span> <span class='kw'>=</span> <span class='fl'>0.3</span>, <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fl'>0.2</span>))</div><div class='output co'>#&gt; # A tibble: 1 x 4
+#&gt; 1 new_question           0        0     0.3</div><div class='input'><span class='fu'>me_construct</span>(<span class='kw'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(quality = <span class='fl'>0.3</span>, validity = <span class='fl'>0.2</span>))</div><div class='output co'>#&gt; # A tibble: 1 x 4
 #&gt;   question     reliability validity quality
 #&gt;   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 new_question          NA      0.2     0.3</div><div class='input'>
-<span class='co'># Note that specifying a column which is not availabe in me data</span>
+#&gt; 1 new_question           0      0.2     0.3</div><div class='input'>
+<span class='co'># Note that specifying a column which is not available in me data</span>
 <span class='co'># will throw an error</span>
 
-<span class='kw'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'>me_construct</span>(<span class='no'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>random_col</span> <span class='kw'>=</span> <span class='fl'>0.3</span>, <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fl'>0.2</span>))
+<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
+<span class='fu'>me_construct</span>(<span class='kw'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(random_col = <span class='fl'>0.3</span>, validity = <span class='fl'>0.2</span>))
 }
 
 <span class='co'># Currently only quality, reliability and validity are allowed.</span></div></pre>
@@ -246,7 +256,7 @@ which uses standard evaluation.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>

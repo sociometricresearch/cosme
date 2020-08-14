@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Adjust a correlation matrix for Common Method Variance (CMV) — me_cmv_cor" />
-<meta property="og:description" content="me_cmv_cor accepts an medesign object specified in
+<meta property="og:description" content="me_cmv_cor accepts an medesign object created by
 medesign and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
 from me_data. Optionally, you can supply the CMV coefficients
@@ -130,14 +130,14 @@ manually in the argument cmv." />
     </div>
 
     <div class="ref-description">
-    <p><code>me_cmv_cor</code> accepts an <code>medesign</code> object specified in
+    <p><code>me_cmv_cor</code> accepts an <code>medesign</code> object created by
 <code><a href='medesign.html'>medesign</a></code> and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
 from <code>me_data</code>. Optionally, you can supply the CMV coefficients
 manually in the argument <code>cmv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_cmv_cor</span>(<span class='no'>.medesign</span>)</pre>
+    <pre class="usage"><span class='fu'>me_cmv_cor</span>(<span class='kw'>.medesign</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,7 +150,9 @@ manually in the argument <code>cmv</code>.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The common-method-variance corrected correlation.</p>
+    <p>The common-method-variance corrected correlation. It is a correlation
+data frame but some correlation coefficients are adjusted for their shared
+common method variance.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code>link{medesign}</code> and <code><a href='me_cmv_cov.html'>me_cmv_cov</a></code> for the same
@@ -158,40 +160,78 @@ adjustment but for a covariance matrix.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span>(<span class='fl'>2131</span>)
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>tibble</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>ess7es</span>)
 
-<span class='no'>original_df</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span>(<span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fl'>100</span>, <span class='kw'>sd</span> <span class='kw'>=</span> <span class='fl'>50</span>), <span class='kw'>nrow</span> <span class='kw'>=</span> <span class='fl'>20</span>))
+<span class='kw'>.data</span> <span class='op'>&lt;-</span> <span class='kw'>ess7es</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>]
 
-<span class='co'># Toy quality dataset</span>
-<span class='no'>me_df</span> <span class='kw'>&lt;-</span>
- <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(<span class='kw'>question</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"V"</span>, <span class='fl'>1</span>:<span class='fl'>5</span>),
- <span class='kw'>reliability</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.6</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span>),
- <span class='kw'>validity</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.79</span>, <span class='fl'>0.9</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span>),
- <span class='kw'>quality</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span>))
+<span class='co'># These three variables share a common method</span>
+<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span> <span class='st'>"~ trstplt + trstprl + trstprt"</span>
 
-<span class='co'># Define mdesign object</span>
-<span class='no'>m_obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='st'>"~ V4 + V5"</span>, <span class='no'>original_df</span>, <span class='no'>me_df</span>)
+<span class='co'># Data from sqp</span>
+<span class='kw'>me_data</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
+    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span>),
+    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span>),
+    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span>)
+  )
 
-<span class='co'># Original correlation matrix</span>
-<span class='fu'><a href='me_correlate.html'>me_correlate</a></span>(<span class='no'>original_df</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
-#&gt;   rowname     V1      V2     V3      V4      V5
-#&gt;   &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 V1      1       0.0646  0.250  0.172   0.0785
-#&gt; 2 V2      0.0646  1       0.390 -0.132   0.256 
-#&gt; 3 V3      0.250   0.390   1     -0.440  -0.195 
-#&gt; 4 V4      0.172  -0.132  -0.440  1      -0.0578
-#&gt; 5 V5      0.0785  0.256  -0.195 -0.0578  1     </div><div class='input'>
-<span class='co'># Coefficient of correlation changes</span>
-<span class='co'># when adjusting for common method variance</span>
-<span class='fu'>me_cmv_cor</span>(<span class='no'>m_obj</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
-#&gt;   rowname    V1     V2     V3     V4     V5
-#&gt;   &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
-#&gt; 1 V1      1      0.264  0.791  0.497  0.185
-#&gt; 2 V2      0.264  1      1.01  -0.311  0.492
-#&gt; 3 V3      0.791  1.01   1     -0.803 -0.291
-#&gt; 4 V4      0.497 -0.311 -0.803  1     -0.283
-#&gt; 5 V5      0.185  0.492 -0.291 -0.283  1    </div><div class='input'>
+<span class='kw'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='kw'>me_syntax</span>, <span class='kw'>.data</span>, <span class='kw'>me_data</span>)
+
+<span class='co'># Correlations adjusted for CMV</span>
+<span class='fu'>me_cmv_cor</span>(<span class='kw'>mdes</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 4
+#&gt;   rowname trstprl trstplt trstprt
+#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+#&gt; 1 trstprl   1       0.690   0.630
+#&gt; 2 trstplt   0.690   1       0.892
+#&gt; 3 trstprt   0.630   0.892   1    </div><div class='input'>
+<span class='co'># Original correlation</span>
+<span class='fu'><a href='me_correlate.html'>me_correlate</a></span>(<span class='kw'>.data</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 4
+#&gt;   rowname trstprl trstplt trstprt
+#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+#&gt; 1 trstprl   1       0.649   0.598
+#&gt; 2 trstplt   0.649   1       0.842
+#&gt; 3 trstprt   0.598   0.842   1    </div><div class='input'>
+<span class='co'># More elaborate with two pairs of variables</span>
+<span class='co'># sharing common methods</span>
+
+<span class='co'># Each pair of variables share a common method.</span>
+<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+ <span class='st'>"~ trstplt + trstprl + trstprt
+  ~ stfedu + stfhlth"</span> + trstprt
+  ~ stfedu + stfhlth"
+
+<span class='kw'>me_data2</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
+    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
+    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.870057469366248</span>, <span class='fl'>0.871779788708135</span>),
+    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.915423399307664</span>, <span class='fl'>0.893308457365092</span>),
+    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.796868872525461</span>, <span class='fl'>0.779102047231298</span>)
+  )
+
+<span class='kw'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='kw'>me_data</span>, <span class='kw'>me_data2</span>)
+
+<span class='kw'>.data</span> <span class='op'>&lt;-</span> <span class='kw'>ess7es</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>]
+<span class='kw'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='kw'>me_syntax</span>, <span class='kw'>.data</span>, <span class='kw'>me_data</span>)
+
+<span class='co'># Correlations adjusted for CMV</span>
+<span class='fu'>me_cmv_cor</span>(<span class='kw'>mdes</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
+#&gt;   rowname trstprl trstplt trstprt stfedu stfhlth
+#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+#&gt; 1 trstprl   1       0.693   0.629  0.392   0.380
+#&gt; 2 trstplt   0.693   1       0.889  0.392   0.413
+#&gt; 3 trstprt   0.629   0.889   1      0.351   0.332
+#&gt; 4 stfedu    0.392   0.392   0.351  1       0.616
+#&gt; 5 stfhlth   0.380   0.413   0.332  0.616   1    </div><div class='input'>
+<span class='co'># Original correlations</span>
+<span class='fu'><a href='me_correlate.html'>me_correlate</a></span>(<span class='kw'>.data</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
+#&gt;   rowname trstprl trstplt trstprt stfedu stfhlth
+#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+#&gt; 1 trstprl   1       0.651   0.598  0.348   0.335
+#&gt; 2 trstplt   0.651   1       0.839  0.352   0.369
+#&gt; 3 trstprt   0.598   0.839   1      0.316   0.297
+#&gt; 4 stfedu    0.348   0.352   0.316  1       0.620
+#&gt; 5 stfhlth   0.335   0.369   0.297  0.620   1    </div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -208,7 +248,7 @@ adjustment but for a covariance matrix.</p></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
 </div>
 
       </footer>
