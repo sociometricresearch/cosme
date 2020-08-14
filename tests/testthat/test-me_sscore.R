@@ -213,15 +213,16 @@ test_that("me_sscore returns the correct quality and method effect of a sscore",
   selected_vars <- c("trstprl", "trstplt", "trstprt")
   .data <- ess7es
 
-  quality <-
+  # Data from sqp
+  me_data <-
     data.frame(
       question = c("trstprl", "trstplt", "trstprt"),
-      reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-      validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-      quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+      reliability = c(0.812, 0.852, 0.858),
+      validity = c(0.959, 0.965, 0.956),
+      quality = c(0.779, 0.822, 0.821)
     )
 
-   score <- me_sscore(quality[quality$question %in% selected_vars, ],
+   score <- me_sscore(me_data[me_data$question %in% selected_vars, ],
                       .data,
                       new_name = "s1",
                       trstprl, trstplt, trstprt,
@@ -231,16 +232,16 @@ test_that("me_sscore returns the correct quality and method effect of a sscore",
   expect_equal(score$method_eff, 0.04215, tolerance = 0.0001)
 
   # State services example
-  quality <-
+  me_data <-
     data.frame(
       question = c("stfedu", "stfhlth"),
-      reliability = c(0.870057469366248, 0.871779788708135),
-      validity = c(0.915423399307664, 0.893308457365092),
-      quality = c(0.796868872525461, 0.779102047231298)
+      reliability = c(0.757, 0.760),
+      validity = c(0.838, 0.798),
+      quality = c(0.635, 0.607)
     )
 
   selected_vars <- c("stfedu", "stfhlth")
-  score <- me_sscore(quality,
+  score <- me_sscore(me_data,
                      .data,
                      new_name = "s1",
                      stfedu, stfhlth,

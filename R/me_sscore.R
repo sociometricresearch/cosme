@@ -45,9 +45,9 @@
 #' me_data <-
 #'   data.frame(
 #'     question = c("trstprl", "trstplt", "trstprt"),
-#'     reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-#'     validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-#'     quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943)
+#'     reliability = c(0.812, 0.852, 0.858),
+#'     validity = c(0.959, 0.965, 0.956),
+#'     quality = c(0.779, 0.822, 0.821)
 #'   )
 #'
 #' selected_vars <- c("trstprl", "trstplt", "trstprt")
@@ -63,9 +63,9 @@
 #' me_data <-
 #'   data.frame(
 #'     question = c("stfedu", "stfhlth"),
-#'     reliability = c(0.870057469366248, 0.871779788708135),
-#'     validity = c(0.915423399307664, 0.893308457365092),
-#'     quality = c(0.796868872525461, 0.779102047231298)
+#'     reliability = c(0.757, 0.760),
+#'     validity = c(0.838, 0.798),
+#'     quality = c(0.635, 0.607)
 #'   )
 #'
 #' score <- me_sscore(me_data,
@@ -92,11 +92,24 @@ me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
 
 #' @rdname me_sscore
 #' @export
-me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = TRUE) {
+me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
+                       .drop = TRUE) {
+
   # Check me data has correct class and formats
   me_data <- as_me(me_data)
 
-  # Check all variables present in .data
+  # If method_eff is not present, we assume it DOESN'T come from
+  # adapted_sscore and medesign and thus we treat as coming
+  # from sqpr. This means we need to calculate the sqrt to get the
+  # method_eff.
+  if (!"method_eff" %in% names(me_data)) {
+    # Get square root of validity, quality and reliability
+    me_data[-1] <- lapply(me_data[-1], sqrt)
+    # method effect
+    me_data$method_eff <- with(me_data, reliability * sqrt(1 - validity^2))
+  }
+
+                                        # Check all variables present in .data
   vars_not_matched <- !vars_names %in% names(.data)
   if (any(vars_not_matched)) {
     stop("One or more variables are not present in `.data`: ",
@@ -104,7 +117,7 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
          call. = FALSE)
   }
 
-  # Check all variables present in me_data
+                                        # Check all variables present in me_data
   vars_not_matched <- !vars_names %in% me_data[[1]]
   if (any(vars_not_matched)) {
     stop("One or more variables are not present in `me_data`: ",
@@ -114,21 +127,18 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
 
   the_vars <- .data[vars_names]
 
-  # Check all variables are numeric and there are at least two columns in the .data data
+                                        # Check all variables are numeric and there are at least two columns in the
+                                        # .data
   if (!all(vapply(the_vars, is.numeric, FUN.VALUE = logical(1)))) {
-    stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `.data`")
+    stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `.data`") # nolintr
   }
 
   if (ncol(the_vars) < 2) stop("`.data` must have at least two columns")
 
-  # Select the rows with only the selected variales
-  # for the sumscore
+                                        # Select the rows with only the selected variales
+                                        # for the sumscore
   rows_to_pick <- me_data[[1]] %in% vars_names
   cols_sel <- c(me_env$me_question, me_env$me_columns, "method_eff")
-
-  if (!"method_eff" %in% names(me_data)) {
-    me_data$method_eff <- with(me_data, reliability * sqrt(1 - validity^2))
-  }
 
   me_scores <- me_data[rows_to_pick, cols_sel]
 
@@ -148,36 +158,37 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
 
   additional_rows <- generic_me(new_name, new_estimate)
 
-  # Bind the unselected questions with the new sumscore
+                                        # Bind the unselected questions with the new sumscore
   if (!.drop) {
     rows_to_pick <- rep(TRUE, length(rows_to_pick))
   } else {
     rows_to_pick <- !rows_to_pick
   }
 
-  # The only purpose of as_tibble here is to remove the class `me`
-  # so that bind_rows can work well. `as_me` converts it to me
-  # in the end, so it doesn't matter.
+                                        # The only purpose of as_tibble here is to remove the class `me`
+                                        # so that bind_rows can work well. `as_me` converts it to me
+                                        # in the end, so it doesn't matter.
   combined_matrix <- dplyr::bind_rows(dplyr::as_tibble(me_data[rows_to_pick, ]),
                                       dplyr::as_tibble(additional_rows))
-  correct_order <- c("question", me_env$me_columns)
-  new_order <- combined_matrix[c(correct_order, setdiff(names(combined_matrix), correct_order))]
+  correct_order <- c("question", me_env$me_columns, "method_eff")
+  col_ord <- c(correct_order, setdiff(names(combined_matrix), correct_order))
+  new_order <- combined_matrix[col_ord]
 
   final_data <- as_me(new_order)
   final_data
 }
 
-# This is not supposed to be used in isolation.
-# Rather with measurement quality as a wrapper
-# because it checks all of the arguments are in
-# the correct format, etc..
+                                        # This is not supposed to be used in isolation.
+                                        # Rather with measurement quality as a wrapper
+                                        # because it checks all of the arguments are in
+                                        # the correct format, etc..
 estimate_sscore <- function(me_scores, .data, new_name, wt) {
   sscore <- .data[[new_name]]
 
-  # If there are two variables, the number of combinations are
-  # is one (so just one weight value). If there are three variables
-  # the number of combinations are three and we need three
-  # weight values, and so on..
+                                        # If there are two variables, the number of combinations are
+                                        # is one (so just one weight value). If there are three variables
+                                        # the number of combinations are three and we need three
+                                        # weight values, and so on..
   num_combn <- utils::combn(seq_len(nrow(me_scores)), 2, simplify = FALSE)
   if (is.null(wt)) wt <- rep(1, length(num_combn))
 
@@ -228,18 +239,18 @@ estimate_sscore <- function(me_scores, .data, new_name, wt) {
   )
 }
 
-# For an explanation of this see combn_multiplication
+                                        # For an explanation of this see combn_multiplication
 cov_both <- function(combinations, r_coef, method_e) {
-  # This formula is not complicated. It's simply the product of
-  # the standard deviation of the data, the r_coef and the
-  # method effect between all combination of questions.
+                                        # This formula is not complicated. It's simply the product of
+                                        # the standard deviation of the data, the r_coef and the
+                                        # method effect between all combination of questions.
   cov_formula <- function(one, two, r_coef, method_e) {
     (r_coef[one] * method_e[one]) * (r_coef[two] * method_e[two])
   }
 
-  # Here I apply the formula to all combinations. combinations
-  # must be a list where each slot is of length 2 with a pair
-  # combination. The whole list must contain all combinations
+                                        # Here I apply the formula to all combinations. combinations
+                                        # must be a list where each slot is of length 2 with a pair
+                                        # combination. The whole list must contain all combinations
   result <- vapply(combinations, function(index) {
     index_one <- index[1]
     index_two <- index[2]

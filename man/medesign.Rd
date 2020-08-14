@@ -95,9 +95,9 @@ me_syntax <-
 me_data2 <-
   data.frame(
     question = c("stfedu", "stfhlth"),
-    reliability = c(0.870057469366248, 0.871779788708135),
-    validity = c(0.915423399307664, 0.893308457365092),
-    quality = c(0.796868872525461, 0.779102047231298)
+    reliability = c(0.757, 0.760),
+    validity = c(0.838, 0.798),
+    quality = c(0.635, 0.607)
   )
 
 me_data <- rbind(me_data, me_data2)

@@ -111,7 +111,7 @@ test_cor_cov <- function(fun, fun_str) {
     model <- "~ V3 + V4 + V5"
     shuffled_des <- medesign(model, original_df[c(2, 5, 4, 3, 1)], me_df)
     original_des <- medesign(model, original_df, me_df)
-    
+
     cmv_shuffled <- fun(shuffled_des)
     cmv_original <- fun(original_des)
 
@@ -238,7 +238,7 @@ test_input_errors <- function(fun, fun_str) {
 test_input_errors(me_cmv_cor, "me_cmv_cor")
 test_input_errors(me_cmv_cov, "me_cmv_cov")
 
-test_that("me_cmv_cor corrects for CMV between simple concepts correctly", { #nolintr
+test_that("me_cmv_cor corrects for CMV between simple concepts correctly - political trust", { #nolintr
 
   data(ess7es)
   .data <- ess7es[c("trstprl", "trstplt", "trstprt", "agea")]
@@ -298,7 +298,7 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly", { #no
       rowname = c("trstprl", "trstplt", "trstprt"),
       trstprl = c(0.8826, 0.6173, 0.563),
       trstplt = c(0.6173, 0.9066, 0.8086),
-      trstprt = c(0.563, 0.8086, 0.9061)
+      trstprt = c(0.5630, 0.8086, 0.9061)
     )
 
   # We are checking up to three digits. They all match. Don't worry
@@ -308,122 +308,284 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly", { #no
   expect_equal(res1, correct_res, tol = 0.0000001)
 })
 
-## selected_vars1 <- c("polintr", "ppltrst")
-## selected_vars2 <- c("trstprl", "trstplt", "trstprt")
-## selected_vars3 <- c("stfedu", "stfhlth")
-## selected_vars4 <- "agea"
-## wts <- c("pspwght", "pweight")
-## all_vars <- c(selected_vars1, selected_vars2, selected_vars3, selected_vars4, wts)
-## data(ess7es)
+test_that("me_cmv_cor corrects for CMV between simple concepts correctly - state services", { #nolintr
 
-## ## TODO
-## ## Using sqpr
-## library(sqpr)
-## sqp_login()
+  data(ess7es)
+  .data <- ess7es[c("stfedu", "stfhlth", "agea")]
 
-## me_df <-
-##   get_sqp(
-##     study = "ESS Round 7",
-##     question_name = c(selected_vars1, selected_vars2, selected_vars3),
-##     country = "ES",
-##     lang = "spa"
-##   )
+  me_data <-
+    data.frame(
+      question = c("stfedu", "stfhlth"),
+      reliability = c(0.757, 0.760),
+      validity = c(0.838, 0.798),
+      quality = c(0.635, 0.607)
+    )
 
-## me_df <- me_df[order(me_df$question), ]
+  # Define model and me_data
+  model_syntax <- "~ stfedu + stfhlth"
+  .medesign <- medesign(model_syntax, .data, me_data)
 
-## test_that("me_cmv_cor returns correct calculation after cov2cor - political trust",  {
-##   ############################# Political trust example #########################
-##   ###############################################################################
+  # This is the corrected CMV correlation with quality and CMV
+  tmp_corrected_cor <- me_cmv_cor(.medesign)
 
-##   ## TODO: Leaving this here for when you decide whether you want
-##   ## to include the weights arg in me_correlate/me_covariance
-##   ## Apply weighted correlation with pspwght
-##   # wt_cor_cv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)
-##   # original_corr_weighted <- wt_cor_cv$cor
-##   # original_corr <- cor(ess7es3var)
-##   # diag(original_corr) <- me_df$quality
-##   # diag(original_corr_weighted) <- me_df$quality
+  # Convert back to pre cov2cor
+  cor_variances <- c(0.7968689, 0.7791020, 1)
+  d <- sqrt(cor_variances)
 
-##   sel_vars <- c(selected_vars2, "polintr")
-##   .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
-##   m_obj <- medesign("~ trstprl + trstplt + trstprt", .data, me_df)
-##   tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
-  
-##   correct_df <- structure(list(rowname = c("trstprl", "trstplt", "trstprt", "polintr"
-##                                            ), trstprl = c(1, 0.773478172548603, 0.707083130161171, -0.217732553457805
-##                                                           ), trstplt = c(0.773478172548603, 1, 0.984173394837744, -0.248145950309348
-##                                                                          ), trstprt = c(0.707083130161171, 0.984173394837744, 1, -0.29670248109113
-##                                                                                         ), polintr = c(-0.217732553457805, -0.248145950309348, -0.29670248109113, 
-##                                                                                                        1)), row.names = c(NA, -4L), class = "data.frame")
+  opposite_cov2cor <-
+    as.data.frame(
+      outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+    )
 
-##   # Results are matched after cov2cor
-##   expect_equivalent(tmp_corrected_cor, correct_df)
+  opposite_cov2cor$rowname <- tmp_corrected_cor$rowname
+  order_cols <- c("rowname", setdiff(names(opposite_cov2cor), "rowname"))
+  opposite_cov2cor <- opposite_cov2cor[order_cols]
 
-##   # Results are matched before cov2cor. This code is convert
-##   # back the correlation to the covariance. We need to supply
-##   # the variances in the diagonal manually here.
-##   cor_variances <- c(0.779, 0.822, 0.821, 0.601)
-##   d <- sqrt(cor_variances)
-##   opposite_cov2cor <- outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+  # Make sure that all variables **not** used in the me correction
+  # are the same between the corrected CMV and original cor without correction
+  sel_rows <- "agea"
+  res1 <-
+    as.data.frame(
+      opposite_cov2cor[opposite_cov2cor$rowname %in% sel_rows, ],
+      row.names = 1L
+    )
 
-##   original_cov <- structure(c(0.779, 0.618945913734983, 0.565471580756803, -0.14898046677033, 
-##                               0.618945913734983, 0.822, 0.808498294106698, -0.174413596180498, 
-##                               0.565471580756803, 0.808498294106698, 0.821, -0.208415489422785, 
-##                               -0.14898046677033, -0.174413596180498, -0.208415489422785, 0.601
-##                               ), .Dim = c(4L, 4L), .Dimnames = list(NULL, c("trstprl", "trstplt", 
-##                                                                             "trstprt", "polintr")))
+  res2 <-
+    as.data.frame(
+      .medesign$corr[.medesign$corr$rowname %in% sel_rows, ]
+    )
 
-##   # Opposite cov2cor contains the actual values from Wiebke's
-##   # Excel file. If you want to always check whether the estimates
-##   # match precisely, this is the test to check.
-##   expect_equal(opposite_cov2cor, original_cov, tol = 0.00001)
-## })
+  expect_equal(res1, res2, tol = 0.000001)
 
-## test_that("me_cmv_cor returns correct calculation after cov2cor - state service",  {
-##   ############################# State services examples #########################
-##   ###############################################################################
+  # Make sure that all variables which are supposed to be corrected for CMV
+  # are corrected
+  cmv_vars <- c("stfedu", "stfhlth")
+  row_order <- match(cmv_vars, opposite_cov2cor$rowname)
+  res1 <- opposite_cov2cor[row_order, c("rowname", cmv_vars)]
+  res1[2:3] <- lapply(res1[2:3], round, 4)
 
-##   ## TODO: Leaving this here for when you decide whether you want
-##   ## to include the weights arg in me_correlate/me_covariance
-##   ## Apply weighted correlation with pspwght
-##   # wt_cor_cv <- cov.wt(ess7es3var, wt = ess7es$pspwght, cor = TRUE)
-##   # original_corr_weighted <- wt_cor_cv$cor
-##   # original_corr <- cor(ess7es3var)
-##   # diag(original_corr) <- me_df$quality
-##   # diag(original_corr_weighted) <- me_df$quality
+  correct_res <-
+    data.frame(
+      rowname = c("stfedu", "stfhlth"),
+      stfedu = c(0.7969, 0.4817),
+      stfhlth = c(0.4817, 0.7791)
+    )
 
-##   sel_vars <- c(selected_vars3, "trstplt")
-##   .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
-##   m_obj <- medesign("~ stfedu + stfhlth", .data, me_df)
-##   tmp_corrected_cor <- as.data.frame(me_cmv_cor(m_obj))
-  
-##   correct_df <- structure(list(rowname = c("stfedu", "stfhlth", "trstplt"), stfedu = c(1, 
-##                                                                                        0.772686712915193, 0.467064171958538), stfhlth = c(0.772686712915193, 
-##                                                                                                                                           1, 0.501378224441568), trstplt = c(0.467064171958538, 0.501378224441568, 
-##                                                                                                                                                                              1)), row.names = c(NA, -3L), class = "data.frame")
+  # We are checking up to three digits. They all match. Don't worry
+  # if they don't match exactly after the three digits.
+  # This check is alright with the pre cov2cor results. They
+  # match the Excel calculations from Wiebke exactly.
+  expect_equal(res1, correct_res, tol = 0.0000001)
+})
 
-##   # Results are matched after cov2cor
-##   expect_equivalent(tmp_corrected_cor, correct_df)
+test_that("me_cmv_cor corrects for CMV between simple and complex concept correctly", { #nolintr
 
-##   # Results are matched before cov2cor. This code is convert
-##   # back the correlation to the covariance. We need to supply
-##   # the variances in the diagonal manually here.
-##   cor_variances <- c(0.635, 0.607, 0.822)
-##   d <- sqrt(cor_variances)
-##   opposite_cov2cor <- outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+  # ESS data
+  data(ess7es)
+  vars_ch <- c("trstprl", "trstplt", "trstprt", "stfedu", "stfhlth", "agea")
+  .data <- ess7es[vars_ch]
 
-##   original_cov <- structure(c(0.635, 0.479716495545129, 0.337442147028845, 0.479716495545129, 
-##                               0.607, 0.354156912063628, 0.337442147028845, 0.354156912063628, 
-##                               0.822), .Dim = c(3L, 3L), .Dimnames = list(NULL, c("stfedu", 
-##                                                                                  "stfhlth", "trstplt")))
+  # Define measurement error relationship
+  model_syntax <-
+    "std(stfsscore) = stfedu + stfhlth;
+     ~ trstprl + trstplt + trstprt + stfsscore"
 
-##   # Opposite cov2cor contains the actual values from Wiebke's
-##   # Excel file. If you want to always check whether the estimates
-##   # match precisely, this is the test to check.
-##   expect_equal(opposite_cov2cor, original_cov, tol = 0.00001)
-## })
+  # data from sqp
+  me_data <-
+    data.frame(
+      question = c("trstprl", "trstplt", "trstprt", "stfedu", "stfhlth"),
+      reliability = c(0.812, 0.852, 0.858, 0.757, 0.76),
+      validity = c(0.959, 0.965, 0.956, 0.838, 0.798),
+      quality = c(0.779, 0.822, 0.821, 0.635, 0.607)
+    )
 
+  # Define the measurement error object
+  .medesign <- medesign(model_syntax, .data, me_data)
 
+  # This is the correlation with quality and CMV correction
+  # However, this is **after** cov2cor.
+  tmp_corrected_cor <- me_cmv_cor(.medesign)
+  tmp_corrected_cor
+
+  # Let's convert back to pre cov2cor to match Wiebke's results
+  # exactly.
+  cor_variances <- c(0.8826098, 0.9066422, 0.9060905,
+                     0.7968689, 0.7791020, 1,
+                     0.6841067)
+  d <- sqrt(cor_variances)
+
+  opposite_cov2cor <-
+    as.data.frame(
+      outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+    )
+
+  opposite_cov2cor$rowname <- tmp_corrected_cor$rowname
+  order_cols <- c("rowname", setdiff(names(opposite_cov2cor), "rowname"))
+  opposite_cov2cor <- opposite_cov2cor[order_cols]
+
+  # Make sure that all variables **not** used in the me correction
+  # are the same between the corrected CMV and original cor without correction
+  sel_rows <- "agea"
+  sel_cols <- c("rowname", "stfedu", "stfhlth", "agea")
+  res1 <-
+    as.data.frame(
+      opposite_cov2cor[opposite_cov2cor$rowname %in% sel_rows, sel_cols],
+      row.names = 1L
+    )
+
+  res2 <-
+    as.data.frame(
+      .medesign$corr[.medesign$corr$rowname %in% sel_rows, sel_cols]
+    )
+
+  expect_equal(res1, res2, tol = 0.000001)
+
+  # Make sure that all variables which are supposed to be corrected for CMV are
+  # corrected
+  cmv_vars <- c("trstprl", "trstplt", "trstprt", "stfsscore")
+  row_order <- match(cmv_vars, opposite_cov2cor$rowname)
+  res1 <- opposite_cov2cor[row_order, c("rowname", cmv_vars)]
+  res1[2:4] <- lapply(res1[2:4], round, 4)
+  row.names(res1) <- NULL
+
+  correct_res <-
+    data.frame(
+      rowname = c("trstprl", "trstplt", "trstprt", "stfsscore"),
+      trstprl = c(0.8826, 0.6197, 0.5628, 0.3484),
+      trstplt = c(0.6197, 0.9066, 0.8055, 0.3716),
+      trstprt = c(0.5628, 0.8055, 0.9061, 0.3072),
+      stfsscore = c(0.348422757353293, 0.371591861806547, 
+                    0.307183448085645, 0.6841067)
+    )
+
+  # We are checking up to three digits. They all match. Don't worry
+  # if they don't match exactly after the three digits.
+  # This check is alright with the pre cov2cor results. They
+  # match the Excel calculations from Wiebke exactly.
+  expect_equal(res1, correct_res, tol = 0.0000001)
+})
+
+test_that("me_cmv_cor corrects for CMV between complex and complex concept correctly", { #nolintr
+
+  # ESS data
+  data(ess7es)
+  vars_ch <- c("trstprl", "trstplt", "trstprt", "stfedu", "stfhlth", "agea")
+  .data <- ess7es[vars_ch]
+
+  # Define measurement error relationship
+  model_syntax <-
+    "std(stfsscore) = stfedu + stfhlth;
+     std(trstsscore) = trstprl + trstplt + trstprt
+     ~ stfsscore + trstsscore"
+
+  # data from sqp
+  me_data <-
+    data.frame(
+      question = c("trstprl", "trstplt", "trstprt", "stfedu", "stfhlth"),
+      reliability = c(0.812, 0.852, 0.858, 0.757, 0.76),
+      validity = c(0.959, 0.965, 0.956, 0.838, 0.798),
+      quality = c(0.779, 0.822, 0.821, 0.635, 0.607)
+    )
+
+  # Define the measurement error object
+  .medesign <- medesign(model_syntax, .data, me_data)
+
+  # This is the correlation with quality and CMV correction
+  # However, this is **after** cov2cor.
+  tmp_corrected_cor <- me_cmv_cor(.medesign)
+  tmp_corrected_cor
+
+  # Let's convert back to pre cov2cor to match Wiebke's results
+  # exactly.
+  cor_variances <- c(0.8826098, 0.9066422, 0.9060905, 0.7968689, 0.7791020, 1, 0.6841067, 0.8936418)
+  d <- sqrt(cor_variances)
+
+  opposite_cov2cor <-
+    as.data.frame(
+      outer(d, d) * as.matrix(tmp_corrected_cor[-1])
+    )
+
+  opposite_cov2cor$rowname <- tmp_corrected_cor$rowname
+  order_cols <- c("rowname", setdiff(names(opposite_cov2cor), "rowname"))
+  opposite_cov2cor <- opposite_cov2cor[order_cols]
+
+  # Make sure that all variables **not** used in the me correction
+  # are the same between the corrected CMV and original cor without correction
+  sel_rows <- "agea"
+  sel_cols <- c("rowname", "stfedu", "stfhlth", "agea")
+  res1 <-
+    as.data.frame(
+      opposite_cov2cor[opposite_cov2cor$rowname %in% sel_rows, sel_cols],
+      row.names = 1L
+    )
+
+  res2 <-
+    as.data.frame(
+      .medesign$corr[.medesign$corr$rowname %in% sel_rows, sel_cols]
+    )
+
+  expect_equal(res1, res2, tol = 0.000001)
+
+  # Make sure that all variables which are supposed to be corrected for CMV are
+  # corrected
+  cmv_vars <- c("stfsscore", "trstsscore")
+  row_order <- match(cmv_vars, opposite_cov2cor$rowname)
+  res1 <- opposite_cov2cor[row_order, c("rowname", cmv_vars)]
+  res1[2:3] <- lapply(res1[2:3], round, 4)
+  row.names(res1) <- NULL
+
+  correct_res <-
+    data.frame(
+      rowname = c("stfsscore", "trstsscore"),
+      stfsscore = c(0.6841, 0.4113),
+      trstsscore = c(0.4113, 0.8936)
+    )
+
+  # We are checking up to three digits. They all match. Don't worry
+  # if they don't match exactly after the three digits.
+  # This check is alright with the pre cov2cor results. They
+  # match the Excel calculations from Wiebke exactly.
+  expect_equal(res1, correct_res, tol = 0.0000001)
+})
+
+test_that("medesign calculates quality of sumscore correctly for cor and cov", {
+
+  data(ess7es)
+  var_names <- c("polintr", "ppltrst", "stfedu",
+                 "stfhlth", "trstplt", "trstprl",
+                 "trstprt")
+  me_df <-
+    data.frame(
+      question = var_names,
+      reliability = c(0.624, 0.737, 0.757, 0.76, 0.852, 0.812, 0.858),
+      validity = c(0.964, 0.952, 0.838, 0.798, 0.965, 0.959, 0.956),
+      quality = c(0.601, 0.702, 0.635, 0.607, 0.822, 0.779, 0.821)
+    )
+
+  selected_vars1 <- c("polintr", "ppltrst")
+  selected_vars2 <- c("trstprl", "trstplt", "trstprt")
+  selected_vars3 <- c("stfedu", "stfhlth")
+
+  .data <- ess7es[c(selected_vars1, selected_vars2)]
+
+  m_obj <- medesign("std(s1) = trstprl + trstplt + trstprt",
+                    .data,
+                    me_df)
+
+  expect_equal(m_obj$corr$s1[6], 0.8936, tol = 0.001)
+  expect_equal(m_obj$covv$s1[6], 6.3999, tol = 0.001)
+
+  .data <- ess7es[c(selected_vars1, selected_vars3)]
+
+  m_obj <- medesign("std(s1) = stfedu + stfhlth",
+                    .data,
+                    me_df)
+
+  expect_equal(m_obj$corr$s1[5], 0.6841, tol = 0.001)
+  expect_equal(m_obj$covv$s1[5], 2.2053, tol = 0.001)
+})
+
+# TODO: once you fix me_cmv_cov
 ## test_that("me_cmv_cov returns correct calculation", {
 
 ##   sel_vars <- c(selected_vars2, "trstplt")
@@ -447,26 +609,4 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly", { #no
 ##     )
 
 ##   expect_equivalent(tmp_corrected_cov, correct_df)
-## })
-
-## test_that("medesign calculates quality of sumscore correctly for cor and cov", {
-##   .data <- ess7es[complete.cases(ess7es[selected_vars2]),
-##                   c(selected_vars1, selected_vars2)]
-
-##   m_obj <- medesign("std(s1) = trstprl + trstplt + trstprt",
-##                     .data,
-##                     me_df)
-
-##   expect_equal(m_obj$corr$s1[6], 0.8914, tol = 0.001)
-##   expect_equal(m_obj$covv$s1[6], 6.3999, tol = 0.001)
-
-##   .data <- ess7es[complete.cases(ess7es[selected_vars3]),
-##                   c(selected_vars1, selected_vars3)]
-
-##   m_obj <- medesign("std(s1) = stfedu + stfhlth",
-##                     .data,
-##                     me_df)
-
-##   expect_equal(m_obj$corr$s1[5], 0.6811, tol = 0.001)
-##   expect_equal(m_obj$covv$s1[5], 2.205, tol = 0.001)
 ## })
