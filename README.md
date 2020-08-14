@@ -34,105 +34,103 @@ library(measurementfree)
 such as the `survey` package has a survey design object. You can define
 this measurement error design with three objects: your model design,
 your measurement error data and the data of the analysis. For a simple
-case, let’s assume that the columns `mpg`, `cyl` and `disp` for `mtcars`
-were measured with the same method (e.g. likert scale), then we could
-define the measurement error design object as this:
+case, let’s use the data from the European Social Survey already loaded
+with the package. The variables `trstplt`, `trstprl` and `trstprt` were
+asked with the same type of the question. In other words, they share a
+common method (for example, a likert type scale question). Sharing a
+common method allows us to correct for their common method variance. We
+could define the measurement error design object as this:
 
 ``` r
+# Data
+data(ess7es)
+ess_subset <- ess7es[1:3]
+
 # This is the model definition
-model_definition <- "~ mpg + cyl + disp"
+model_definition <- "~ trstplt + trstprl + trstprt"
 
 # The measurement error data
-me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl", "disp"),
-                        reliability = c(0.729, 0.815, 0.68),
-                        validity = c(0.951, 0.944, 0.79),
-                        quality = c(0.693, 0.77, 0.89)
-                      )
+me_data <-
+  data.frame(
+    question = c("trstprl", "trstplt", "trstprt"),
+    reliability = c(0.812, 0.852, 0.858),
+    validity = c(0.959, 0.965, 0.956),
+    quality = c(0.779, 0.822, 0.821)
+  )
 
 # Define your measurement error design
-me_obj <- medesign(model_definition, mtcars, me_data)
+me_obj <- medesign(model_definition, ess_subset, me_data)
 me_obj
 #> <Measurement error design>
 #> Parsed model:
-#>    ~ mpg + cyl + disp
+#>    ~ trstplt + trstprl + trstprt
 ```
 
-Once you have that object, we simply pass it to `me_cmv_cor` to adjust
-the correlation of `mpg`, `cyl`, and `cyl` for common method variance as
-well as their quality:
+This object describes your measurement error design. With this, we
+simply pass it to `me_cmv_cor` to adjust the correlation of `trstplt`,
+`trstprl` and `trstprt` for common method variance as well as their
+quality:
 
 ``` r
 me_cmv_cor(me_obj)
-#> # A tibble: 11 x 12
-#>    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs      am
-#>    <chr>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>   <dbl>
-#>  1 mpg      1     -1.04  -1.04  -0.851  0.747  -0.951  0.459   0.728  0.657 
-#>  2 cyl     -1.04   1      0.903  0.889 -0.747   0.835 -0.631  -0.866 -0.558 
-#>  3 disp    -1.04   0.903  1      0.814 -0.731   0.914 -0.447  -0.731 -0.609 
-#>  4 hp      -0.851  0.889  0.814  1     -0.449   0.659 -0.708  -0.723 -0.243 
-#>  5 drat     0.747 -0.747 -0.731 -0.449  1      -0.712  0.0912  0.440  0.713 
-#>  6 wt      -0.951  0.835  0.914  0.659 -0.712   1     -0.175  -0.555 -0.692 
-#>  7 qsec     0.459 -0.631 -0.447 -0.708  0.0912 -0.175  1       0.745 -0.230 
-#>  8 vs       0.728 -0.866 -0.731 -0.723  0.440  -0.555  0.745   1      0.168 
-#>  9 am       0.657 -0.558 -0.609 -0.243  0.713  -0.692 -0.230   0.168  1     
-#> 10 gear     0.526 -0.526 -0.572 -0.126  0.700  -0.583 -0.213   0.206  0.794 
-#> 11 carb    -0.604  0.563  0.407  0.750 -0.0908  0.428 -0.656  -0.570  0.0575
-#> # … with 2 more variables: gear <dbl>, carb <dbl>
+#> # A tibble: 3 x 4
+#>   rowname trstprl trstplt trstprt
+#>   <chr>     <dbl>   <dbl>   <dbl>
+#> 1 trstprl   1       0.690   0.630
+#> 2 trstplt   0.690   1       0.892
+#> 3 trstprt   0.630   0.892   1
 ```
 
 ## Another simple example
 
-For this example let’s assume that `mpg` and `cyl` were measured with
-the same method and `disp` and `drat` were measured with another method,
-then we can simply supply a new line to the model above and make sure
-that the variable has data on `me_data`:
+The previous example corrected only variables `trstplt`, `trstprl` and
+`trstprt`. What if we have more groups of variables that share a common
+method? Just keep adding them to the model syntax\! For example,
+`stfedu` and `stfhlth` also share a common method, let’s add them to the
+model syntax and make sure we have data on `me_data` for them:
 
 ``` r
+# Data
+data(ess7es)
+ess_subset <- ess7es[1:5]
+
 # This is the model definition
 model_definition <-
-  "~ mpg + cyl
-   ~ disp + drat"
+  "~ trstplt + trstprl + trstprt;
+   ~ stfedu + stfhlth"
 
-# The (fake) measurement error data
-me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl", "disp", "drat"),
-                        reliability = c(0.729, 0.815, 0.68, 0.69),
-                        validity = c(0.951, 0.944, 0.79, 0.89),
-                        quality = c(0.693, 0.77, 0.89, 0.93)
-                      )
+# The measurement error data
+me_data <-
+  data.frame(
+    question = c("trstprl", "trstplt", "trstprt", "stfedu", "stfhlth"),
+    reliability = c(0.812, 0.852, 0.858, 0.870, 0.871),
+    validity = c(0.959, 0.965, 0.956, 0.915, 0.893),
+    quality = c(0.779, 0.822, 0.821, 0.796, 0.779)
+  )
 
 # Define your measurement error design
-me_obj <- medesign(model_definition, mtcars, me_data)
-
+me_obj <- medesign(model_definition, ess_subset, me_data)
 me_obj
 #> <Measurement error design>
 #> Parsed model:
-#>    ~ mpg + cyl
-#>    ~ disp + drat
+#>    ~ trstplt + trstprl + trstprt
+#>    ~ stfedu + stfhlth
 ```
 
-Once you have that object, we simply pass it to `me_cmv_cor` to adjust
-the correlation of `mpg`, `cyl`, and `cyl` for common method variance as
+Once you have your measurement error design, we simply pass it to
+`me_cmv_cor` to adjust the correlation for common method variance as
 well as their quality:
 
 ``` r
 me_cmv_cor(me_obj)
-#> # A tibble: 11 x 12
-#>    rowname    mpg    cyl   disp     hp    drat     wt    qsec     vs      am
-#>    <chr>    <dbl>  <dbl>  <dbl>  <dbl>   <dbl>  <dbl>   <dbl>  <dbl>   <dbl>
-#>  1 mpg      1     -1.04  -0.956 -0.851  0.760  -0.951  0.459   0.728  0.657 
-#>  2 cyl     -1.04   1      0.991  0.889 -0.761   0.835 -0.631  -0.866 -0.558 
-#>  3 disp    -0.956  0.991  1      0.814 -0.849   0.914 -0.447  -0.731 -0.609 
-#>  4 hp      -0.851  0.889  0.814  1     -0.457   0.659 -0.708  -0.723 -0.243 
-#>  5 drat     0.760 -0.761 -0.849 -0.457  1      -0.725  0.0929  0.448  0.726 
-#>  6 wt      -0.951  0.835  0.914  0.659 -0.725   1     -0.175  -0.555 -0.692 
-#>  7 qsec     0.459 -0.631 -0.447 -0.708  0.0929 -0.175  1       0.745 -0.230 
-#>  8 vs       0.728 -0.866 -0.731 -0.723  0.448  -0.555  0.745   1      0.168 
-#>  9 am       0.657 -0.558 -0.609 -0.243  0.726  -0.692 -0.230   0.168  1     
-#> 10 gear     0.526 -0.526 -0.572 -0.126  0.712  -0.583 -0.213   0.206  0.794 
-#> 11 carb    -0.604  0.563  0.407  0.750 -0.0925  0.428 -0.656  -0.570  0.0575
-#> # … with 2 more variables: gear <dbl>, carb <dbl>
+#> # A tibble: 5 x 6
+#>   rowname trstprl trstplt trstprt stfedu stfhlth
+#>   <chr>     <dbl>   <dbl>   <dbl>  <dbl>   <dbl>
+#> 1 trstprl   1       0.693   0.629  0.392   0.380
+#> 2 trstplt   0.693   1       0.889  0.392   0.413
+#> 3 trstprt   0.629   0.889   1      0.351   0.332
+#> 4 stfedu    0.392   0.392   0.351  1       0.616
+#> 5 stfhlth   0.380   0.413   0.332  0.616   1
 ```
 
 Alternatively, you can use `me_cmv_cov` to adjust a covariance matrix

@@ -22,11 +22,8 @@ Dataframe is set as a default.}
 \item{operators}{permitted operators to define new lines}
 }
 \value{
-A dataframe with the parsed model extracted into different columns
+A data frame with the parsed model extracted into different columns
 }
 \description{
 Extract a model specification from the measurement error model
-}
-\author{
-Jorge
 }

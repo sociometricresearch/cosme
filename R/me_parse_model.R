@@ -4,8 +4,7 @@
 ##' Dataframe is set as a default.
 ##' @param debug_code a logical for whether debugging logs should be printed.
 ##' @param operators permitted operators to define new lines
-##' @return A dataframe with the parsed model extracted into different columns
-##' @author Jorge
+##' @return A data frame with the parsed model extracted into different columns
 me_parse_model <- function(model_syntax = " ",
                            as_list = FALSE,
                            debug_code = FALSE,

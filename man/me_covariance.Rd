@@ -54,13 +54,12 @@ tweaks.
 new_diagonal <- rnorm(ncol(mtcars))
 
 me_covariance(mtcars)
-
 me_covariance(mtcars, new_diagonal)
-
 me_covariance(mtcars, new_diagonal, method = "kendall")
 
 diagonal_wout_weight <- rnorm(ncol(mtcars) - 1)
 me_covariance(mtcars, diagonal_wout_weight, wt = mpg)
+
 }
 \seealso{
 \code{\link[stats]{cov}} for the workhorse behind the function and

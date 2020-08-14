@@ -1,12 +1,13 @@
 #' Manually bind new rows to an me data frame
 #'
-#' @param me_data a data frame of class \code{me} containing
-#' quality estimates from the variables specified in \code{...}.
+#' @param me_data a data frame of class \code{me}
+#' 
 #' @param question_name a character string or a bare unquoted name that will be
-#' used as the question name
-#' @param metrics a list containing new  metrics. Currently it only
-#' supports 'quality', 'reliability' and 'validity'. Can also specify one of the metrics
-#' and the remaining are set to NA by default
+#' used as the question name (not a column but a new question appended as row)
+#' 
+#' @param metrics a list containing new metrics. Currently it only
+#' supports 'quality', 'reliability' and 'validity'. Can also specify one of the
+#' metrics and the remaining are set to 0 by default
 #'
 #' @return \code{me_data} with a new row that contains the new question name
 #' and the metrics as columns. Metrics must match existing names from SQP data
@@ -30,17 +31,13 @@
 #' me_df <- structure(me_df, class = c(class(me_df), "me"))
 #'
 #' me_bind_metrics(me_df, new_question, list(quality = 0.7))
-#'
 #' me_bind_metrics(me_df, new_question, list(quality = 0.7, reliability = 0.2))
 #'
 #' # Specifying a wrong metric name results in error
-#'
 #'\dontrun{
-#'
 #' me_bind_metrics(me_df, new_question, list(wrong_metric = 0.7))
-#'
 #'}
-#'
+#' 
 #' # Currently only quality, reliability and validity are allowed.
 #'
 me_bind_metrics <- function(me_data, question_name, metrics) {

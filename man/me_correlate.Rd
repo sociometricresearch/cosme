@@ -54,9 +54,7 @@ tweaks.
 new_diagonal <- rnorm(ncol(mtcars))
 
 me_correlate(mtcars)
-
 me_correlate(mtcars, new_diagonal)
-
 me_correlate(mtcars, new_diagonal, method = "kendall")
 
 diagonal_wout_weight <- rnorm(ncol(mtcars) - 1)

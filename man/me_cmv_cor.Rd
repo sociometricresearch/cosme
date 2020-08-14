@@ -10,10 +10,12 @@ me_cmv_cor(.medesign)
 \item{.medesign}{An \code{medesign} object given by \code{\link{medesign}}}
 }
 \value{
-The common-method-variance corrected correlation.
+The common-method-variance corrected correlation. It is a correlation
+data frame but some correlation coefficients are adjusted for their shared
+common method variance.
 }
 \description{
-\code{me_cmv_cor} accepts an \code{medesign} object specified in
+\code{me_cmv_cor} accepts an \code{medesign} object created by
 \code{\link{medesign}} and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
 from \code{me_data}. Optionally, you can supply the CMV coefficients
@@ -21,27 +23,57 @@ manually in the argument \code{cmv}.
 }
 \examples{
 
-set.seed(2131)
-library(tibble)
+data(ess7es)
 
-original_df <- as.data.frame(matrix(rnorm(100, sd = 50), nrow = 20))
+.data <- ess7es[1:3]
 
-# Toy quality dataset
-me_df <-
- tibble(question = paste0("V", 1:5),
- reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
- validity = c(0.79, 0.9, 0.6, 0.7, 0.8),
- quality = c(0.2, 0.3, 0.5, 0.6, 0.9))
+# These three variables share a common method
+me_syntax <- "~ trstplt + trstprl + trstprt"
 
-# Define mdesign object
-m_obj <- medesign("~ V4 + V5", original_df, me_df)
+# Data from sqp
+me_data <-
+  data.frame(
+    question = c("trstprl", "trstplt", "trstprt"),
+    reliability = c(0.812, 0.852, 0.858),
+    validity = c(0.959, 0.965, 0.956),
+    quality = c(0.779, 0.822, 0.821)
+  )
 
-# Original correlation matrix
-me_correlate(original_df)
+mdes <- medesign(me_syntax, .data, me_data)
 
-# Coefficient of correlation changes
-# when adjusting for common method variance
-me_cmv_cor(m_obj)
+# Correlations adjusted for CMV
+me_cmv_cor(mdes)
+
+# Original correlation
+me_correlate(.data)
+
+# More elaborate with two pairs of variables
+# sharing common methods
+
+# Each pair of variables share a common method.
+me_syntax <-
+ "~ trstplt + trstprl + trstprt
+  ~ stfedu + stfhlth"
+
+me_data2 <-
+  data.frame(
+    question = c("stfedu", "stfhlth"),
+    reliability = c(0.870057469366248, 0.871779788708135),
+    validity = c(0.915423399307664, 0.893308457365092),
+    quality = c(0.796868872525461, 0.779102047231298)
+  )
+
+me_data <- rbind(me_data, me_data2)
+
+.data <- ess7es[1:5]
+mdes <- medesign(me_syntax, .data, me_data)
+
+# Correlations adjusted for CMV
+me_cmv_cor(mdes)
+
+# Original correlations
+me_correlate(.data)
+
 
 }
 \seealso{

@@ -1,6 +1,6 @@
 #' Adjust a correlation matrix for Common Method Variance (CMV)
 #'
-#' \code{me_cmv_cor} accepts an \code{medesign} object specified in
+#' \code{me_cmv_cor} accepts an \code{medesign} object created by
 #' \code{\link{medesign}} and adjusts the correlation coefficients of
 #' common method variables with the reliability and validity coefficients
 #' from \code{me_data}. Optionally, you can supply the CMV coefficients
@@ -8,7 +8,9 @@
 #'
 #' @param .medesign An \code{medesign} object given by \code{\link{medesign}}
 #'
-#' @return The common-method-variance corrected correlation.
+#' @return The common-method-variance corrected correlation. It is a correlation
+#' data frame but some correlation coefficients are adjusted for their shared
+#' common method variance.
 #'
 #' @export
 #'
@@ -17,27 +19,57 @@
 #'
 #' @examples
 #'
-#' set.seed(2131)
-#' library(tibble)
+#' data(ess7es)
 #'
-#' original_df <- as.data.frame(matrix(rnorm(100, sd = 50), nrow = 20))
+#' .data <- ess7es[1:3]
 #'
-#' # Toy quality dataset
-#' me_df <-
-#'  tibble(question = paste0("V", 1:5),
-#'  reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
-#'  validity = c(0.79, 0.9, 0.6, 0.7, 0.8),
-#'  quality = c(0.2, 0.3, 0.5, 0.6, 0.9))
+#' # These three variables share a common method
+#' me_syntax <- "~ trstplt + trstprl + trstprt"
 #'
-#' # Define mdesign object
-#' m_obj <- medesign("~ V4 + V5", original_df, me_df)
+#' # Data from sqp
+#' me_data <-
+#'   data.frame(
+#'     question = c("trstprl", "trstplt", "trstprt"),
+#'     reliability = c(0.812, 0.852, 0.858),
+#'     validity = c(0.959, 0.965, 0.956),
+#'     quality = c(0.779, 0.822, 0.821)
+#'   )
 #'
-#' # Original correlation matrix
-#' me_correlate(original_df)
+#' mdes <- medesign(me_syntax, .data, me_data)
 #'
-#' # Coefficient of correlation changes
-#' # when adjusting for common method variance
-#' me_cmv_cor(m_obj)
+#' # Correlations adjusted for CMV
+#' me_cmv_cor(mdes)
+#'
+#' # Original correlation
+#' me_correlate(.data)
+#'
+#' # More elaborate with two pairs of variables
+#' # sharing common methods
+#'
+#' # Each pair of variables share a common method.
+#' me_syntax <-
+#'  "~ trstplt + trstprl + trstprt
+#'   ~ stfedu + stfhlth"
+#'
+#' me_data2 <-
+#'   data.frame(
+#'     question = c("stfedu", "stfhlth"),
+#'     reliability = c(0.870057469366248, 0.871779788708135),
+#'     validity = c(0.915423399307664, 0.893308457365092),
+#'     quality = c(0.796868872525461, 0.779102047231298)
+#'   )
+#'
+#' me_data <- rbind(me_data, me_data2)
+#'
+#' .data <- ess7es[1:5]
+#' mdes <- medesign(me_syntax, .data, me_data)
+#'
+#' # Correlations adjusted for CMV
+#' me_cmv_cor(mdes)
+#'
+#' # Original correlations
+#' me_correlate(.data)
+#'
 #'
 me_cmv_cor <- function(.medesign) {
   cmv <- NULL
@@ -95,55 +127,6 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
   corrected_corr
 }
 
-#' Estimate the Common Method Variance (CMV) coefficient of a set of variables
-#'
-#' @param me_data a data frame or tibble of class \code{me}
-#' which contains the desired variables from which to estimate the CMV.
-#'
-#' @return a numeric vector of length one with the estimated coefficient. The
-#' result is a named vector where the name indicates the CMV between the
-#' two variables.
-#'
-#' @seealso \code{\link{me_cmv_cor}} for automatically adjusting a correlation
-#' matrix for the CMV, \code{\link{me_cmv_cov}} for automatically adjusting a
-#' covariance matrix for the CMV.
-#'
-#' @examples
-#' library(tibble)
-#'
-#' # Don't remove don't run: since this fun is not exported
-#' # it throws an error. Keeping docs jsut for me here.
-#' \dontrun{
-#'
-#' # Example with political trust
-#' me_df <-
-#'   data.frame(
-#'     question = c("trstprl", "trstplt", "trstprt"),
-#'     reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
-#'     validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-#'     quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
-#'     method_eff = c(0.1824610, 0.1726847, 0.1942987)
-#'   )
-#'
-#' # CMV between each variable
-#' estimate_cmv(me_df)
-#'
-#' # State services example
-#'
-#' me_df <-
-#'   data.frame(
-#'     question = c("stfedu", "stfhlth"),
-#'     reliability = c(0.870057469366248, 0.871779788708135),
-#'     validity = c(0.915423399307664, 0.893308457365092),
-#'     quality = c(0.796868872525461, 0.779102047231298),
-#'     method_eff = c(0.3501914, 0.3918163)
-#'   )
-#'
-#' # CMV between these two variables
-#' estimate_cmv(me_df)
-#'
-#' }
-#'
 estimate_cmv <- function(me_data) {
   me_cols <- c("reliability", "validity")
   check_me_na(me_data, me_cols)

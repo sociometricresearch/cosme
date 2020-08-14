@@ -8,7 +8,7 @@ test_that("me_construct gives correct output", {
 
   expect_equal(nrow(new_me), 1)
   expect_equal(ncol(new_me), 4)
-  expect_equal(sum(is.na(new_me)), 1)
+  expect_equal(new_me$reliability, 0)
 
   expect_s3_class(new_me, "data.frame")
   expect_s3_class(new_me, "me")

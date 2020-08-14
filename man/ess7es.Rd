@@ -17,7 +17,7 @@ A data frame with 1925 rows and 11 variables:
 \item{ptcpplt}{Politicians care what people think}
 \item{ppltrst}{Social trust}
 \item{polintr}{Political interest}
-\item{stflife}{Subjective wellbeing , life satisfaction}
+\item{stflife}{Subjective well being , life satisfaction}
 \item{stfeco}{Political satisfaction , country's economy}
 \item{agea}{Age}
 \item{edulvlb}{Education level}
@@ -30,7 +30,7 @@ Downloaded from the ESS website at https://www.europeansocialsurvey.org/download
 ess7es
 }
 \description{
-A dataset containing some variables from the European Social Survey,
+A dataset containing selected variables from the European Social Survey,
 Round 7 for Spain.
 }
 \keyword{datasets}

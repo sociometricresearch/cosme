@@ -7,16 +7,16 @@
 #'
 #' @param me_data a data frame of class \code{me} containing
 #' quality estimates from the variables specified in \code{...}.
-#' 
+#'
 #' @param .data a data frame which contains data for the variables specified
 #' in \code{...}.
-#' 
+#'
 #' @param new_name a bare unquoted name or a string specifying the name
 #' of the new sum score.
-#' 
+#'
 #' @param ... bare unquoted names or separate strings specifying
 #' the variable names from which to estimate quality of their sum score.
-#' They all must be present in \code{me_data} and \code{df}. At minimum,
+#' They all must be present in \code{me_data} and \code{.data}. At minimum,
 #' it must be two or more variable names.
 #'
 #' @param wt a non-NA numeric vector of the same length as the variables
@@ -25,17 +25,16 @@
 #' weight.
 #'
 #' @param .drop a logical stating whether to drop the questions that compose
-#' the sum score (specified in \code{...}) If \code{FALSE} it retains the
-#' original questions and the composite score.
+#' the sum score (these are the variables specified in \code{...}) If
+#' \code{FALSE} it retains the original questions and the sum score.
 #'
 #' @param vars_names character vector specifying the variable names from
-#' which to estimate quality of their sum score. They all must be present
-#' in \code{me_data} and \code{df}. At minimum, it must be two or more
+#' which to estimate the quality of the sum score. They all must be present
+#' in \code{me_data} and \code{.data}. At minimum, it must be two or more
 #' variable names.
 #'
 #' @return a \code{\link[tibble]{tibble}} similar to \code{me_data} but
-#' with a new row containing the quality of a sum score with the name
-#' specified in \code{new_name}.
+#' with a new row containing the quality of a sum score.
 #'
 #' @export
 #'
@@ -43,7 +42,7 @@
 #' # Political trust example
 #' data(ess7es)
 #'
-#' quality <-
+#' me_data <-
 #'   data.frame(
 #'     question = c("trstprl", "trstplt", "trstprt"),
 #'     reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
@@ -52,17 +51,16 @@
 #'   )
 #'
 #' selected_vars <- c("trstprl", "trstplt", "trstprt")
-#' score <- me_sscore(quality[quality$question %in% selected_vars, ],
+#' score <- me_sscore(me_data[me_data$question %in% selected_vars, ],
 #'                    ess7es,
 #'                    new_name = "s1",
-#'                    trstprl, trstplt, trstprt,
-#'                    wt = NULL)
+#'                    trstprl, trstplt, trstprt)
 #'
 #' # Returns the quality and method effect of any given sum score
 #' score
 #'
 #' # State services example
-#' quality <-
+#' me_data <-
 #'   data.frame(
 #'     question = c("stfedu", "stfhlth"),
 #'     reliability = c(0.870057469366248, 0.871779788708135),
@@ -70,15 +68,13 @@
 #'     quality = c(0.796868872525461, 0.779102047231298)
 #'   )
 #'
-#' score <- me_sscore(quality,
+#' score <- me_sscore(me_data,
 #'                    ess7es,
-#'                    new_name = "s1",
-#'                    stfedu, stfhlth,
-#'                    wt = NULL)
+#'                    new_name = "s2",
+#'                    stfedu, stfhlth)
 #'
 #' # Returns the quality and method effect of any given sum score
 #' score
-#'
 #'
 me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
   e_dots <- eval(substitute(alist(...)))
@@ -153,7 +149,6 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL, .drop = 
   additional_rows <- generic_me(new_name, new_estimate)
 
   # Bind the unselected questions with the new sumscore
-
   if (!.drop) {
     rows_to_pick <- rep(TRUE, length(rows_to_pick))
   } else {
@@ -235,7 +230,6 @@ estimate_sscore <- function(me_scores, .data, new_name, wt) {
 
 # For an explanation of this see combn_multiplication
 cov_both <- function(combinations, r_coef, method_e) {
-
   # This formula is not complicated. It's simply the product of
   # the standard deviation of the data, the r_coef and the
   # method effect between all combination of questions.

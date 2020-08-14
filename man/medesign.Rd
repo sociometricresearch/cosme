@@ -8,30 +8,34 @@ medesign(model_syntax, .data, me_data, ...)
 }
 \arguments{
 \item{model_syntax}{A description of the user-specified model as a character
-string. The model is described using the me model syntax. See the details
-and example section for on how to write this syntax.}
+string. The model is described using the \code{me} model syntax. See the
+details and example section for on how to write this syntax.}
 
 \item{.data}{a data frame containing all variables defined in
 \code{model_syntax}}
 
-\item{me_data}{A dataframe of class \code{me}. Can be created manually
+\item{me_data}{A data frame of class \code{me}. Can be created manually
 with \code{me_construct}.}
 
 \item{...}{arguments passed to \code{\link{me_sscore}}.}
 }
 \value{
 an \code{me} design object which can be passed to other functions
-of measurementfree.
+of \code{measurementfree} such as \code{me_cmv_cor} and \code{me_cmv_cov}.
 }
 \description{
+Define your measurement error design
+}
+\details{
 The model syntax allows to define the relationship between variables
 in terms of whether they share a common method in the question
 that was asked. For example, if the questions called \code{stflife}
 and \code{stfwork} were both measured with a 1-10 likert scale related
 to satisfaction, these two questions were measured with the same method.
-The model syntax would specify them like \code{'~ stflife + stfwork'}.
-}
-\details{
+The model syntax would specify them like:
+
+\code{'~ stflife + stfwork'}.
+
 These two questions should also be in \code{.data} and in \code{me_data},
 otherwise no calculation can be performed. \code{.data} should be a data
 frame with all variables specified in the \code{model_syntax} while
@@ -41,46 +45,84 @@ variables as character vector, while the other three should be numeric
 vectors with their corresponding reliability, validity and quality
 values.
 
-Currently, \code{medesign} replaces the non-NA quality of all variables found
-in \code{me_data} and \code{.data} in the correlation/covariance diagonal
-by default. This is then used by \code{me_cmv_cor} and \code{me_cmv_cov}
-to correct for the quality in the diagonal.
+The model syntax also allows you to create 'new variables' and also
+specify whether these new variables share a common method. For example,
+we can add the variables /code{trstplt, trstprl, trstprt} together
+and then specify that the new 'sum score' variable shares a common
+method with the variables \code{stflife} and \code{stfwork}. We would
+write it like this:
+
+\code{'std(new_variable) = trstplt + trstprl + trstprt;
+       ~ new_variable + stflife + stfwork'}
+
+You can also combine these building blocks to specify a shared
+common method between two new variables. For example:
+
+\code{'std(new_variable1) = trstplt + trstprl + trstprt;
+       std(new_variable2) = stflife + stfwork;
+       ~ new_variable1 + new_variable2'}
+
+Note that the small operator \code{std()} just works to specify
+the we want this new variable to be standardized.
+
+Currently, \code{medesign} replaces the non-NA quality of all variables
+found in \code{me_data} and \code{.data} in the correlation/covariance
+diagonal by default. This is then used by \code{me_cmv_cor} and
+\code{me_cmv_cov} to correct for the quality in the diagonal.
 }
 \examples{
 
+data(ess7es)
 # These three variables share a common method
-me_syntax <- "~ mpg + cyl + drat"
+me_syntax <- "~ trstplt + trstprl + trstprt"
 
-# Fake data for the example
-me_data <- data.frame(stringsAsFactors = FALSE,
-                      question = c("mpg", "cyl", "drat"),
-                      reliability = c(0.729, 0.815, 0.68),
-                      validity = c(0.951, 0.944, 0.79),
-                      quality = c(0.693, 0.77, 0.89)
-                      )
+# Data from sqp
+me_data <-
+  data.frame(
+    question = c("trstprl", "trstplt", "trstprt"),
+    reliability = c(0.812, 0.852, 0.858),
+    validity = c(0.959, 0.965, 0.956),
+    quality = c(0.779, 0.822, 0.821)
+  )
 
-medesign(me_syntax, mtcars, me_data)
-
+medesign(me_syntax, ess7es, me_data)
 
 # Each pair of variables share a common method.
 me_syntax <-
-"# Let's assume these two variables share a common method
- ~ mpg + cyl
- # Let's assume these two variables as well
- ~ drat + disp"
+ "~ trstplt + trstprl + trstprt
+  ~ stfedu + stfhlth"
 
-# Fake data for the example
-me_data <- data.frame(stringsAsFactors = FALSE,
-                      question = c("mpg", "cyl", "drat", "disp"),
-                      reliability = c(0.729, 0.815, 0.68, 0.78),
-                      validity = c(0.951, 0.944, 0.79, 0.97),
-                      quality = c(0.693, 0.77, 0.89, 0.68)
-                      )
+me_data2 <-
+  data.frame(
+    question = c("stfedu", "stfhlth"),
+    reliability = c(0.870057469366248, 0.871779788708135),
+    validity = c(0.915423399307664, 0.893308457365092),
+    quality = c(0.796868872525461, 0.779102047231298)
+  )
 
-medesign(me_syntax, mtcars, me_data)
+me_data <- rbind(me_data, me_data2)
 
+medesign(me_syntax, ess7es, me_data)
+
+# We can also create new variables and use them
+# as variables sharing a common method
+
+me_syntax <-
+ "std(new_sscore1) = trstplt + trstprl + trstprt;
+  ~ new_sscore1 + stfedu + stfhlth"
+
+medesign(me_syntax, ess7es, me_data)
+
+# Alternatively, we can also combined two newly created variables
+# as sharing a common method
+me_syntax <-
+ "std(new_sscore1) = trstplt + trstprl + trstprt;
+  std(new_sscore2) = stfedu + stfhlth;
+  ~ new_sscore1 + new_sscore2"
+
+medesign(me_syntax, ess7es, me_data)
 
 }
 \author{
-Jorge Cimentada
+Jorge Cimentada and Wiebke Weber
 }

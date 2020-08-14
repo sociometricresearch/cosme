@@ -20,11 +20,12 @@
 #'   \code{\link[stats]{cov.wt}} instead of \code{\link[stats]{cor}} or
 #'   \code{\link[stats]{cov}}. This means that the arguments \code{use} and
 #'   \code{method} are ignored.
-#' 
+#'
 #' @param use an optional character string giving a method for computing
 #'   covariances in the presence of missing values. This must be (an
 #'   abbreviation of) one of the strings "everything", "all.obs",
 #'   "complete.obs", "na.or.complete", or "pairwise.complete.obs".
+#'
 #' @param method a character string indicating which correlation coefficient (or
 #'   covariance) is to be computed. One of "pearson" (default), "kendall", or
 #'   "spearman": can be abbreviated.
@@ -43,14 +44,12 @@
 #' new_diagonal <- rnorm(ncol(mtcars))
 #'
 #' me_correlate(mtcars)
-#'
 #' me_correlate(mtcars, new_diagonal)
-#'
 #' me_correlate(mtcars, new_diagonal, method = "kendall")
 #'
 #' diagonal_wout_weight <- rnorm(ncol(mtcars) - 1)
 #' me_correlate(mtcars, diagonal_wout_weight, wt = mpg)
-#' 
+#'
 me_correlate <- function(.data,
                          diag_adj = 1,
                          wt = NULL,
@@ -85,20 +84,19 @@ me_correlate <- function(.data,
 #'
 #' @export
 #'
-#' 
+#'
 #' @examples
 #'
 #' # New diagonal
 #' new_diagonal <- rnorm(ncol(mtcars))
 #'
 #' me_covariance(mtcars)
-#'
 #' me_covariance(mtcars, new_diagonal)
-#'
 #' me_covariance(mtcars, new_diagonal, method = "kendall")
 #'
 #' diagonal_wout_weight <- rnorm(ncol(mtcars) - 1)
 #' me_covariance(mtcars, diagonal_wout_weight, wt = mpg)
+#'
 me_covariance <- function(.data,
                           diag_adj = 1,
                           wt = NULL,
@@ -125,9 +123,9 @@ cor_cov_matrix <- function(type, x, diag_adj, use, method, wt) {
     obj_matrix <- fun(x = x,
                       use = use,
                       method = method)
-    
+
     diag_adj <- if (length(diag_adj) == 1) rep(diag_adj, ncol(obj_matrix)) else diag_adj
-    
+
   } else {
 
     pos_wt <- which(names(x) %in% wt)

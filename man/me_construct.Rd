@@ -13,9 +13,9 @@ me_construct_(question_name, metrics, all_columns = FALSE)
 \item{question_name}{a character string or a bare unquoted name that will be
 used as the question name}
 
-\item{metrics}{a list containing new measurement error metrics. Currently it only
-supports quality, reliability and validity. Can also specify one of the metrics
-and the remaining are set to NA by default}
+\item{metrics}{a list containing new measurement error metrics. Currently it
+only supports quality, reliability and validity. Can also specify one of the
+metrics and the remaining are set to \code{0} by default}
 
 \item{all_columns}{if \code{TRUE} will return all columns (quite a few) that are
 supported by the \code{measurementfree} package. If \code{FALSE} (default) it
@@ -24,8 +24,9 @@ and \code{validity}. See the details section for the definition of all
 columns.}
 }
 \value{
-a \code{\link[tibble]{tibble}} of one row with the supplied metrics. It also has
-class \code{me} for further manipulations within the \code{measurementfree} package.
+a \code{\link[tibble]{tibble}} of one row with the supplied metrics.
+It also has class \code{me} for further manipulations within the
+\code{measurementfree} package.
 }
 \description{
 \code{me_construct} is designed to create measurement error tibbles
@@ -39,55 +40,72 @@ the returned \code{\link[tibble]{tibble}} contains new columns. Below you can
 find the description of of all columns:
 
 \itemize{
-\item question: the literal name of the question in the questionnaire of the study
+\item question: the literal name of the question in the questionnaire of the
+study
 \item question_id: the API internal ID of the question
-\item id: this is the coding ID, that is, the coding of the authorized prediction
+\item id: this is the coding ID, that is, the coding of the authorized
+prediction
 \item created: Date of the API request
-\item routing_id: Version of the coding scheme applied to get that prediction.
-\item authorized: Whether it is an 'authorized' prediction or not. See the details section
+\item routing_id: Version of the coding scheme applied to get that prediction
+\item authorized: Whether it is an 'authorized' prediction or not. Authorized
+ predictions come from the SQP software directly. Unauthorized predictions
+ come from other users which provide their own measurement error statistics.
+
 \item complete: Whether all fields of the coding are complete
 \item user_id: The id of the user that crowd-sourced the prediction
-\item error: Whether there was an error in making the prediction. For an example,
- see \url{http://sqp.upf.edu/loadui/#questionPrediction/12552/42383}
+\item error: Whether there was an error in making the prediction. For an
+example, see \url{http://sqp.upf.edu/loadui/#questionPrediction/12552/42383}
 \item errorMessage: The error message, if there was an error
-\item reliability: The strength between the true score factor and the observed
- variable or 1 - proportion random error in the observed variance. Computed as
- the squared of the reliability coefficient
+
+\item reliability: The strength between the true score factor and the
+observed variable or 1 - proportion random error in the observed variance.
+Computed as the squared of the reliability coefficient
+
 \item validity: The strength between the latent concept factor and the
  true score factor or 1 - proportion method error variance in the true
  score variance. Computed as the square of the validity coefficient
+
 \item quality: The strength between the latent concept factor and the
  observed variable or 1 - proportion of random and method error variance
  in the latent concept's variance. Computed as the product of reliability
-  and validity.
+ and validity.
+
 \item reliabilityCoefficient: The effect between the true score factor and
  the observed variable
+
 \item validityCoefficient: The effect between the latent concept factor and
  the true score factor
+
 \item methodEffectCoefficient: The effect between the method factor and the
  true score factor
+
 \item qualityCoefficient: It is computed as the square root of the quality
-\item reliabilityCoefficientInterquartileRange: Interquartile range for the reliability coefficient
-\item validityCoefficientInterquartileRange: Interquartile range for the validity coefficient
-\item qualityCoefficientInterquartileRange: Interquartile range for the quality coefficient
-\item reliabilityCoefficientStdError: Predicted standard error of the reliability coefficient
-\item validityCoefficientStdError: Predicted standard error of the validity coefficient
-\item qualityCoefficientStdError: Predicted standard error of the quality coefficient
+\item reliabilityCoefficientInterquartileRange: Interquartile range for the
+ reliability coefficient
+\item validityCoefficientInterquartileRange: Interquartile range for the
+ validity coefficient
+\item qualityCoefficientInterquartileRange: Interquartile range for the
+ quality coefficient
+\item reliabilityCoefficientStdError: Predicted standard error of the
+ reliability coefficient
+\item validityCoefficientStdError: Predicted standard error of the validity
+ coefficient
+\item qualityCoefficientStdError: Predicted standard error of the quality
+ coefficient
 }
 
 
 \code{me_construct_} is useful if you're interested in programming
-with \code{measurementfree} rather than using it interactively. If you want to use
-\code{me_construct} inside a function, use the equivalent \code{me_construct_}
-which uses standard evaluation.
+with \code{measurementfree} rather than using it interactively. If you want
+to use \code{me_construct} inside a function, use the equivalent
+\code{me_construct_} which uses standard evaluation.
 }
 \examples{
 
 me_construct(new_question, list(quality = 0.3))
-
 me_construct(new_question, list(quality = 0.3, validity = 0.2))
 
-# Note that specifying a column which is not availabe in me data
+# Note that specifying a column which is not available in me data
 # will throw an error
 
 \dontrun{
@@ -95,5 +113,4 @@ me_construct(new_question, list(random_col = 0.3, validity = 0.2))
 }
 
 # Currently only quality, reliability and validity are allowed.
-
 }

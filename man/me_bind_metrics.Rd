@@ -7,15 +7,14 @@
 me_bind_metrics(me_data, question_name, metrics)
 }
 \arguments{
-\item{me_data}{a data frame of class \code{me} containing
-quality estimates from the variables specified in \code{...}.}
+\item{me_data}{a data frame of class \code{me}}
 
 \item{question_name}{a character string or a bare unquoted name that will be
-used as the question name}
+used as the question name (not a column but a new question appended as row)}
 
-\item{metrics}{a list containing new  metrics. Currently it only
-supports 'quality', 'reliability' and 'validity'. Can also specify one of the metrics
-and the remaining are set to NA by default}
+\item{metrics}{a list containing new metrics. Currently it only
+supports 'quality', 'reliability' and 'validity'. Can also specify one of the
+metrics and the remaining are set to 0 by default}
 }
 \value{
 \code{me_data} with a new row that contains the new question name
@@ -39,15 +38,11 @@ me_df <-
 me_df <- structure(me_df, class = c(class(me_df), "me"))
 
 me_bind_metrics(me_df, new_question, list(quality = 0.7))
-
 me_bind_metrics(me_df, new_question, list(quality = 0.7, reliability = 0.2))
 
 # Specifying a wrong metric name results in error
-
 \dontrun{
-
 me_bind_metrics(me_df, new_question, list(wrong_metric = 0.7))
-
 }
 
 # Currently only quality, reliability and validity are allowed.

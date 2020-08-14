@@ -21,7 +21,7 @@ of the new sum score.}
 
 \item{...}{bare unquoted names or separate strings specifying
 the variable names from which to estimate quality of their sum score.
-They all must be present in \code{me_data} and \code{df}. At minimum,
+They all must be present in \code{me_data} and \code{.data}. At minimum,
 it must be two or more variable names.}
 
 \item{wt}{a non-NA numeric vector of the same length as the variables
@@ -30,18 +30,17 @@ sum scores of all variable. Be default, all variables are given the same
 weight.}
 
 \item{.drop}{a logical stating whether to drop the questions that compose
-the sum score (specified in \code{...}) If \code{FALSE} it retains the
-original questions and the composite score.}
+the sum score (these are the variables specified in \code{...}) If
+\code{FALSE} it retains the original questions and the sum score.}
 
 \item{vars_names}{character vector specifying the variable names from
-which to estimate quality of their sum score. They all must be present
-in \code{me_data} and \code{df}. At minimum, it must be two or more
+which to estimate the quality of the sum score. They all must be present
+in \code{me_data} and \code{.data}. At minimum, it must be two or more
 variable names.}
 }
 \value{
 a \code{\link[tibble]{tibble}} similar to \code{me_data} but
-with a new row containing the quality of a sum score with the name
-specified in \code{new_name}.
+with a new row containing the quality of a sum score.
 }
 \description{
 \code{me_sscore} takes a data frame with quality estimates of class
@@ -53,7 +52,7 @@ interested in programming with \code{me_sscore}
 # Political trust example
 data(ess7es)
 
-quality <-
+me_data <-
   data.frame(
     question = c("trstprl", "trstplt", "trstprt"),
     reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
@@ -62,17 +61,16 @@ quality <-
   )
 
 selected_vars <- c("trstprl", "trstplt", "trstprt")
-score <- me_sscore(quality[quality$question \%in\% selected_vars, ],
+score <- me_sscore(me_data[me_data$question \%in\% selected_vars, ],
                    ess7es,
                    new_name = "s1",
-                   trstprl, trstplt, trstprt,
-                   wt = NULL)
+                   trstprl, trstplt, trstprt)
 
 # Returns the quality and method effect of any given sum score
 score
 
 # State services example
-quality <-
+me_data <-
   data.frame(
     question = c("stfedu", "stfhlth"),
     reliability = c(0.870057469366248, 0.871779788708135),
@@ -80,14 +78,12 @@ quality <-
     quality = c(0.796868872525461, 0.779102047231298)
   )
 
-score <- me_sscore(quality,
+score <- me_sscore(me_data,
                    ess7es,
-                   new_name = "s1",
-                   stfedu, stfhlth,
-                   wt = NULL)
+                   new_name = "s2",
+                   stfedu, stfhlth)
 
 # Returns the quality and method effect of any given sum score
 score
-
 
 }
