@@ -57,12 +57,14 @@ jobs:
         env:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         run: |
+          options(repos = c(CRAN = "http://cran.rstudio.com"))
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
 
       - name: Install dependencies
         run: |
+          options(repos = c(CRAN = "http://cran.rstudio.com"))
           remotes::install_deps(dependencies = TRUE)
           install.packages("desc")
           x <- desc::desc()$get_deps(); install.packages(x$package[x$type == "Suggests"])
