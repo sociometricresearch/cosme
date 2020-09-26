@@ -83,12 +83,6 @@ manually in the argument cmv." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -137,7 +131,7 @@ from <code>me_data</code>. Optionally, you can supply the CMV coefficients
 manually in the argument <code>cmv</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_cmv_cor</span>(<span class='kw'>.medesign</span>)</pre>
+    <pre class="usage"><span class='fu'>me_cmv_cor</span><span class='op'>(</span><span class='va'>.medesign</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -160,79 +154,83 @@ adjustment but for a covariance matrix.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>ess7es</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>ess7es</span><span class='op'>)</span>
 
-<span class='kw'>.data</span> <span class='op'>&lt;-</span> <span class='kw'>ess7es</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span>]
+<span class='va'>.data</span> <span class='op'>&lt;-</span> <span class='va'>ess7es</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>3</span><span class='op'>]</span>
 
 <span class='co'># These three variables share a common method</span>
-<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span> <span class='st'>"~ trstplt + trstprl + trstprt"</span>
+<span class='va'>me_syntax</span> <span class='op'>&lt;-</span> <span class='st'>"~ trstplt + trstprl + trstprt"</span>
 
 <span class='co'># Data from sqp</span>
-<span class='kw'>me_data</span> <span class='op'>&lt;-</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
-    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span>),
-    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span>),
-    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span>)
-  )
+<span class='va'>me_data</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+    question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span><span class='op'>)</span>,
+    reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span><span class='op'>)</span>,
+    validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span><span class='op'>)</span>,
+    quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span><span class='op'>)</span>
+  <span class='op'>)</span>
 
-<span class='kw'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='kw'>me_syntax</span>, <span class='kw'>.data</span>, <span class='kw'>me_data</span>)
+<span class='va'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span><span class='op'>)</span>
 
 <span class='co'># Correlations adjusted for CMV</span>
-<span class='fu'>me_cmv_cor</span>(<span class='kw'>mdes</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 4
+<span class='fu'>me_cmv_cor</span><span class='op'>(</span><span class='va'>mdes</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 3 x 4</span><span>
 #&gt;   rowname trstprl trstplt trstprt
-#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 trstprl   1       0.690   0.630
-#&gt; 2 trstplt   0.690   1       0.892
-#&gt; 3 trstprt   0.630   0.892   1    </div><div class='input'>
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.690   0.630
+#&gt; </span><span style='color: #555555;'>2</span><span> trstplt   0.690   1       0.892
+#&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.630   0.892   1    </div><div class='input'>
 <span class='co'># Original correlation</span>
-<span class='fu'><a href='me_correlate.html'>me_correlate</a></span>(<span class='kw'>.data</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 4
+<span class='fu'><a href='me_correlate.html'>me_correlate</a></span><span class='op'>(</span><span class='va'>.data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 3 x 4</span><span>
 #&gt;   rowname trstprl trstplt trstprt
-#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 trstprl   1       0.649   0.598
-#&gt; 2 trstplt   0.649   1       0.842
-#&gt; 3 trstprt   0.598   0.842   1    </div><div class='input'>
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.649   0.598
+#&gt; </span><span style='color: #555555;'>2</span><span> trstplt   0.649   1       0.842
+#&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.598   0.842   1    </div><div class='input'>
 <span class='co'># More elaborate with two pairs of variables</span>
 <span class='co'># sharing common methods</span>
 
 <span class='co'># Each pair of variables share a common method.</span>
-<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+<span class='va'>me_syntax</span> <span class='op'>&lt;-</span>
  <span class='st'>"~ trstplt + trstprl + trstprt
-  ~ stfedu + stfhlth"</span> + trstprt
-  ~ stfedu + stfhlth"
+  ~ stfedu + stfhlth"</span>
 
-<span class='kw'>me_data2</span> <span class='op'>&lt;-</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
-    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.870057469366248</span>, <span class='fl'>0.871779788708135</span>),
-    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.915423399307664</span>, <span class='fl'>0.893308457365092</span>),
-    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.796868872525461</span>, <span class='fl'>0.779102047231298</span>)
-  )
+<span class='va'>me_data2</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+    question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span><span class='op'>)</span>,
+    reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.870057469366248</span>, <span class='fl'>0.871779788708135</span><span class='op'>)</span>,
+    validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.915423399307664</span>, <span class='fl'>0.893308457365092</span><span class='op'>)</span>,
+    quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.796868872525461</span>, <span class='fl'>0.779102047231298</span><span class='op'>)</span>
+  <span class='op'>)</span>
 
-<span class='kw'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='kw'>me_data</span>, <span class='kw'>me_data2</span>)
+<span class='va'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>me_data</span>, <span class='va'>me_data2</span><span class='op'>)</span>
 
-<span class='kw'>.data</span> <span class='op'>&lt;-</span> <span class='kw'>ess7es</span>[<span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>]
-<span class='kw'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span>(<span class='kw'>me_syntax</span>, <span class='kw'>.data</span>, <span class='kw'>me_data</span>)
+<span class='va'>.data</span> <span class='op'>&lt;-</span> <span class='va'>ess7es</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>]</span>
+<span class='va'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span><span class='op'>)</span>
 
 <span class='co'># Correlations adjusted for CMV</span>
-<span class='fu'>me_cmv_cor</span>(<span class='kw'>mdes</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
+<span class='fu'>me_cmv_cor</span><span class='op'>(</span><span class='va'>mdes</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 5 x 6</span><span>
 #&gt;   rowname trstprl trstplt trstprt stfedu stfhlth
-#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 trstprl   1       0.693   0.629  0.392   0.380
-#&gt; 2 trstplt   0.693   1       0.889  0.392   0.413
-#&gt; 3 trstprt   0.629   0.889   1      0.351   0.332
-#&gt; 4 stfedu    0.392   0.392   0.351  1       0.616
-#&gt; 5 stfhlth   0.380   0.413   0.332  0.616   1    </div><div class='input'>
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.693   0.629  0.392   0.380
+#&gt; </span><span style='color: #555555;'>2</span><span> trstplt   0.693   1       0.889  0.392   0.413
+#&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.629   0.889   1      0.351   0.332
+#&gt; </span><span style='color: #555555;'>4</span><span> stfedu    0.392   0.392   0.351  1       0.616
+#&gt; </span><span style='color: #555555;'>5</span><span> stfhlth   0.380   0.413   0.332  0.616   1    </div><div class='input'>
 <span class='co'># Original correlations</span>
-<span class='fu'><a href='me_correlate.html'>me_correlate</a></span>(<span class='kw'>.data</span>)</div><div class='output co'>#&gt; # A tibble: 5 x 6
+<span class='fu'><a href='me_correlate.html'>me_correlate</a></span><span class='op'>(</span><span class='va'>.data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 5 x 6</span><span>
 #&gt;   rowname trstprl trstplt trstprt stfedu stfhlth
-#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
-#&gt; 1 trstprl   1       0.651   0.598  0.348   0.335
-#&gt; 2 trstplt   0.651   1       0.839  0.352   0.369
-#&gt; 3 trstprt   0.598   0.839   1      0.316   0.297
-#&gt; 4 stfedu    0.348   0.352   0.316  1       0.620
-#&gt; 5 stfhlth   0.335   0.369   0.297  0.620   1    </div><div class='input'>
-</div></pre>
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.651   0.598  0.348   0.335
+#&gt; </span><span style='color: #555555;'>2</span><span> trstplt   0.651   1       0.839  0.352   0.369
+#&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.598   0.839   1      0.316   0.297
+#&gt; </span><span style='color: #555555;'>4</span><span> stfedu    0.348   0.352   0.316  1       0.620
+#&gt; </span><span style='color: #555555;'>5</span><span> stfhlth   0.335   0.369   0.297  0.620   1    </div><div class='input'>
+
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -248,7 +246,7 @@ adjustment but for a covariance matrix.</p></div>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

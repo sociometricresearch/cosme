@@ -79,12 +79,6 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -129,7 +123,7 @@
     <p>Define your measurement error design</p>
     </div>
 
-    <pre class="usage"><span class='fu'>medesign</span>(<span class='kw'>model_syntax</span>, <span class='kw'>.data</span>, <span class='kw'>me_data</span>, <span class='kw'>...</span>)</pre>
+    <pre class="usage"><span class='fu'>medesign</span><span class='op'>(</span><span class='va'>model_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -170,7 +164,7 @@ that was asked. For example, if the questions called <code>stflife</code>
 and <code>stfwork</code> were both measured with a 1-10 likert scale related
 to satisfaction, these two questions were measured with the same method.
 The model syntax would specify them like:</p>
-<pre><span class='op'>~</span> <span class='kw'>stflife</span> <span class='op'>+</span> <span class='kw'>stfwork</span></pre>
+<pre><span class='op'>~</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span></pre>
 
 <p>These two questions should also be in <code>.data</code> and in <code>me_data</code>,
 otherwise no calculation can be performed. <code>.data</code> should be a data
@@ -187,15 +181,17 @@ and then specify that the new 'sum score' variable shares a common
 method with the variables <code>stflife</code> and <code>stfwork</code>. We would
 write it like this:</p>
 <pre>
-<span class='fu'>std</span>(<span class='kw'>new_variable</span>) <span class='op'>=</span> <span class='kw'>trstplt</span> <span class='op'>+</span> <span class='kw'>trstprl</span> <span class='op'>+</span> <span class='kw'>trstprt</span>
-<span class='op'>~</span> <span class='kw'>new_variable</span> <span class='op'>+</span> <span class='kw'>stflife</span> <span class='op'>+</span> <span class='kw'>stfwork</span></pre>
+<span class='fu'>std</span><span class='op'>(</span><span class='va'>new_variable</span><span class='op'>)</span> <span class='op'>=</span> <span class='va'>trstplt</span> <span class='op'>+</span> <span class='va'>trstprl</span> <span class='op'>+</span> <span class='va'>trstprt</span>
+<span class='op'>~</span> <span class='va'>new_variable</span> <span class='op'>+</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span>
+</pre>
 
 <p>You can also combine these building blocks to specify a shared
 common method between two new variables. For example:</p>
 <pre>
-<span class='fu'>std</span>(<span class='kw'>new_variable1</span>) <span class='op'>=</span> <span class='kw'>trstplt</span> <span class='op'>+</span> <span class='kw'>trstprl</span> <span class='op'>+</span> <span class='kw'>trstprt</span>
-<span class='fu'>std</span>(<span class='kw'>new_variable2</span>) <span class='op'>=</span> <span class='kw'>stflife</span> <span class='op'>+</span> <span class='kw'>stfwork</span>
-<span class='op'>~</span> <span class='kw'>new_variable1</span> <span class='op'>+</span> <span class='kw'>new_variable2</span></pre>
+<span class='fu'>std</span><span class='op'>(</span><span class='va'>new_variable1</span><span class='op'>)</span> <span class='op'>=</span> <span class='va'>trstplt</span> <span class='op'>+</span> <span class='va'>trstprl</span> <span class='op'>+</span> <span class='va'>trstprt</span>
+<span class='fu'>std</span><span class='op'>(</span><span class='va'>new_variable2</span><span class='op'>)</span> <span class='op'>=</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span>
+<span class='op'>~</span> <span class='va'>new_variable1</span> <span class='op'>+</span> <span class='va'>new_variable2</span>
+</pre>
 
 <p>Note that the operator <code>std()</code> just works to specify
 the we want this new variable to be standardized.</p>
@@ -209,68 +205,69 @@ diagonal by default. This is then used by <code>me_cmv_cor</code> and
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='kw'>ess7es</span>)
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span><span class='op'>(</span><span class='va'>ess7es</span><span class='op'>)</span>
 <span class='co'># These three variables share a common method</span>
-<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span> <span class='st'>"~ trstplt + trstprl + trstprt"</span>
+<span class='va'>me_syntax</span> <span class='op'>&lt;-</span> <span class='st'>"~ trstplt + trstprl + trstprt"</span>
 
 <span class='co'># Data from sqp</span>
-<span class='kw'>me_data</span> <span class='op'>&lt;-</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>),
-    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span>),
-    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span>),
-    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span>)
-  )
+<span class='va'>me_data</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+    question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span><span class='op'>)</span>,
+    reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span><span class='op'>)</span>,
+    validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span><span class='op'>)</span>,
+    quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span><span class='op'>)</span>
+  <span class='op'>)</span>
 
-<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+<span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
 #&gt; Parsed model:
 #&gt;    ~ trstplt + trstprl + trstprt</div><div class='input'>
 <span class='co'># Each pair of variables share a common method.</span>
-<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+<span class='va'>me_syntax</span> <span class='op'>&lt;-</span>
  <span class='st'>"~ trstplt + trstprl + trstprt
-  ~ stfedu + stfhlth"</span> + trstprt
-  ~ stfedu + stfhlth"
+  ~ stfedu + stfhlth"</span>
 
-<span class='kw'>me_data2</span> <span class='op'>&lt;-</span>
-  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span>(
-    question = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span>),
-    reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.757</span>, <span class='fl'>0.760</span>),
-    validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.838</span>, <span class='fl'>0.798</span>),
-    quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.635</span>, <span class='fl'>0.607</span>)
-  )
+<span class='va'>me_data2</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+    question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span><span class='op'>)</span>,
+    reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.757</span>, <span class='fl'>0.760</span><span class='op'>)</span>,
+    validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.838</span>, <span class='fl'>0.798</span><span class='op'>)</span>,
+    quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.635</span>, <span class='fl'>0.607</span><span class='op'>)</span>
+  <span class='op'>)</span>
 
-<span class='kw'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span>(<span class='kw'>me_data</span>, <span class='kw'>me_data2</span>)
+<span class='va'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>me_data</span>, <span class='va'>me_data2</span><span class='op'>)</span>
 
-<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+<span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
 #&gt; Parsed model:
 #&gt;    ~ trstplt + trstprl + trstprt
 #&gt;    ~ stfedu + stfhlth</div><div class='input'>
 <span class='co'># We can also create new variables and use them</span>
 <span class='co'># as variables sharing a common method</span>
 
-<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+<span class='va'>me_syntax</span> <span class='op'>&lt;-</span>
  <span class='st'>"std(new_sscore1) = trstplt + trstprl + trstprt;
-  ~ new_sscore1 + stfedu + stfhlth"</span>prl + trstprt;
-  ~ new_sscore1 + stfedu + stfhlth"
+  ~ new_sscore1 + stfedu + stfhlth"</span>
 
-<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+<span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
 #&gt; Parsed model:
 #&gt;    new_sscore1 = trstplt+trstprl+trstprt
 #&gt;    ~ new_sscore1 + stfedu + stfhlth</div><div class='input'>
 <span class='co'># Alternatively, we can also combined two newly created variables</span>
 <span class='co'># as sharing a common method</span>
-<span class='kw'>me_syntax</span> <span class='op'>&lt;-</span>
+<span class='va'>me_syntax</span> <span class='op'>&lt;-</span>
  <span class='st'>"std(new_sscore1) = trstplt + trstprl + trstprt;
   std(new_sscore2) = stfedu + stfhlth;
-  ~ new_sscore1 + new_sscore2"</span> trstprl + trstprt;
-  std(new_sscore2) = stfedu + stfhlth;
-  ~ new_sscore1 + new_sscore2"
+  ~ new_sscore1 + new_sscore2"</span>
 
-<span class='fu'>medesign</span>(<span class='kw'>me_syntax</span>, <span class='kw'>ess7es</span>, <span class='kw'>me_data</span>)</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
+<span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
 #&gt; Parsed model:
 #&gt;    new_sscore1 = trstplt+trstprl+trstprt
 #&gt;    new_sscore2 = stfedu+stfhlth
-#&gt;    ~ new_sscore1 + new_sscore2</div><div class='input'></div></pre>
+#&gt;    ~ new_sscore1 + new_sscore2</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -286,7 +283,7 @@ diagonal by default. This is then used by <code>me_cmv_cor</code> and
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

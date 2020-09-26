@@ -79,12 +79,6 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -129,7 +123,7 @@
     <p>Manually bind new rows to an me data frame</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_bind_metrics</span>(<span class='kw'>me_data</span>, <span class='kw'>question_name</span>, <span class='kw'>metrics</span>)</pre>
+    <pre class="usage"><span class='fu'>me_bind_metrics</span><span class='op'>(</span><span class='va'>me_data</span>, <span class='va'>question_name</span>, <span class='va'>metrics</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,40 +157,43 @@ such as 'quality', 'reliability' and 'validity'.</p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># Toy dataset</span>
-<span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='kw'><a href='https://tibble.tidyverse.org'>tibble</a></span>)
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tibble.tidyverse.org/'>tibble</a></span><span class='op'>)</span>
 
-<span class='kw'>me_df</span> <span class='op'>&lt;-</span>
- <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span>(question = <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span>(<span class='st'>"V"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span>),
- quality = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span>),
- reliability = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span>),
- validity = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>NA</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span>))
+<span class='va'>me_df</span> <span class='op'>&lt;-</span>
+ <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"V"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span>,
+ quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span><span class='op'>)</span>,
+ reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span><span class='op'>)</span>,
+ validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>NA</span>, <span class='cn'>NA</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span><span class='op'>)</span><span class='op'>)</span>
 
-<span class='kw'>me_df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span>(<span class='kw'>me_df</span>, class = <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span>(<span class='kw'>me_df</span>), <span class='st'>"me"</span>))
+<span class='va'>me_df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/structure.html'>structure</a></span><span class='op'>(</span><span class='va'>me_df</span>, class <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/class.html'>class</a></span><span class='op'>(</span><span class='va'>me_df</span><span class='op'>)</span>, <span class='st'>"me"</span><span class='op'>)</span><span class='op'>)</span>
 
-<span class='fu'>me_bind_metrics</span>(<span class='kw'>me_df</span>, <span class='kw'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(quality = <span class='fl'>0.7</span>))</div><div class='output co'>#&gt; # A tibble: 6 x 4
+<span class='fu'>me_bind_metrics</span><span class='op'>(</span><span class='va'>me_df</span>, <span class='va'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>quality <span class='op'>=</span> <span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 6 x 4</span><span>
 #&gt;   question     quality reliability validity
-#&gt;   &lt;chr&gt;          &lt;dbl&gt;       &lt;dbl&gt;    &lt;dbl&gt;
-#&gt; 1 V1               0.2        NA       NA  
-#&gt; 2 V2               0.3         0.4     NA  
-#&gt; 3 V3               0.5         0.5      0.6
-#&gt; 4 V4               0.6         0.5      0.7
-#&gt; 5 V5               0.9         0.7      0.8
-#&gt; 6 new_question     0.7         0        0  </div><div class='input'><span class='fu'>me_bind_metrics</span>(<span class='kw'>me_df</span>, <span class='kw'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(quality = <span class='fl'>0.7</span>, reliability = <span class='fl'>0.2</span>))</div><div class='output co'>#&gt; # A tibble: 6 x 4
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> V1               0.2        </span><span style='color: #BB0000;'>NA</span><span>       </span><span style='color: #BB0000;'>NA</span><span>  
+#&gt; </span><span style='color: #555555;'>2</span><span> V2               0.3         0.4     </span><span style='color: #BB0000;'>NA</span><span>  
+#&gt; </span><span style='color: #555555;'>3</span><span> V3               0.5         0.5      0.6
+#&gt; </span><span style='color: #555555;'>4</span><span> V4               0.6         0.5      0.7
+#&gt; </span><span style='color: #555555;'>5</span><span> V5               0.9         0.7      0.8
+#&gt; </span><span style='color: #555555;'>6</span><span> new_question     0.7         0        0  </div><div class='input'><span class='fu'>me_bind_metrics</span><span class='op'>(</span><span class='va'>me_df</span>, <span class='va'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>quality <span class='op'>=</span> <span class='fl'>0.7</span>, reliability <span class='op'>=</span> <span class='fl'>0.2</span><span class='op'>)</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 6 x 4</span><span>
 #&gt;   question     quality reliability validity
-#&gt;   &lt;chr&gt;          &lt;dbl&gt;       &lt;dbl&gt;    &lt;dbl&gt;
-#&gt; 1 V1               0.2        NA       NA  
-#&gt; 2 V2               0.3         0.4     NA  
-#&gt; 3 V3               0.5         0.5      0.6
-#&gt; 4 V4               0.6         0.5      0.7
-#&gt; 5 V5               0.9         0.7      0.8
-#&gt; 6 new_question     0.7         0.2      0  </div><div class='input'>
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>          </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'>1</span><span> V1               0.2        </span><span style='color: #BB0000;'>NA</span><span>       </span><span style='color: #BB0000;'>NA</span><span>  
+#&gt; </span><span style='color: #555555;'>2</span><span> V2               0.3         0.4     </span><span style='color: #BB0000;'>NA</span><span>  
+#&gt; </span><span style='color: #555555;'>3</span><span> V3               0.5         0.5      0.6
+#&gt; </span><span style='color: #555555;'>4</span><span> V4               0.6         0.5      0.7
+#&gt; </span><span style='color: #555555;'>5</span><span> V5               0.9         0.7      0.8
+#&gt; </span><span style='color: #555555;'>6</span><span> new_question     0.7         0.2      0  </div><div class='input'>
 <span class='co'># Specifying a wrong metric name results in error</span>
-<span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='fu'>me_bind_metrics</span>(<span class='kw'>me_df</span>, <span class='kw'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(wrong_metric = <span class='fl'>0.7</span>))
-}
+<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='fu'>me_bind_metrics</span><span class='op'>(</span><span class='va'>me_df</span>, <span class='va'>new_question</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span>wrong_metric <span class='op'>=</span> <span class='fl'>0.7</span><span class='op'>)</span><span class='op'>)</span>
+<span class='op'>}</span>
 
 <span class='co'># Currently only quality, reliability and validity are allowed.</span>
-</div></pre>
+
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -212,7 +209,7 @@ such as 'quality', 'reliability' and 'validity'.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

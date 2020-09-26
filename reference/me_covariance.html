@@ -82,12 +82,6 @@ tweaks." />
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -135,13 +129,13 @@ numeric vector. It's a wrapper around <code><a href='https://rdrr.io/r/stats/cor
 tweaks.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>me_covariance</span>(
-  <span class='kw'>.data</span>,
-  diag_adj = <span class='fl'>1</span>,
-  wt = <span class='kw'>NULL</span>,
-  use = <span class='st'>"complete.obs"</span>,
-  method = <span class='st'>"pearson"</span>
-)</pre>
+    <pre class="usage"><span class='fu'>me_covariance</span><span class='op'>(</span>
+  <span class='va'>.data</span>,
+  diag_adj <span class='op'>=</span> <span class='fl'>1</span>,
+  wt <span class='op'>=</span> <span class='cn'>NULL</span>,
+  use <span class='op'>=</span> <span class='st'>"complete.obs"</span>,
+  method <span class='op'>=</span> <span class='st'>"pearson"</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -195,65 +189,70 @@ the diagonal multiplied by <code>diag_adj</code></p>
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
 <span class='co'># New diagonal</span>
-<span class='kw'>new_diagonal</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='kw'>mtcars</span>))
+<span class='va'>new_diagonal</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>mtcars</span><span class='op'>)</span><span class='op'>)</span>
 
-<span class='fu'>me_covariance</span>(<span class='kw'>mtcars</span>)</div><div class='output co'>#&gt; # A tibble: 11 x 12
+<span class='fu'>me_covariance</span><span class='op'>(</span><span class='va'>mtcars</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 11 x 12</span><span>
 #&gt;    rowname     mpg     cyl    disp      hp     drat      wt     qsec       vs
-#&gt;    &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-#&gt;  1 mpg       36.3   -9.17   -633.  -321.     2.20    -5.12    4.51     2.02  
-#&gt;  2 cyl       -9.17   3.19    200.   102.    -0.668    1.37   -1.89    -0.730 
-#&gt;  3 disp    -633.   200.    15361.  6721.   -47.1    108.    -96.1    -44.4   
-#&gt;  4 hp      -321.   102.     6721.  4701.   -16.5     44.2   -86.8    -25.0   
-#&gt;  5 drat       2.20  -0.668   -47.1  -16.5    0.286   -0.373   0.0871   0.119 
-#&gt;  6 wt        -5.12   1.37    108.    44.2   -0.373    0.957  -0.305   -0.274 
-#&gt;  7 qsec       4.51  -1.89    -96.1  -86.8    0.0871  -0.305   3.19     0.671 
-#&gt;  8 vs         2.02  -0.730   -44.4  -25.0    0.119   -0.274   0.671    0.254 
-#&gt;  9 am         1.80  -0.466   -36.6   -8.32   0.190   -0.338  -0.205    0.0423
-#&gt; 10 gear       2.14  -0.649   -50.8   -6.36   0.276   -0.421  -0.280    0.0766
-#&gt; 11 carb      -5.36   1.52     79.1   83.0   -0.0784   0.676  -1.89    -0.464 
-#&gt; # … with 3 more variables: am &lt;dbl&gt;, gear &lt;dbl&gt;, carb &lt;dbl&gt;</div><div class='input'><span class='fu'>me_covariance</span>(<span class='kw'>mtcars</span>, <span class='kw'>new_diagonal</span>)</div><div class='output co'>#&gt; # A tibble: 11 x 12
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> mpg       36.3   -</span><span style='color: #BB0000;'>9.17</span><span>   -</span><span style='color: #BB0000;'>633.</span><span>  -</span><span style='color: #BB0000;'>321.</span><span>     2.20    -</span><span style='color: #BB0000;'>5.12</span><span>    4.51     2.02  
+#&gt; </span><span style='color: #555555;'> 2</span><span> cyl       -</span><span style='color: #BB0000;'>9.17</span><span>   3.19    200.   102.    -</span><span style='color: #BB0000;'>0.668</span><span>    1.37   -</span><span style='color: #BB0000;'>1.89</span><span>    -</span><span style='color: #BB0000;'>0.730</span><span> 
+#&gt; </span><span style='color: #555555;'> 3</span><span> disp    -</span><span style='color: #BB0000;'>633.</span><span>   200.    </span><span style='text-decoration: underline;'>15</span><span>361.  </span><span style='text-decoration: underline;'>6</span><span>721.   -</span><span style='color: #BB0000;'>47.1</span><span>    108.    -</span><span style='color: #BB0000;'>96.1</span><span>    -</span><span style='color: #BB0000;'>44.4</span><span>   
+#&gt; </span><span style='color: #555555;'> 4</span><span> hp      -</span><span style='color: #BB0000;'>321.</span><span>   102.     </span><span style='text-decoration: underline;'>6</span><span>721.  </span><span style='text-decoration: underline;'>4</span><span>701.   -</span><span style='color: #BB0000;'>16.5</span><span>     44.2   -</span><span style='color: #BB0000;'>86.8</span><span>    -</span><span style='color: #BB0000;'>25.0</span><span>   
+#&gt; </span><span style='color: #555555;'> 5</span><span> drat       2.20  -</span><span style='color: #BB0000;'>0.668</span><span>   -</span><span style='color: #BB0000;'>47.1</span><span>  -</span><span style='color: #BB0000;'>16.5</span><span>    0.286   -</span><span style='color: #BB0000;'>0.373</span><span>   0.087</span><span style='text-decoration: underline;'>1</span><span>   0.119 
+#&gt; </span><span style='color: #555555;'> 6</span><span> wt        -</span><span style='color: #BB0000;'>5.12</span><span>   1.37    108.    44.2   -</span><span style='color: #BB0000;'>0.373</span><span>    0.957  -</span><span style='color: #BB0000;'>0.305</span><span>   -</span><span style='color: #BB0000;'>0.274</span><span> 
+#&gt; </span><span style='color: #555555;'> 7</span><span> qsec       4.51  -</span><span style='color: #BB0000;'>1.89</span><span>    -</span><span style='color: #BB0000;'>96.1</span><span>  -</span><span style='color: #BB0000;'>86.8</span><span>    0.087</span><span style='text-decoration: underline;'>1</span><span>  -</span><span style='color: #BB0000;'>0.305</span><span>   3.19     0.671 
+#&gt; </span><span style='color: #555555;'> 8</span><span> vs         2.02  -</span><span style='color: #BB0000;'>0.730</span><span>   -</span><span style='color: #BB0000;'>44.4</span><span>  -</span><span style='color: #BB0000;'>25.0</span><span>    0.119   -</span><span style='color: #BB0000;'>0.274</span><span>   0.671    0.254 
+#&gt; </span><span style='color: #555555;'> 9</span><span> am         1.80  -</span><span style='color: #BB0000;'>0.466</span><span>   -</span><span style='color: #BB0000;'>36.6</span><span>   -</span><span style='color: #BB0000;'>8.32</span><span>   0.190   -</span><span style='color: #BB0000;'>0.338</span><span>  -</span><span style='color: #BB0000;'>0.205</span><span>    0.042</span><span style='text-decoration: underline;'>3</span><span>
+#&gt; </span><span style='color: #555555;'>10</span><span> gear       2.14  -</span><span style='color: #BB0000;'>0.649</span><span>   -</span><span style='color: #BB0000;'>50.8</span><span>   -</span><span style='color: #BB0000;'>6.36</span><span>   0.276   -</span><span style='color: #BB0000;'>0.421</span><span>  -</span><span style='color: #BB0000;'>0.280</span><span>    0.076</span><span style='text-decoration: underline;'>6</span><span>
+#&gt; </span><span style='color: #555555;'>11</span><span> carb      -</span><span style='color: #BB0000;'>5.36</span><span>   1.52     79.1   83.0   -</span><span style='color: #BB0000;'>0.078</span><span style='color: #BB0000;text-decoration: underline;'>4</span><span>   0.676  -</span><span style='color: #BB0000;'>1.89</span><span>    -</span><span style='color: #BB0000;'>0.464</span><span> 
+#&gt; </span><span style='color: #555555;'># … with 3 more variables: am </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, gear </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, carb </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span></div><div class='input'><span class='fu'>me_covariance</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>new_diagonal</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 12</span><span>
 #&gt;    rowname     mpg     cyl    disp      hp     drat      wt     qsec       vs
-#&gt;    &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-#&gt;  1 mpg       13.2   -9.17   -633.  -321.     2.20    -5.12    4.51     2.02  
-#&gt;  2 cyl       -9.17  -4.16    200.   102.    -0.668    1.37   -1.89    -0.730 
-#&gt;  3 disp    -633.   200.    11333.  6721.   -47.1    108.    -96.1    -44.4   
-#&gt;  4 hp      -321.   102.     6721.  8878.   -16.5     44.2   -86.8    -25.0   
-#&gt;  5 drat       2.20  -0.668   -47.1  -16.5   -0.0279  -0.373   0.0871   0.119 
-#&gt;  6 wt        -5.12   1.37    108.    44.2   -0.373   -0.896  -0.305   -0.274 
-#&gt;  7 qsec       4.51  -1.89    -96.1  -86.8    0.0871  -0.305  -0.0509   0.671 
-#&gt;  8 vs         2.02  -0.730   -44.4  -25.0    0.119   -0.274   0.671   -0.210 
-#&gt;  9 am         1.80  -0.466   -36.6   -8.32   0.190   -0.338  -0.205    0.0423
-#&gt; 10 gear       2.14  -0.649   -50.8   -6.36   0.276   -0.421  -0.280    0.0766
-#&gt; 11 carb      -5.36   1.52     79.1   83.0   -0.0784   0.676  -1.89    -0.464 
-#&gt; # … with 3 more variables: am &lt;dbl&gt;, gear &lt;dbl&gt;, carb &lt;dbl&gt;</div><div class='input'><span class='fu'>me_covariance</span>(<span class='kw'>mtcars</span>, <span class='kw'>new_diagonal</span>, method = <span class='st'>"kendall"</span>)</div><div class='output co'>#&gt; # A tibble: 11 x 12
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> mpg       13.2   -</span><span style='color: #BB0000;'>9.17</span><span>   -</span><span style='color: #BB0000;'>633.</span><span>  -</span><span style='color: #BB0000;'>321.</span><span>     2.20    -</span><span style='color: #BB0000;'>5.12</span><span>    4.51     2.02  
+#&gt; </span><span style='color: #555555;'> 2</span><span> cyl       -</span><span style='color: #BB0000;'>9.17</span><span>  -</span><span style='color: #BB0000;'>4.16</span><span>    200.   102.    -</span><span style='color: #BB0000;'>0.668</span><span>    1.37   -</span><span style='color: #BB0000;'>1.89</span><span>    -</span><span style='color: #BB0000;'>0.730</span><span> 
+#&gt; </span><span style='color: #555555;'> 3</span><span> disp    -</span><span style='color: #BB0000;'>633.</span><span>   200.    </span><span style='text-decoration: underline;'>11</span><span>333.  </span><span style='text-decoration: underline;'>6</span><span>721.   -</span><span style='color: #BB0000;'>47.1</span><span>    108.    -</span><span style='color: #BB0000;'>96.1</span><span>    -</span><span style='color: #BB0000;'>44.4</span><span>   
+#&gt; </span><span style='color: #555555;'> 4</span><span> hp      -</span><span style='color: #BB0000;'>321.</span><span>   102.     </span><span style='text-decoration: underline;'>6</span><span>721.  </span><span style='text-decoration: underline;'>8</span><span>878.   -</span><span style='color: #BB0000;'>16.5</span><span>     44.2   -</span><span style='color: #BB0000;'>86.8</span><span>    -</span><span style='color: #BB0000;'>25.0</span><span>   
+#&gt; </span><span style='color: #555555;'> 5</span><span> drat       2.20  -</span><span style='color: #BB0000;'>0.668</span><span>   -</span><span style='color: #BB0000;'>47.1</span><span>  -</span><span style='color: #BB0000;'>16.5</span><span>   -</span><span style='color: #BB0000;'>0.027</span><span style='color: #BB0000;text-decoration: underline;'>9</span><span>  -</span><span style='color: #BB0000;'>0.373</span><span>   0.087</span><span style='text-decoration: underline;'>1</span><span>   0.119 
+#&gt; </span><span style='color: #555555;'> 6</span><span> wt        -</span><span style='color: #BB0000;'>5.12</span><span>   1.37    108.    44.2   -</span><span style='color: #BB0000;'>0.373</span><span>   -</span><span style='color: #BB0000;'>0.896</span><span>  -</span><span style='color: #BB0000;'>0.305</span><span>   -</span><span style='color: #BB0000;'>0.274</span><span> 
+#&gt; </span><span style='color: #555555;'> 7</span><span> qsec       4.51  -</span><span style='color: #BB0000;'>1.89</span><span>    -</span><span style='color: #BB0000;'>96.1</span><span>  -</span><span style='color: #BB0000;'>86.8</span><span>    0.087</span><span style='text-decoration: underline;'>1</span><span>  -</span><span style='color: #BB0000;'>0.305</span><span>  -</span><span style='color: #BB0000;'>0.050</span><span style='color: #BB0000;text-decoration: underline;'>9</span><span>   0.671 
+#&gt; </span><span style='color: #555555;'> 8</span><span> vs         2.02  -</span><span style='color: #BB0000;'>0.730</span><span>   -</span><span style='color: #BB0000;'>44.4</span><span>  -</span><span style='color: #BB0000;'>25.0</span><span>    0.119   -</span><span style='color: #BB0000;'>0.274</span><span>   0.671   -</span><span style='color: #BB0000;'>0.210</span><span> 
+#&gt; </span><span style='color: #555555;'> 9</span><span> am         1.80  -</span><span style='color: #BB0000;'>0.466</span><span>   -</span><span style='color: #BB0000;'>36.6</span><span>   -</span><span style='color: #BB0000;'>8.32</span><span>   0.190   -</span><span style='color: #BB0000;'>0.338</span><span>  -</span><span style='color: #BB0000;'>0.205</span><span>    0.042</span><span style='text-decoration: underline;'>3</span><span>
+#&gt; </span><span style='color: #555555;'>10</span><span> gear       2.14  -</span><span style='color: #BB0000;'>0.649</span><span>   -</span><span style='color: #BB0000;'>50.8</span><span>   -</span><span style='color: #BB0000;'>6.36</span><span>   0.276   -</span><span style='color: #BB0000;'>0.421</span><span>  -</span><span style='color: #BB0000;'>0.280</span><span>    0.076</span><span style='text-decoration: underline;'>6</span><span>
+#&gt; </span><span style='color: #555555;'>11</span><span> carb      -</span><span style='color: #BB0000;'>5.36</span><span>   1.52     79.1   83.0   -</span><span style='color: #BB0000;'>0.078</span><span style='color: #BB0000;text-decoration: underline;'>4</span><span>   0.676  -</span><span style='color: #BB0000;'>1.89</span><span>    -</span><span style='color: #BB0000;'>0.464</span><span> 
+#&gt; </span><span style='color: #555555;'># … with 3 more variables: am </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, gear </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, carb </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span></div><div class='input'><span class='fu'>me_covariance</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>new_diagonal</span>, method <span class='op'>=</span> <span class='st'>"kendall"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 12</span><span>
 #&gt;    rowname   mpg   cyl  disp    hp   drat    wt   qsec    vs    am  gear  carb
-#&gt;    &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-#&gt;  1 mpg      355. -638  -752  -722   452   -714   310    414   326   340  -436 
-#&gt;  2 cyl     -638  -858.  654   626  -440    586  -362   -444  -282  -330   330 
-#&gt;  3 disp    -752   654   723.  648  -486    730  -296   -424  -362  -374   358 
-#&gt;  4 hp      -722   626   648  1824. -370    596  -462   -440  -210  -218   512 
-#&gt;  5 drat     452  -440  -486  -370   -94.3 -534    32    262   398   456   -82 
-#&gt;  6 wt      -714   586   730   596  -534   -921. -140   -344  -428  -428   322 
-#&gt;  7 qsec     310  -362  -296  -462    32   -140   -15.8  464  -118   -72  -440 
-#&gt;  8 vs       414  -444  -424  -440   262   -344   464   -417.   84   152  -358 
-#&gt;  9 am       326  -282  -362  -210   398   -428  -118     84  -747.  430   -36 
-#&gt; 10 gear     340  -330  -374  -218   456   -428   -72    152   430   589.   68 
-#&gt; 11 carb    -436   330   358   512   -82    322  -440   -358   -36    68   135.</div><div class='input'>
-<span class='kw'>diagonal_wout_weight</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span>(<span class='kw'>mtcars</span>) <span class='op'>-</span> <span class='fl'>1</span>)
-<span class='fu'>me_covariance</span>(<span class='kw'>mtcars</span>, <span class='kw'>diagonal_wout_weight</span>, wt = <span class='kw'>mpg</span>)</div><div class='output co'>#&gt; # A tibble: 10 x 11
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> mpg      355. -</span><span style='color: #BB0000;'>638</span><span>  -</span><span style='color: #BB0000;'>752</span><span>  -</span><span style='color: #BB0000;'>722</span><span>   452   -</span><span style='color: #BB0000;'>714</span><span>   310    414   326   340  -</span><span style='color: #BB0000;'>436</span><span> 
+#&gt; </span><span style='color: #555555;'> 2</span><span> cyl     -</span><span style='color: #BB0000;'>638</span><span>  -</span><span style='color: #BB0000;'>858.</span><span>  654   626  -</span><span style='color: #BB0000;'>440</span><span>    586  -</span><span style='color: #BB0000;'>362</span><span>   -</span><span style='color: #BB0000;'>444</span><span>  -</span><span style='color: #BB0000;'>282</span><span>  -</span><span style='color: #BB0000;'>330</span><span>   330 
+#&gt; </span><span style='color: #555555;'> 3</span><span> disp    -</span><span style='color: #BB0000;'>752</span><span>   654   723.  648  -</span><span style='color: #BB0000;'>486</span><span>    730  -</span><span style='color: #BB0000;'>296</span><span>   -</span><span style='color: #BB0000;'>424</span><span>  -</span><span style='color: #BB0000;'>362</span><span>  -</span><span style='color: #BB0000;'>374</span><span>   358 
+#&gt; </span><span style='color: #555555;'> 4</span><span> hp      -</span><span style='color: #BB0000;'>722</span><span>   626   648  </span><span style='text-decoration: underline;'>1</span><span>824. -</span><span style='color: #BB0000;'>370</span><span>    596  -</span><span style='color: #BB0000;'>462</span><span>   -</span><span style='color: #BB0000;'>440</span><span>  -</span><span style='color: #BB0000;'>210</span><span>  -</span><span style='color: #BB0000;'>218</span><span>   512 
+#&gt; </span><span style='color: #555555;'> 5</span><span> drat     452  -</span><span style='color: #BB0000;'>440</span><span>  -</span><span style='color: #BB0000;'>486</span><span>  -</span><span style='color: #BB0000;'>370</span><span>   -</span><span style='color: #BB0000;'>94.3</span><span> -</span><span style='color: #BB0000;'>534</span><span>    32    262   398   456   -</span><span style='color: #BB0000;'>82</span><span> 
+#&gt; </span><span style='color: #555555;'> 6</span><span> wt      -</span><span style='color: #BB0000;'>714</span><span>   586   730   596  -</span><span style='color: #BB0000;'>534</span><span>   -</span><span style='color: #BB0000;'>921.</span><span> -</span><span style='color: #BB0000;'>140</span><span>   -</span><span style='color: #BB0000;'>344</span><span>  -</span><span style='color: #BB0000;'>428</span><span>  -</span><span style='color: #BB0000;'>428</span><span>   322 
+#&gt; </span><span style='color: #555555;'> 7</span><span> qsec     310  -</span><span style='color: #BB0000;'>362</span><span>  -</span><span style='color: #BB0000;'>296</span><span>  -</span><span style='color: #BB0000;'>462</span><span>    32   -</span><span style='color: #BB0000;'>140</span><span>   -</span><span style='color: #BB0000;'>15.8</span><span>  464  -</span><span style='color: #BB0000;'>118</span><span>   -</span><span style='color: #BB0000;'>72</span><span>  -</span><span style='color: #BB0000;'>440</span><span> 
+#&gt; </span><span style='color: #555555;'> 8</span><span> vs       414  -</span><span style='color: #BB0000;'>444</span><span>  -</span><span style='color: #BB0000;'>424</span><span>  -</span><span style='color: #BB0000;'>440</span><span>   262   -</span><span style='color: #BB0000;'>344</span><span>   464   -</span><span style='color: #BB0000;'>417.</span><span>   84   152  -</span><span style='color: #BB0000;'>358</span><span> 
+#&gt; </span><span style='color: #555555;'> 9</span><span> am       326  -</span><span style='color: #BB0000;'>282</span><span>  -</span><span style='color: #BB0000;'>362</span><span>  -</span><span style='color: #BB0000;'>210</span><span>   398   -</span><span style='color: #BB0000;'>428</span><span>  -</span><span style='color: #BB0000;'>118</span><span>     84  -</span><span style='color: #BB0000;'>747.</span><span>  430   -</span><span style='color: #BB0000;'>36</span><span> 
+#&gt; </span><span style='color: #555555;'>10</span><span> gear     340  -</span><span style='color: #BB0000;'>330</span><span>  -</span><span style='color: #BB0000;'>374</span><span>  -</span><span style='color: #BB0000;'>218</span><span>   456   -</span><span style='color: #BB0000;'>428</span><span>   -</span><span style='color: #BB0000;'>72</span><span>    152   430   589.   68 
+#&gt; </span><span style='color: #555555;'>11</span><span> carb    -</span><span style='color: #BB0000;'>436</span><span>   330   358   512   -</span><span style='color: #BB0000;'>82</span><span>    322  -</span><span style='color: #BB0000;'>440</span><span>   -</span><span style='color: #BB0000;'>358</span><span>   -</span><span style='color: #BB0000;'>36</span><span>    68   135.</div><div class='input'>
+<span class='va'>diagonal_wout_weight</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>ncol</a></span><span class='op'>(</span><span class='va'>mtcars</span><span class='op'>)</span> <span class='op'>-</span> <span class='fl'>1</span><span class='op'>)</span>
+<span class='fu'>me_covariance</span><span class='op'>(</span><span class='va'>mtcars</span>, <span class='va'>diagonal_wout_weight</span>, wt <span class='op'>=</span> <span class='va'>mpg</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 10 x 11</span><span>
 #&gt;    rowname     cyl    disp      hp     drat     wt    qsec       vs       am
-#&gt;    &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-#&gt;  1 cyl       0.776   193.    99.0   -0.691   1.35   -1.85   -0.720   -0.494 
-#&gt;  2 disp    193.    22682.  6308.   -46.9    98.6   -93.5   -42.3    -37.6   
-#&gt;  3 hp       99.0    6308.   482.   -18.4    42.5   -80.6   -24.0    -10.3   
-#&gt;  4 drat     -0.691   -46.9  -18.4   -0.0397 -0.375   0.128   0.119    0.198 
-#&gt;  5 wt        1.35     98.6   42.5   -0.375  -1.70   -0.310  -0.267   -0.353 
-#&gt;  6 qsec     -1.85    -93.5  -80.6    0.128  -0.310  -0.895   0.675   -0.189 
-#&gt;  7 vs       -0.720   -42.3  -24.0    0.119  -0.267   0.675  -0.0807   0.0467
-#&gt;  8 am       -0.494   -37.6  -10.3    0.198  -0.353  -0.189   0.0467   0.276 
-#&gt;  9 gear     -0.650   -47.8   -7.68   0.259  -0.402  -0.275   0.0667   0.279 
-#&gt; 10 carb      1.55     77.0   75.9   -0.119   0.670  -1.82   -0.473   -0.0123
-#&gt; # … with 2 more variables: gear &lt;dbl&gt;, carb &lt;dbl&gt;</div><div class='input'></div></pre>
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
+#&gt; </span><span style='color: #555555;'> 1</span><span> cyl       0.776   193.    99.0   -</span><span style='color: #BB0000;'>0.691</span><span>   1.35   -</span><span style='color: #BB0000;'>1.85</span><span>   -</span><span style='color: #BB0000;'>0.720</span><span>   -</span><span style='color: #BB0000;'>0.494</span><span> 
+#&gt; </span><span style='color: #555555;'> 2</span><span> disp    193.    </span><span style='text-decoration: underline;'>22</span><span>682.  </span><span style='text-decoration: underline;'>6</span><span>308.   -</span><span style='color: #BB0000;'>46.9</span><span>    98.6   -</span><span style='color: #BB0000;'>93.5</span><span>   -</span><span style='color: #BB0000;'>42.3</span><span>    -</span><span style='color: #BB0000;'>37.6</span><span>   
+#&gt; </span><span style='color: #555555;'> 3</span><span> hp       99.0    </span><span style='text-decoration: underline;'>6</span><span>308.   482.   -</span><span style='color: #BB0000;'>18.4</span><span>    42.5   -</span><span style='color: #BB0000;'>80.6</span><span>   -</span><span style='color: #BB0000;'>24.0</span><span>    -</span><span style='color: #BB0000;'>10.3</span><span>   
+#&gt; </span><span style='color: #555555;'> 4</span><span> drat     -</span><span style='color: #BB0000;'>0.691</span><span>   -</span><span style='color: #BB0000;'>46.9</span><span>  -</span><span style='color: #BB0000;'>18.4</span><span>   -</span><span style='color: #BB0000;'>0.039</span><span style='color: #BB0000;text-decoration: underline;'>7</span><span> -</span><span style='color: #BB0000;'>0.375</span><span>   0.128   0.119    0.198 
+#&gt; </span><span style='color: #555555;'> 5</span><span> wt        1.35     98.6   42.5   -</span><span style='color: #BB0000;'>0.375</span><span>  -</span><span style='color: #BB0000;'>1.70</span><span>   -</span><span style='color: #BB0000;'>0.310</span><span>  -</span><span style='color: #BB0000;'>0.267</span><span>   -</span><span style='color: #BB0000;'>0.353</span><span> 
+#&gt; </span><span style='color: #555555;'> 6</span><span> qsec     -</span><span style='color: #BB0000;'>1.85</span><span>    -</span><span style='color: #BB0000;'>93.5</span><span>  -</span><span style='color: #BB0000;'>80.6</span><span>    0.128  -</span><span style='color: #BB0000;'>0.310</span><span>  -</span><span style='color: #BB0000;'>0.895</span><span>   0.675   -</span><span style='color: #BB0000;'>0.189</span><span> 
+#&gt; </span><span style='color: #555555;'> 7</span><span> vs       -</span><span style='color: #BB0000;'>0.720</span><span>   -</span><span style='color: #BB0000;'>42.3</span><span>  -</span><span style='color: #BB0000;'>24.0</span><span>    0.119  -</span><span style='color: #BB0000;'>0.267</span><span>   0.675  -</span><span style='color: #BB0000;'>0.080</span><span style='color: #BB0000;text-decoration: underline;'>7</span><span>   0.046</span><span style='text-decoration: underline;'>7</span><span>
+#&gt; </span><span style='color: #555555;'> 8</span><span> am       -</span><span style='color: #BB0000;'>0.494</span><span>   -</span><span style='color: #BB0000;'>37.6</span><span>  -</span><span style='color: #BB0000;'>10.3</span><span>    0.198  -</span><span style='color: #BB0000;'>0.353</span><span>  -</span><span style='color: #BB0000;'>0.189</span><span>   0.046</span><span style='text-decoration: underline;'>7</span><span>   0.276 
+#&gt; </span><span style='color: #555555;'> 9</span><span> gear     -</span><span style='color: #BB0000;'>0.650</span><span>   -</span><span style='color: #BB0000;'>47.8</span><span>   -</span><span style='color: #BB0000;'>7.68</span><span>   0.259  -</span><span style='color: #BB0000;'>0.402</span><span>  -</span><span style='color: #BB0000;'>0.275</span><span>   0.066</span><span style='text-decoration: underline;'>7</span><span>   0.279 
+#&gt; </span><span style='color: #555555;'>10</span><span> carb      1.55     77.0   75.9   -</span><span style='color: #BB0000;'>0.119</span><span>   0.670  -</span><span style='color: #BB0000;'>1.82</span><span>   -</span><span style='color: #BB0000;'>0.473</span><span>   -</span><span style='color: #BB0000;'>0.012</span><span style='color: #BB0000;text-decoration: underline;'>3</span><span>
+#&gt; </span><span style='color: #555555;'># … with 2 more variables: gear </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, carb </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span></div><div class='input'>
+</div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -269,7 +268,7 @@ the diagonal multiplied by <code>diag_adj</code></p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
