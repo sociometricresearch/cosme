@@ -94,9 +94,12 @@ me_sscore  <- function(me_data, .data, new_name, ..., wt = NULL, .drop = TRUE) {
 
 #' @rdname me_sscore
 #' @export
-me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
+me_sscore_ <- function(me_data,
+                       .data,
+                       new_name,
+                       vars_names,
+                       wt = NULL,
                        .drop = TRUE) {
-
   # Check me data has correct class and formats
   me_data <- as_me(me_data)
 
@@ -105,13 +108,14 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
   # from sqpr. This means we need to calculate the sqrt to get the
   # method_eff.
   if (!"method_eff" %in% names(me_data)) {
-    # Get square root of validity, quality and reliability
-    me_data[-1] <- lapply(me_data[-1], sqrt)
-    # method effect
+    # Get square root of quality and reliability
+    col_trans <- c("validity", "reliability")
+    me_data[col_trans] <- lapply(me_data[col_trans], sqrt)
     me_data$method_eff <- with(me_data, reliability * sqrt(1 - validity^2))
+    me_data$quality_coef <- sqrt(me_data[['quality']])
   }
 
-                                        # Check all variables present in .data
+  # Check all variables present in .data
   vars_not_matched <- !vars_names %in% names(.data)
   if (any(vars_not_matched)) {
     stop("One or more variables are not present in `.data`: ",
@@ -119,7 +123,7 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
          call. = FALSE)
   }
 
-                                        # Check all variables present in me_data
+  # Check all variables present in me_data
   vars_not_matched <- !vars_names %in% me_data[[1]]
   if (any(vars_not_matched)) {
     stop("One or more variables are not present in `me_data`: ",
@@ -129,18 +133,18 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
 
   the_vars <- .data[vars_names]
 
-                                        # Check all variables are numeric and there are at least two columns in the
-                                        # .data
+  # Check all variables are numeric and there are at least two columns in the
+  # .data
   if (!all(vapply(the_vars, is.numeric, FUN.VALUE = logical(1)))) {
     stop(paste0(vars_names, collapse = ", "), " must be numeric variables in `.data`") # nolintr
   }
 
   if (ncol(the_vars) < 2) stop("`.data` must have at least two columns")
 
-                                        # Select the rows with only the selected variales
-                                        # for the sumscore
+  # Select the rows with only the selected variables
+  # for the sumscore
   rows_to_pick <- me_data[[1]] %in% vars_names
-  cols_sel <- c(me_env$me_question, me_env$me_columns, "method_eff")
+  cols_sel <- c(me_env$me_question, me_env$me_columns, "quality_coef", "method_eff")
 
   me_scores <- me_data[rows_to_pick, cols_sel]
 
@@ -160,16 +164,16 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
 
   additional_rows <- generic_me(new_name, new_estimate)
 
-                                        # Bind the unselected questions with the new sumscore
+  # Bind the unselected questions with the new sumscore
   if (!.drop) {
     rows_to_pick <- rep(TRUE, length(rows_to_pick))
   } else {
     rows_to_pick <- !rows_to_pick
   }
 
-                                        # The only purpose of as_tibble here is to remove the class `me`
-                                        # so that bind_rows can work well. `as_me` converts it to me
-                                        # in the end, so it doesn't matter.
+  # The only purpose of as_tibble here is to remove the class `me`
+  # so that bind_rows can work well. `as_me` converts it to me
+  # in the end, so it doesn't matter.
   combined_matrix <- dplyr::bind_rows(dplyr::as_tibble(me_data[rows_to_pick, ]),
                                       dplyr::as_tibble(additional_rows))
   correct_order <- c("question", me_env$me_columns, "method_eff")
@@ -180,17 +184,17 @@ me_sscore_ <- function(me_data, .data, new_name, vars_names, wt = NULL,
   final_data
 }
 
-                                        # This is not supposed to be used in isolation.
-                                        # Rather with measurement quality as a wrapper
-                                        # because it checks all of the arguments are in
-                                        # the correct format, etc..
+  # This is not supposed to be used in isolation.
+  # Rather with measurement quality as a wrapper
+  # because it checks all of the arguments are in
+  # the correct format, etc..
 estimate_sscore <- function(me_scores, .data, new_name, wt) {
   sscore <- .data[[new_name]]
 
-                                        # If there are two variables, the number of combinations are
-                                        # is one (so just one weight value). If there are three variables
-                                        # the number of combinations are three and we need three
-                                        # weight values, and so on..
+  # If there are two variables, the number of combinations are
+  # is one (so just one weight value). If there are three variables
+  # the number of combinations are three and we need three
+  # weight values, and so on..
   num_combn <- utils::combn(seq_len(nrow(me_scores)), 2, simplify = FALSE)
   if (is.null(wt)) wt <- rep(1, length(num_combn))
 
@@ -203,8 +207,7 @@ estimate_sscore <- function(me_scores, .data, new_name, wt) {
   }
 
   sd_sscore <- stats::sd(.data[[new_name]], na.rm = TRUE)
-  quality <- grep("^q", me_env$me_columns, value = TRUE)
-  sum_res <- sum((wt / sd_sscore * me_scores[[quality]])^2)
+  sum_res <- sum((wt / sd_sscore * me_scores[["quality_coef"]])^2)
 
   correlation_res <-
     matrix2tibble(
@@ -232,7 +235,7 @@ estimate_sscore <- function(me_scores, .data, new_name, wt) {
   final_meff <- sum(wt / sd_sscore * me_scores[[reliability]] * methodeff)^2
 
   if (sign(final_qcoef) == -1) {
-    stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/measurementfree/issues")
+    stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/measurementfree/issues") #nolintr
   }
 
   list(
@@ -241,18 +244,18 @@ estimate_sscore <- function(me_scores, .data, new_name, wt) {
   )
 }
 
-                                        # For an explanation of this see combn_multiplication
+  # For an explanation of this see combn_multiplication
 cov_both <- function(combinations, r_coef, method_e) {
-                                        # This formula is not complicated. It's simply the product of
-                                        # the standard deviation of the data, the r_coef and the
-                                        # method effect between all combination of questions.
+  # This formula is not complicated. It's simply the product of
+  # the standard deviation of the data, the r_coef and the
+  # method effect between all combination of questions.
   cov_formula <- function(one, two, r_coef, method_e) {
     (r_coef[one] * method_e[one]) * (r_coef[two] * method_e[two])
   }
 
-                                        # Here I apply the formula to all combinations. combinations
-                                        # must be a list where each slot is of length 2 with a pair
-                                        # combination. The whole list must contain all combinations
+  # Here I apply the formula to all combinations. combinations
+  # must be a list where each slot is of length 2 with a pair
+  # combination. The whole list must contain all combinations
   result <- vapply(combinations, function(index) {
     index_one <- index[1]
     index_two <- index[2]

@@ -258,7 +258,7 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly - polit
   tmp_corrected_cor <- me_cmv_cor(.medesign)
 
   # Convert back to pre cov2cor
-  cor_variances <- c(0.8826098, 0.9066422, 0.9060905, 1)
+  cor_variances <- c(0.779, 0.822, 0.821,  1)
   d <- sqrt(cor_variances)
 
   opposite_cov2cor <-
@@ -296,9 +296,9 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly - polit
   correct_res <-
     data.frame(
       rowname = c("trstprl", "trstplt", "trstprt"),
-      trstprl = c(0.8826, 0.6173, 0.563),
-      trstplt = c(0.6173, 0.9066, 0.8086),
-      trstprt = c(0.5630, 0.8086, 0.9061)
+      trstprl = c(0.779, 0.6173, 0.563),
+      trstplt = c(0.6173, 0.822, 0.8086),
+      trstprt = c(0.5630, 0.8086, 0.821)
     )
 
   # We are checking up to three digits. They all match. Don't worry
@@ -329,7 +329,7 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly - state
   tmp_corrected_cor <- me_cmv_cor(.medesign)
 
   # Convert back to pre cov2cor
-  cor_variances <- c(0.7968689, 0.7791020, 1)
+  cor_variances <- c(0.635, 0.607, 1)
   d <- sqrt(cor_variances)
 
   opposite_cov2cor <-
@@ -367,8 +367,8 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly - state
   correct_res <-
     data.frame(
       rowname = c("stfedu", "stfhlth"),
-      stfedu = c(0.7969, 0.4817),
-      stfhlth = c(0.4817, 0.7791)
+      stfedu = c(0.6350, 0.4817),
+      stfhlth = c(0.4817, 0.607)
     )
 
   # We are checking up to three digits. They all match. Don't worry
@@ -387,8 +387,8 @@ test_that("me_cmv_cor corrects for CMV between simple and complex concept correc
 
   # Define measurement error relationship
   model_syntax <-
-    "std(stfsscore) = stfedu + stfhlth;
-     ~ trstprl + trstplt + trstprt + stfsscore"
+    "std(trstsscore) = trstprl + trstplt + trstprt;
+     ~ stfedu + stfhlth + trstsscore"
 
   # data from sqp
   me_data <-
@@ -409,9 +409,7 @@ test_that("me_cmv_cor corrects for CMV between simple and complex concept correc
 
   # Let's convert back to pre cov2cor to match Wiebke's results
   # exactly.
-  cor_variances <- c(0.8826098, 0.9066422, 0.9060905,
-                     0.7968689, 0.7791020, 1,
-                     0.6841067)
+  cor_variances <- c(0.635, 0.607, 1, 0.8936)
   d <- sqrt(cor_variances)
 
   opposite_cov2cor <-
@@ -442,20 +440,18 @@ test_that("me_cmv_cor corrects for CMV between simple and complex concept correc
 
   # Make sure that all variables which are supposed to be corrected for CMV are
   # corrected
-  cmv_vars <- c("trstprl", "trstplt", "trstprt", "stfsscore")
+  cmv_vars <- c("stfedu", "stfhlth", "trstsscore")
   row_order <- match(cmv_vars, opposite_cov2cor$rowname)
   res1 <- opposite_cov2cor[row_order, c("rowname", cmv_vars)]
-  res1[2:4] <- lapply(res1[2:4], round, 4)
+  res1[-1] <- lapply(res1[-1], round, 4)
   row.names(res1) <- NULL
 
   correct_res <-
     data.frame(
-      rowname = c("trstprl", "trstplt", "trstprt", "stfsscore"),
-      trstprl = c(0.8826, 0.6197, 0.5628, 0.3484),
-      trstplt = c(0.6197, 0.9066, 0.8055, 0.3716),
-      trstprt = c(0.5628, 0.8055, 0.9061, 0.3072),
-      stfsscore = c(0.348422757353293, 0.371591861806547, 
-                    0.307183448085645, 0.6841067)
+      rowname = c("stfedu", "stfhlth", "trstsscore"),
+      stfedu = c(0.635, 0.4827, 0.3646),
+      stfhlth = c(0.4827, 0.607, 0.3574),
+      trstsscore = c(0.3646, 0.3574, 0.8936)
     )
 
   # We are checking up to three digits. They all match. Don't worry
@@ -497,7 +493,7 @@ test_that("me_cmv_cor corrects for CMV between complex and complex concept corre
 
   # Let's convert back to pre cov2cor to match Wiebke's results
   # exactly.
-  cor_variances <- c(0.8826098, 0.9066422, 0.9060905, 0.7968689, 0.7791020, 1, 0.6841067, 0.8936418)
+  cor_variances <- c(1, 0.6841, 0.8936)
   d <- sqrt(cor_variances)
 
   opposite_cov2cor <-
@@ -512,7 +508,7 @@ test_that("me_cmv_cor corrects for CMV between complex and complex concept corre
   # Make sure that all variables **not** used in the me correction
   # are the same between the corrected CMV and original cor without correction
   sel_rows <- "agea"
-  sel_cols <- c("rowname", "stfedu", "stfhlth", "agea")
+  sel_cols <- c("rowname", "agea")
   res1 <-
     as.data.frame(
       opposite_cov2cor[opposite_cov2cor$rowname %in% sel_rows, sel_cols],
@@ -531,7 +527,7 @@ test_that("me_cmv_cor corrects for CMV between complex and complex concept corre
   cmv_vars <- c("stfsscore", "trstsscore")
   row_order <- match(cmv_vars, opposite_cov2cor$rowname)
   res1 <- opposite_cov2cor[row_order, c("rowname", cmv_vars)]
-  res1[2:3] <- lapply(res1[2:3], round, 4)
+  res1[-1] <- lapply(res1[-1], round, 4)
   row.names(res1) <- NULL
 
   correct_res <-
@@ -572,8 +568,8 @@ test_that("medesign calculates quality of sumscore correctly for cor and cov", {
                     .data,
                     me_df)
 
-  expect_equal(m_obj$corr$s1[6], 0.8936, tol = 0.001)
-  expect_equal(m_obj$covv$s1[6], 6.3999, tol = 0.001)
+  expect_equal(m_obj$corr$s1[3], 0.8936, tol = 0.001)
+  expect_equal(m_obj$covv$s1[3], 6.3999, tol = 0.001)
 
   .data <- ess7es[c(selected_vars1, selected_vars3)]
 
@@ -581,8 +577,8 @@ test_that("medesign calculates quality of sumscore correctly for cor and cov", {
                     .data,
                     me_df)
 
-  expect_equal(m_obj$corr$s1[5], 0.6841, tol = 0.001)
-  expect_equal(m_obj$covv$s1[5], 2.2053, tol = 0.001)
+  expect_equal(m_obj$corr$s1[3], 0.6841, tol = 0.001)
+  expect_equal(m_obj$covv$s1[3], 2.2053, tol = 0.001)
 })
 
 # TODO: once you fix me_cmv_cov

@@ -4,7 +4,7 @@
 \alias{medesign}
 \title{Define your measurement error design}
 \usage{
-medesign(model_syntax, .data, me_data, ...)
+medesign(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...)
 }
 \arguments{
 \item{model_syntax}{A description of the user-specified model as a character
@@ -18,6 +18,13 @@ details and example section for on how to write this syntax.}
 with \code{me_construct}. It is expected that this measurement error data is
 not square rooted (reliability, validity and quality) as it will be done
 with \code{me_sscore}.}
+
+\item{drop_sscore_vars}{Whether to remove variables that compose a sum score
+from the final correlation. More specifically, if you define the sum score
+\code{s1 = v1 + v2}, then \code{v1} and \code{v2} are excluded from the final
+correlation. The default is to exclude these columns since you can get
+correlation coefficients over one for these variables. Default set to
+\code{TRUE}.}
 
 \item{...}{arguments passed to \code{\link{me_sscore}}.}
 }

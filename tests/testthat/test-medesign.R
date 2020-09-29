@@ -468,7 +468,13 @@ test_that("medesign replaces quality in diagonal of cor and cov correctly", {
   data(ess7es)
   .data <- ess7es[c("trstprl", "trstplt", "trstprt")]
   model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
-  medesign_tst <- medesign(model_syntax, .data, me_data)
+  medesign_tst <-
+    medesign(
+      model_syntax,
+      .data,
+      me_data,
+      drop_sscore_vars = FALSE
+    )
 
   expect_equal(
     diag(as.matrix(medesign_tst$corr[-1])),
@@ -477,7 +483,7 @@ test_that("medesign replaces quality in diagonal of cor and cov correctly", {
 
   expect_equal(
     diag(as.matrix(medesign_tst$covv[-1])),
-    c(0.8826098, 0.9066422, 0.9060905, 6.3998926),
+    c(0.779, 0.822, 0.821, 6.3998926),
     tol = 0.00001
   )
 })

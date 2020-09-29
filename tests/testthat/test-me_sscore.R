@@ -266,10 +266,11 @@ test_that("estimate_sscore returns the correct quality and method effect of a ss
    quality <-
      data.frame(
        question = c("trstprl", "trstplt", "trstprt"),
-       reliability = c(0.901110426085505, 0.923038460737146, 0.926282894152753),
+       reliability = c(0.9011, 0.9230, 0.9262),
        validity = c(0.979285453787607, 0.982344135219425, 0.977752524926425),
-       quality = c(0.882609766544649, 0.906642156531451, 0.906090503205943),
-       method_eff = c(0.1824610, 0.1726847, 0.1942987)
+       quality = c(0.779, 0.822, 0.821),
+       quality_coef = c(0.8826, 0.9066, 0.9060),
+       method_eff = c(0.1824, 0.1726, 0.1943)
      )
 
   .data <- scale_add_sscore(.data, "s1", paste0(selected_vars, collapse = "+"))
@@ -288,6 +289,7 @@ test_that("estimate_sscore returns the correct quality and method effect of a ss
       reliability = c(0.870057469366248, 0.871779788708135),
       validity = c(0.915423399307664, 0.893308457365092),
       quality = c(0.796868872525461, 0.779102047231298),
+      quality_coef = c(0.7968, 0.7791),
       method_eff = c(0.3501914, 0.3918163)
     )
 

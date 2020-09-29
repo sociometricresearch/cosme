@@ -12,6 +12,13 @@
 #' not square rooted (reliability, validity and quality) as it will be done
 #' with \code{me_sscore}.
 #'
+#' @param drop_sscore_vars Whether to remove variables that compose a sum score
+#' from the final correlation. More specifically, if you define the sum score
+#' \code{s1 = v1 + v2}, then \code{v1} and \code{v2} are excluded from the final
+#' correlation. The default is to exclude these columns since you can get
+#' correlation coefficients over one for these variables. Default set to
+#' \code{TRUE}.
+#'
 #' @param ... arguments passed to \code{\link{me_sscore}}.
 #'
 #' @return an \code{me} design object which can be passed to other functions
@@ -122,7 +129,7 @@
 #'
 #' medesign(me_syntax, ess7es, me_data)
 #'
-medesign <- function(model_syntax, .data, me_data, ...) {
+medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...) {
   me_data <- as_me(me_data)
 
   stopifnot(is.data.frame(.data),
@@ -145,8 +152,10 @@ medesign <- function(model_syntax, .data, me_data, ...) {
 
   .data <- create_sscore(parsed_model, .data)
 
-  # Get square root of validity, quality and reliability
-  me_data[-1] <- lapply(me_data[-1], sqrt)
+  # Get square root of validity and reliability
+  col_trans <- c("validity", "reliability")
+  me_data[col_trans] <- lapply(me_data[col_trans], sqrt)
+  me_data$quality_coef <- sqrt(me_data[['quality']])
 
   # method effect
   me_data$method_eff <- with(me_data, reliability * sqrt(1 - validity^2))
@@ -156,12 +165,6 @@ medesign <- function(model_syntax, .data, me_data, ...) {
                                            me_data = me_data,
                                            .drop = FALSE,
                                            ...)
-
-  # Because variables used to create the quality
-  # of the sumscore are now excluded from me_data
-  # if we checked whether they're there, it would
-  # raise an error. Here we exclude them
-  ## vars_used <- unlist(vars_used[!which_sscore])
 
   # I checked the sscore vars above but all variables here again just
   # because I'm lazy
@@ -177,6 +180,12 @@ medesign <- function(model_syntax, .data, me_data, ...) {
 
   check_data_vars(.data, unlist(vars_used))
   check_data_na(.data, unlist(vars_used))
+
+  if (drop_sscore_vars) {
+    sscore_vars_used <- unlist(vars_used[which_sscore])
+    valid_vars <- setdiff(names(.data), sscore_vars_used)
+    .data <- .data[valid_vars]
+  }
 
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")
