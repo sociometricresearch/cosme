@@ -184,10 +184,10 @@ me_sscore_ <- function(me_data,
   final_data
 }
 
-  # This is not supposed to be used in isolation.
-  # Rather with measurement quality as a wrapper
-  # because it checks all of the arguments are in
-  # the correct format, etc..
+# This is not supposed to be used in isolation.
+# Rather with measurement quality as a wrapper
+# because it checks all of the arguments are in
+# the correct format, etc..
 estimate_sscore <- function(me_scores, .data, new_name, wt) {
   sscore <- .data[[new_name]]
 
