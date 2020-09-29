@@ -123,7 +123,7 @@
     <p>Define your measurement error design</p>
     </div>
 
-    <pre class="usage"><span class='fu'>medesign</span><span class='op'>(</span><span class='va'>model_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>medesign</span><span class='op'>(</span><span class='va'>model_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span>, drop_sscore_vars <span class='op'>=</span> <span class='cn'>TRUE</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,6 +145,15 @@ details and example section for on how to write this syntax.</p></td>
 with <code>me_construct</code>. It is expected that this measurement error data is
 not square rooted (reliability, validity and quality) as it will be done
 with <code>me_sscore</code>.</p></td>
+    </tr>
+    <tr>
+      <th>drop_sscore_vars</th>
+      <td><p>Whether to remove variables that compose a sum score
+from the final correlation. More specifically, if you define the sum score
+<code>s1 = v1 + v2</code>, then <code>v1</code> and <code>v2</code> are excluded from the final
+correlation. The default is to exclude these columns since you can get
+correlation coefficients over one for these variables. Default set to
+<code>TRUE</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
