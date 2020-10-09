@@ -1,16 +1,15 @@
-#' Adjust a correlation matrix for Common Method Variance (CMV)
+#' Adjust a correlation matrix for Common Method Variance (CMV) and Quality of Sum score
 #'
 #' \code{me_cmv_cor} accepts an \code{medesign} object created by
 #' \code{\link{medesign}} and adjusts the correlation coefficients of
 #' common method variables with the reliability and validity coefficients
-#' from \code{me_data}. Optionally, you can supply the CMV coefficients
-#' manually in the argument \code{cmv}.
+#' from \code{me_data}.
 #'
 #' @param .medesign An \code{medesign} object given by \code{\link{medesign}}
 #'
 #' @return The common-method-variance corrected correlation. It is a correlation
 #' data frame but some correlation coefficients are adjusted for their shared
-#' common method variance.
+#' common method variance and the quality of sum scores.
 #'
 #' @export
 #'
@@ -69,7 +68,6 @@
 #'
 #' # Original correlations
 #' me_correlate(.data)
-#'
 #'
 me_cmv_cor <- function(.medesign) {
   cmv <- NULL

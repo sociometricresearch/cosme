@@ -19,6 +19,8 @@
 #' \item{stfeco}{Political satisfaction , country's economy}
 #' \item{agea}{Age}
 #' \item{edulvlb}{Education level}
+#' \item{eisced}{ISCED education classification}
+#' \item{pspwght}{Weights}
 #' }
 #' @source Downloaded from the ESS website at https://www.europeansocialsurvey.org/download.html?file=ESS7ES&c=ES&y=2014
 "ess7es"

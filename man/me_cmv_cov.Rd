@@ -2,7 +2,7 @@
 % Please edit documentation in R/me_cmv_cov.R
 \name{me_cmv_cov}
 \alias{me_cmv_cov}
-\title{Adjust a covariance matrix for Common Method Variance (CMV)}
+\title{Adjust a covariance matrix for Common Method Variance (CMV) and Quality of Sum score}
 \usage{
 me_cmv_cov(.medesign)
 }
@@ -10,46 +10,55 @@ me_cmv_cov(.medesign)
 \item{.medesign}{An \code{medesign} object given by \code{\link{medesign}}}
 }
 \value{
-The common-method-variance corrected correlation.
+The common-method-variance and quality corrected covariance matrix.
 }
 \description{
 \code{me_cmv_cov} accepts an \code{medesign} object specified in
 \code{\link{medesign}} and adjusts the covariance coefficients of
 common method variables with the reliability and validity coefficients
-from \code{me_data}. Optionally, you can supply the CMV coefficients
-manually in the argument \code{cmv}.
+from \code{me_data} as well as the quality of sum scores.
 }
 \examples{
 
-\dontrun{
-## TODO - Fix when me_cmv_cov works well
 set.seed(2131)
-library(tibble)
 
-original_df <- as.data.frame(matrix(rnorm(100, sd = 50), nrow = 20))
+# measurement data extract from SQP for Spain, Round 7 in Spanish
+me_data <-
+data.frame(
+  question = c("ppltrst", "polintr", "trstprl", "trstplt", "trstprt", "stfedu", "stfhlth"),
+  reliability = c(0.737, 0.624, 0.812, 0.852, 0.858, 0.757, 0.76),
+  validity = c(0.952, 0.964, 0.959, 0.965, 0.956, 0.838, 0.798),
+  quality = c(0.702, 0.601, 0.779, 0.822, 0.821, 0.635, 0.607)
+)
 
-# Toy quality dataset
-me_df <-
- tibble(question = paste0("V", 1:5),
- quality = c(0.2, 0.3, 0.5, 0.6, 0.9),
- reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
- validity = c(0.79, 0.9, 0.6, 0.7, 0.8))
+# Define a measurement error model with two sum scores
+# and sharing a common method variance between ppltrst
+# and the zpoltrst sum score
+m1 <- "std(zserv) = stfhlth + stfedu;
+       std(zpoltrst) = trstprl + trstplt + trstprt;
+       ~ ppltrst + zpoltrst"
 
-# Define mdesign object
-m_obj <- medesign("~ V4 + V5", original_df, me_df)
+# Create measurement error design
+mdes <-
+  medesign(
+    model_syntax = m1,
+    .data = ess7es[me_data$question],
+    me_data = me_data
+  )
 
-# Original correlation matrix
-me_covariance(original_df)
+mdes
 
-# Coefficient of correlation changes
-# when adjusting for common method variance
-me_cmv_cov(m_obj)
+# Original covariance matrix
+me_covariance(mdes$.data)
 
-# The V5*V4 from both the upper/lower triangles
-# covariance matrix changed from -181 to -634
-}
+# Coefficients of covariance changes
+# when adjusting for common method variance and
+# quality of sum scores
+me_cmv_cov(mdes)
+
+
 }
 \seealso{
 \code{link{medesign}} and \code{\link{me_cmv_cor}} for the same
-adjustment but for a covariance matrix.
+adjustment but for a correlation matrix.
 }

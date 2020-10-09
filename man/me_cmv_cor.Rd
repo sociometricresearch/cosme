@@ -2,7 +2,7 @@
 % Please edit documentation in R/me_cmv_cor.R
 \name{me_cmv_cor}
 \alias{me_cmv_cor}
-\title{Adjust a correlation matrix for Common Method Variance (CMV)}
+\title{Adjust a correlation matrix for Common Method Variance (CMV) and Quality of Sum score}
 \usage{
 me_cmv_cor(.medesign)
 }
@@ -12,14 +12,13 @@ me_cmv_cor(.medesign)
 \value{
 The common-method-variance corrected correlation. It is a correlation
 data frame but some correlation coefficients are adjusted for their shared
-common method variance.
+common method variance and the quality of sum scores.
 }
 \description{
 \code{me_cmv_cor} accepts an \code{medesign} object created by
 \code{\link{medesign}} and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
-from \code{me_data}. Optionally, you can supply the CMV coefficients
-manually in the argument \code{cmv}.
+from \code{me_data}.
 }
 \examples{
 
@@ -73,7 +72,6 @@ me_cmv_cor(mdes)
 
 # Original correlations
 me_correlate(.data)
-
 
 }
 \seealso{

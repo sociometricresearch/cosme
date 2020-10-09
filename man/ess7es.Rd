@@ -21,6 +21,8 @@ A data frame with 1925 rows and 11 variables:
 \item{stfeco}{Political satisfaction , country's economy}
 \item{agea}{Age}
 \item{edulvlb}{Education level}
+\item{eisced}{ISCED education classification}
+\item{pspwght}{Weights}
 }
 }
 \source{
