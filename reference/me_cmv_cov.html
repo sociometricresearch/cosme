@@ -175,7 +175,7 @@ adjustment but for a correlation matrix.</p></div>
     .data <span class='op'>=</span> <span class='va'>ess7es</span><span class='op'>[</span><span class='va'>me_data</span><span class='op'>$</span><span class='va'>question</span><span class='op'>]</span>,
     me_data <span class='op'>=</span> <span class='va'>me_data</span>
   <span class='op'>)</span>
-</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in medesign(model_syntax = m1, .data = ess7es[me_data$question],     me_data = me_data): You need to provide a quality specification with `~~`. To correct for the quality of all available variables write `~~ .`</span></div><div class='input'>
 <span class='va'>mdes</span>
 </div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'mdes' not found</span></div><div class='input'>
 <span class='co'># Original covariance matrix</span>
