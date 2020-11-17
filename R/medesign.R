@@ -27,11 +27,31 @@
 #' @details
 #'
 #' The model syntax allows to define the relationship between variables
-#' in terms of whether they share a common method in the question
-#' that was asked. For example, if the questions called \code{stflife}
-#' and \code{stfwork} were both measured with a 1-10 likert scale related
-#' to satisfaction, these two questions were measured with the same method.
-#' The model syntax would specify them like:
+#' in terms of how to correct for their measurement error and whether
+#' they share a common method in the question that was asked. To correct for
+#' the measurement error of a set of variables you can write the model
+#' like this:
+#'
+#' \preformatted{~~ stflife + stfwork}
+#'
+#' For most purposes, a user would just want to correct for measurement error
+#' on all variables which have measurement error statistics in \code{me_data}
+#' and is present on \code{.data}. For that, \code{~~} is interpreted as
+#' a normal R formula so you can automatically apply the correction to all
+#' variables like this:
+#'
+#' \preformatted{~~ .}
+#'
+#' Correcting for measurement error (that is, using `~~`) is a necessary
+#' step for `medesign`. That is, it always needs to be specified as it is
+#' the first step on which other corrections are built. \code{medesign}
+#' will raise an error if no `~~` is specified.
+#'
+#' For correcting for common method variance, the syntax is virtually the same
+#' but exchanging `~~` for `~`. For example, if the questions called
+#' \code{stflife} and \code{stfwork} were both measured with a 1-10 likert
+#' scale related to satisfaction, these two questions were measured with
+#' the same method. The model syntax would specify them like:
 #'
 #' \preformatted{~ stflife + stfwork}
 #'
@@ -52,7 +72,13 @@
 #' write it like this:
 #'
 #' \preformatted{
+#' # Correct for measurement error of all variables
+#' ~~ .
+#'
+#' # Creation of new variables
 #' std(new_variable) = trstplt + trstprl + trstprt
+#'
+#' # Correct for common method variance
 #' ~ new_variable + stflife + stfwork
 #'}
 #'
@@ -60,8 +86,15 @@
 #' common method between two new variables. For example:
 #'
 #' \preformatted{
+#'
+#' # Quality correction
+#' ~~ .
+#'
+#' # Creation of new variables
 #' std(new_variable1) = trstplt + trstprl + trstprt
 #' std(new_variable2) = stflife + stfwork
+#'
+#' # Correction for common method
 #' ~ new_variable1 + new_variable2
 #'}
 #'
