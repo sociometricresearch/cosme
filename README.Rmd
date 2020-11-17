@@ -41,7 +41,13 @@ data(ess7es)
 ess_subset <- ess7es[1:3]
 
 # This is the model definition
-model_definition <- "~ trstplt + trstprl + trstprt"
+model_definition <- "
+  # Correct for measurement error
+  ~~ trstplt + trstprl + trstprt
+
+  # Correct for common method variance
+  ~ trstplt + trstprl + trstprt
+"
 
 # The measurement error data
 me_data <-
@@ -57,7 +63,7 @@ me_obj <- medesign(model_definition, ess_subset, me_data)
 me_obj
 ```
 
-This object describes your measurement error design. With this, we simply pass it to `me_cmv_cor` to adjust the correlation of `trstplt`, `trstprl` and `trstprt` for common method variance as well as their quality:
+This object describes your measurement error design. With this, we simply pass it to `me_cmv_cor` to adjust the correlation of `trstplt`, `trstprl` and `trstprt` for common method variance as well as their measurement error:
 
 ```{r }
 me_cmv_cor(me_obj)
@@ -73,9 +79,14 @@ data(ess7es)
 ess_subset <- ess7es[1:5]
 
 # This is the model definition
-model_definition <-
-  "~ trstplt + trstprl + trstprt;
-   ~ stfedu + stfhlth"
+model_definition <- "
+   # Correct for measurement error on all variables (.)
+   ~~ .;
+
+   # Correct for common method variance on these group of variables
+   ~ trstplt + trstprl + trstprt;
+   ~ stfedu + stfhlth
+"
 
 # The measurement error data
 me_data <-

@@ -47,7 +47,13 @@ data(ess7es)
 ess_subset <- ess7es[1:3]
 
 # This is the model definition
-model_definition <- "~ trstplt + trstprl + trstprt"
+model_definition <- "
+  # Correct for measurement error
+  ~~ trstplt + trstprl + trstprt
+
+  # Correct for common method variance
+  ~ trstplt + trstprl + trstprt
+"
 
 # The measurement error data
 me_data <-
@@ -60,25 +66,27 @@ me_data <-
 
 # Define your measurement error design
 me_obj <- medesign(model_definition, ess_subset, me_data)
+#> Correcting for measurement error in trstplt, trstprl, trstprt. If you want to correct other variables, make sure they are both in `me_data` and `.data` and you specify their names in the model syntax (`~~`).
 me_obj
 #> <Measurement error design>
 #> Parsed model:
+#>    ~~ trstprl + trstplt + trstprt
 #>    ~ trstplt + trstprl + trstprt
 ```
 
 This object describes your measurement error design. With this, we
 simply pass it to `me_cmv_cor` to adjust the correlation of `trstplt`,
 `trstprl` and `trstprt` for common method variance as well as their
-quality:
+measurement error:
 
 ``` r
 me_cmv_cor(me_obj)
 #> # A tibble: 3 x 4
 #>   rowname trstprl trstplt trstprt
 #>   <chr>     <dbl>   <dbl>   <dbl>
-#> 1 trstprl   1       0.690   0.630
-#> 2 trstplt   0.690   1       0.892
-#> 3 trstprt   0.630   0.892   1
+#> 1 trstprl   1       0.771   0.704
+#> 2 trstplt   0.771   1       0.984
+#> 3 trstprt   0.704   0.984   1
 ```
 
 ## Another simple example
@@ -95,9 +103,14 @@ data(ess7es)
 ess_subset <- ess7es[1:5]
 
 # This is the model definition
-model_definition <-
-  "~ trstplt + trstprl + trstprt;
-   ~ stfedu + stfhlth"
+model_definition <- "
+   # Correct for measurement error on all variables (.)
+   ~~ .;
+
+   # Correct for common method variance on these group of variables
+   ~ trstplt + trstprl + trstprt;
+   ~ stfedu + stfhlth
+"
 
 # The measurement error data
 me_data <-
@@ -110,9 +123,11 @@ me_data <-
 
 # Define your measurement error design
 me_obj <- medesign(model_definition, ess_subset, me_data)
+#> Correcting for measurement error in trstprl, trstplt, trstprt, stfedu, stfhlth. If you want to correct other variables, make sure they are both in `me_data` and `.data` and you specify their names in the model syntax (`~~`).
 me_obj
 #> <Measurement error design>
 #> Parsed model:
+#>    ~~ trstprl + trstplt + trstprt + stfedu + stfhlth
 #>    ~ trstplt + trstprl + trstprt
 #>    ~ stfedu + stfhlth
 ```
@@ -126,11 +141,11 @@ me_cmv_cor(me_obj)
 #> # A tibble: 5 x 6
 #>   rowname trstprl trstplt trstprt stfedu stfhlth
 #>   <chr>     <dbl>   <dbl>   <dbl>  <dbl>   <dbl>
-#> 1 trstprl   1       0.693   0.629  0.392   0.380
-#> 2 trstplt   0.693   1       0.889  0.392   0.413
-#> 3 trstprt   0.629   0.889   1      0.351   0.332
-#> 4 stfedu    0.392   0.392   0.351  1       0.616
-#> 5 stfhlth   0.380   0.413   0.332  0.616   1
+#> 1 trstprl   1       0.774   0.704  0.442   0.430
+#> 2 trstplt   0.774   1       0.981  0.436   0.462
+#> 3 trstprt   0.704   0.981   1      0.390   0.371
+#> 4 stfedu    0.442   0.436   0.390  1       0.704
+#> 5 stfhlth   0.430   0.462   0.371  0.704   1
 ```
 
 Alternatively, you can use `me_cmv_cov` to adjust a covariance matrix
