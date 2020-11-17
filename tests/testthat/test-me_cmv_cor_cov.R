@@ -43,7 +43,7 @@ correct_format <- function(p) {
 test_cor_cov <- function(fun, fun_str) {
 
   test_that(paste0(fun_str, " returns correct output"), {
-    model <- "~ V4 + V5"
+    model <- "~~ .; ~ V4 + V5"
     m_des <- medesign(model, original_df, me_df)
 
     cmv_tib <- fun(m_des)
@@ -56,7 +56,7 @@ test_cor_cov <- function(fun, fun_str) {
 
     df_no_rows <- as.data.frame(matrix(random_vec, 5, 5))
 
-    model <- "~ V4 + V5"
+    model <- "~~ .; ~ V4 + V5"
     m_des <- medesign(model, df_no_rows, me_df)
     cmv_tib <- fun(m_des)
 
@@ -108,7 +108,7 @@ test_cor_cov <- function(fun, fun_str) {
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    model <- "~ V3 + V4 + V5"
+    model <- "~~ .; ~ V3 + V4 + V5"
     shuffled_des <- medesign(model, original_df[c(2, 5, 4, 3, 1)], me_df)
     original_des <- medesign(model, original_df, me_df)
 
@@ -128,10 +128,10 @@ test_cor_cov <- function(fun, fun_str) {
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    model <- "~ V3 + V4 + V5"
+    model <- "~~ .; ~ V3 + V4 + V5"
     shuffled_des <- medesign(model, original_df, me_df[c(2, 5, 4, 3, 1), ])
     original_des <- medesign(model, original_df, me_df)
-    
+
     cmv_shuffled <- fun(shuffled_des)
     cmv_original <- fun(original_des)
 
@@ -149,14 +149,14 @@ test_cor_cov <- function(fun, fun_str) {
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    model <- "~ V3 + V4 + V5"
+    model <- "~~ .; ~ V3 + V4 + V5"
     shuffled_des <- medesign(model,
                              original_df[, c(2, 5, 4, 3, 1)],
                              me_df[c(3, 1, 5, 2, 4), ]
                              )
 
     original_des <- medesign(model, original_df, me_df)
-    
+
     cmv_shuffled <- fun(shuffled_des)
     cmv_original <- fun(original_des)
 
@@ -165,7 +165,7 @@ test_cor_cov <- function(fun, fun_str) {
     expect_identical(cmv_original,
                      reordered)
   })
-  
+
   test_that(paste0(fun_str, " uses only unique variable names"), {
     me_df <-
       tibble(question = paste0("V", 1:5),
@@ -173,7 +173,7 @@ test_cor_cov <- function(fun, fun_str) {
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    model <- "~ V3 + V4 + V5"
+    model <- "~~ .; ~ V3 + V4 + V5"
     original_des <- medesign(model, original_df, me_df)
 
     cmv_tib <- fun(original_des)
@@ -201,7 +201,7 @@ test_cor_cov <- function(fun, fun_str) {
              reliability = c(0.6, 0.4, 0.5, 0.5, 0.7),
              validity = c(0.9, 0.5, 0.6, 0.7, 0.8))
 
-    model <- "~ V4 + V5"
+    model <- "~~ .; ~ V4 + V5"
     original_des <- medesign(model, original_df, me_df)
 
     cmv_tib <- as.data.frame(fun(original_des))
@@ -210,7 +210,7 @@ test_cor_cov <- function(fun, fun_str) {
     expect_true(up_equal(cmv_tib))
 
     # Three variables
-    model <- "~ V3 + V4 + V5"
+    model <- "~~ .; ~ V3 + V4 + V5"
     original_des <- medesign(model, original_df, me_df)
     cmv_tib <- as.data.frame(fun(original_des))
     # Bc turning from tibble to df looses precision, I just
@@ -222,9 +222,7 @@ test_cor_cov <- function(fun, fun_str) {
 }
 
 test_cor_cov(me_cmv_cor, "me_cmv_cor")
-## TODO: fix this once you've implemented the covariance CMV correction
-## correctly
-## test_cor_cov(me_cmv_cov, "me_cmv_cov")
+test_cor_cov(me_cmv_cov, "me_cmv_cov")
 
 test_input_errors <- function(fun, fun_str) {
   test_that(paste0(fun_str, " throws specific errors"), {
@@ -244,7 +242,7 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly - polit
   .data <- ess7es[c("trstprl", "trstplt", "trstprt", "agea")]
 
   # Define model and me_data
-  model_syntax <- "~ trstprl + trstplt + trstprt;"
+  model_syntax <- "~~ .; ~ trstprl + trstplt + trstprt;"
   me_data <-
     data.frame(
       question = c("trstprl", "trstplt", "trstprt"),
@@ -322,7 +320,7 @@ test_that("me_cmv_cor corrects for CMV between simple concepts correctly - state
     )
 
   # Define model and me_data
-  model_syntax <- "~ stfedu + stfhlth"
+  model_syntax <- "~~ .; ~ stfedu + stfhlth"
   .medesign <- medesign(model_syntax, .data, me_data)
 
   # This is the corrected CMV correlation with quality and CMV
@@ -388,6 +386,7 @@ test_that("me_cmv_cor corrects for CMV between simple and complex concept correc
   # Define measurement error relationship
   model_syntax <-
     "std(trstsscore) = trstprl + trstplt + trstprt;
+     ~~ .;
      ~ stfedu + stfhlth + trstsscore"
 
   # data from sqp
@@ -405,7 +404,6 @@ test_that("me_cmv_cor corrects for CMV between simple and complex concept correc
   # This is the correlation with quality and CMV correction
   # However, this is **after** cov2cor.
   tmp_corrected_cor <- me_cmv_cor(.medesign)
-  tmp_corrected_cor
 
   # Let's convert back to pre cov2cor to match Wiebke's results
   # exactly.
@@ -471,7 +469,8 @@ test_that("me_cmv_cor corrects for CMV between complex and complex concept corre
   # Define measurement error relationship
   model_syntax <-
     "std(stfsscore) = stfedu + stfhlth;
-     std(trstsscore) = trstprl + trstplt + trstprt
+     std(trstsscore) = trstprl + trstplt + trstprt;
+     ~~ .;
      ~ stfsscore + trstsscore"
 
   # data from sqp
@@ -564,7 +563,7 @@ test_that("medesign calculates quality of sumscore correctly for cor and cov", {
 
   .data <- ess7es[c(selected_vars1, selected_vars2)]
 
-  m_obj <- medesign("std(s1) = trstprl + trstplt + trstprt",
+  m_obj <- medesign("~~ .; std(s1) = trstprl + trstplt + trstprt",
                     .data,
                     me_df)
 
@@ -573,36 +572,10 @@ test_that("medesign calculates quality of sumscore correctly for cor and cov", {
 
   .data <- ess7es[c(selected_vars1, selected_vars3)]
 
-  m_obj <- medesign("std(s1) = stfedu + stfhlth",
+  m_obj <- medesign("~~ .; std(s1) = stfedu + stfhlth",
                     .data,
                     me_df)
 
   expect_equal(m_obj$corr$s1[3], 0.6841, tol = 0.001)
   expect_equal(m_obj$covv$s1[3], 2.2053, tol = 0.001)
 })
-
-# TODO: once you fix me_cmv_cov
-## test_that("me_cmv_cov returns correct calculation", {
-
-##   sel_vars <- c(selected_vars2, "trstplt")
-##   .data <- ess7es[complete.cases(ess7es[sel_vars]), sel_vars]
-##   m_obj <- medesign("~ ppltrst + trstplt", .data, me_df)
-##   # TODO: The first correct example you did was using weights
-##   # so I had to hack medesign a bit to produce weighted covariances
-##   # and make sure that the results are correct
-##   m_obj$covv <- cov.wt(.data, wt = wt, cor = TRUE)$cov
-##   diag(m_obj$covv) <- diag(m_obj$covv) * me_df[me_df$question %in% sel_vars,]$quality
-##   m_obj$covv <- matrix2tibble(m_obj$covv)
-##   tmp_corrected_cov <- as.data.frame(me_cmv_cov(m_obj))
-
-##   correct_df <-
-##     data.frame(
-##       stringsAsFactors=FALSE,
-##       rowname = c("polintr", "ppltrst", "trstplt"),
-##       polintr = c(0.536047529655009, -0.419466267364113, -0.35995941514413),
-##       ppltrst = c(-0.419466267364113, 3.14154466545579, 0.716657167759028),
-##       trstplt = c(-0.35995941514413, 0.716657167759028, 4.08409798275177)
-##     )
-
-##   expect_equivalent(tmp_corrected_cov, correct_df)
-## })

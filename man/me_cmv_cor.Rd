@@ -26,8 +26,10 @@ data(ess7es)
 
 .data <- ess7es[1:3]
 
-# These three variables share a common method
-me_syntax <- "~ trstplt + trstprl + trstprt"
+# Correct for measurement error for all variables
+# and correct for the fact that these three variables
+# share a common method
+me_syntax <- "~~ .; ~ trstplt + trstprl + trstprt"
 
 # Data from sqp
 me_data <-
@@ -51,7 +53,8 @@ me_correlate(.data)
 
 # Each pair of variables share a common method.
 me_syntax <-
- "~ trstplt + trstprl + trstprt
+ "~~ .
+  ~ trstplt + trstprl + trstprt
   ~ stfedu + stfhlth"
 
 me_data2 <-

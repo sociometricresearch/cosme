@@ -22,8 +22,10 @@
 #'
 #' .data <- ess7es[1:3]
 #'
-#' # These three variables share a common method
-#' me_syntax <- "~ trstplt + trstprl + trstprt"
+#' # Correct for measurement error for all variables
+#' # and correct for the fact that these three variables
+#' # share a common method
+#' me_syntax <- "~~ .; ~ trstplt + trstprl + trstprt"
 #'
 #' # Data from sqp
 #' me_data <-
@@ -47,7 +49,8 @@
 #'
 #' # Each pair of variables share a common method.
 #' me_syntax <-
-#'  "~ trstplt + trstprl + trstprt
+#'  "~~ .
+#'   ~ trstplt + trstprl + trstprt
 #'   ~ stfedu + stfhlth"
 #'
 #' me_data2 <-
@@ -126,6 +129,7 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 }
 
 estimate_cmv <- function(me_data) {
+
   me_cols <- c("reliability", "validity")
   check_me_na(me_data, me_cols)
 
@@ -197,5 +201,13 @@ matrix2tibble <- function(x) {
                             .before = 1,
                             .name_repair = "minimal")
   }
+  x
+}
+
+tibble2matrix <- function(x) {
+  rowname_tibble <- x$rowname
+  x$rowname <- NULL
+  x <- as.matrix(x)
+  row.names(x) <- rowname_tibble
   x
 }

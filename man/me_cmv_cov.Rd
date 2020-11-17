@@ -36,6 +36,7 @@ data.frame(
 # and the zpoltrst sum score
 m1 <- "std(zserv) = stfhlth + stfedu;
        std(zpoltrst) = trstprl + trstplt + trstprt;
+       ~~ .;
        ~ ppltrst + zpoltrst"
 
 # Create measurement error design

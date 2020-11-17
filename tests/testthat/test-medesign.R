@@ -35,7 +35,7 @@ quality <-
 
 test_that("medesign raises error when bad model_syntax", {
   # 1) The variables defined in the model are present in `me_data`.
-  model_syntax <- "~ mpg + cyl + drat"
+  model_syntax <- "~~ .; ~ mpg + cyl + drat"
   .data <- mtcars
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl"),
@@ -51,7 +51,7 @@ test_that("medesign raises error when bad model_syntax", {
   )
 
   # 2) The variables defined in the model have no missing values in `me_data`.
-  model_syntax <- "~ mpg + cyl + drat"
+  model_syntax <- "~~ .; ~ mpg + cyl + drat"
   .data <- mtcars
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -67,7 +67,7 @@ test_that("medesign raises error when bad model_syntax", {
   )
 
   # 3) The variables defined in the model are present in `data`.
-  model_syntax <- "~ mpg + cyl + whatever + sec"
+  model_syntax <- "~~ .; ~ mpg + cyl + whatever + sec"
   .data <- mtcars
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "whatever", "sec"),
@@ -82,7 +82,7 @@ test_that("medesign raises error when bad model_syntax", {
   )
 
   # 4) The variables defined in the model are not complete missing in `data`.
-  model_syntax <- "~ mpg + cyl + whatever"
+  model_syntax <- "~~ .; ~ mpg + cyl + whatever"
   .data <- mtcars
   .data$whatever <- NA
   me_data <- data.frame(stringsAsFactors = FALSE,
@@ -99,7 +99,7 @@ test_that("medesign raises error when bad model_syntax", {
   )
 
   # 5) Defining CMV with one variable raises error.
-  model_syntax <- "~ mpg + cyl + whatever; ~ drat"
+  model_syntax <- "~~ .; ~ mpg + cyl + whatever; ~ drat"
   .data <- mtcars
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "whatever"),
@@ -118,7 +118,7 @@ test_that("medesign raises error when bad model_syntax", {
 
 test_that("medesign checks format of .data", {
   # These three variables share a common method
-  me_syntax <- "~ mpg + cyl + drat"
+  me_syntax <- "~~ .; ~ mpg + cyl + drat"
   # Fake data for the example
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -146,7 +146,7 @@ test_that("medesign checks format of .data", {
 
 test_that("medesign returns expected format", {
   # These three variables share a common method
-  me_syntax <- "~ mpg + cyl + drat"
+  me_syntax <- "~~ .; ~ mpg + cyl + drat"
   # Fake data for the example
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -154,10 +154,11 @@ test_that("medesign returns expected format", {
                         validity = c(0.951, 0.944, 0.79),
                         quality = c(0.693, 0.77, 0.89)
                         )
+
   res <- medesign(me_syntax, mtcars, me_data)
   validate_medesign(res)
-  expect_equivalent(nrow(res$parsed_model), 3)
-  expect_equivalent(unique(res$parsed_model$type), "observed")
+  expect_equivalent(nrow(res$parsed_model), 6)
+  expect_equivalent(na.omit(unique(res$parsed_model$type)), "observed")
 
   # Make sure that the diag is replaced for the three observed variables
   replaced_diag <- diag(as.matrix(res$corr[-1]))
@@ -174,12 +175,11 @@ test_that("medesign returns expected format", {
   expect_true(
     all(names(mtcars)[which(are_different)] == c("mpg", "cyl", "drat"))
   )
-
 })
 
 test_that("medesign ignores vars with NA in quality for diagonal", {
   # These three variables share a common method
-  model_syntax <- "~ mpg + cyl"
+  model_syntax <- "~~ mpg + cyl; ~ mpg + cyl"
   # Fake data for the example
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -209,14 +209,16 @@ test_that("medesign ignores vars with NA in quality for diagonal", {
 
 test_that("medesign ignores quality with ALL NA in quality for diagonal", {
   # These three variables share a common method
-  me_syntax <- "~ mpg + cyl"
+  me_syntax <- "~~ mpg + cyl; ~ mpg + cyl"
+
   # Fake data for the example
-  me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl", "drat"),
-                        reliability = c(0.729, 0.815, NA),
-                        validity = c(0.951, 0.944, NA),
-                        quality = c(NA, NA, NA)
-                        )
+  me_data <- data.frame(
+    stringsAsFactors = FALSE,
+    question = c("mpg", "cyl", "drat"),
+    reliability = c(0.729, 0.815, NA),
+    validity = c(0.951, 0.944, NA),
+    quality = c(NA, NA, NA)
+  )
 
   res <- medesign(me_syntax, mtcars, me_data)
 
@@ -239,7 +241,7 @@ test_that("medesign ignores quality with ALL NA in quality for diagonal", {
 
 test_that("medesign replaces diag for vars in me_data despite model_syntax", {
   # These three variables share a common method
-  me_syntax <- "~ mpg + cyl"
+  me_syntax <- "~~ .; ~ mpg + cyl"
   # Fake data for the example
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -247,6 +249,7 @@ test_that("medesign replaces diag for vars in me_data despite model_syntax", {
                         validity = c(0.951, 0.944, 0.79),
                         quality = c(0.693, 0.77, 0.89)
                         )
+
   res <- medesign(me_syntax, mtcars, me_data)
 
   # Make sure that the diag is replaced for the three observed variables
@@ -269,15 +272,17 @@ test_that("medesign replaces diag for vars in me_data despite model_syntax", {
 
 test_that("medesign creates sscore and keeps vars from me_data", {
 
-  model_syntax <- "sscore_one = ppltrst + trstprl; ~ stfeco + stflife"
+  model_syntax <- "~~ .; sscore_one = ppltrst + trstprl; ~ stfeco + stflife"
 
   # Fake data for the example
   me_data <- quality
 
   set.seed(23141)
   fake_data <- as.data.frame(
-    stats::setNames(lapply(1:4, function(x) rnorm(100)),
-                    c("ppltrst", "trstprl", "stfeco", "stflife"))
+    stats::setNames(
+             lapply(1:4, function(x) rnorm(100)),
+             c("ppltrst", "trstprl", "stfeco", "stflife")
+           )
   )
 
   res <- medesign(model_syntax, fake_data, me_data)
@@ -301,14 +306,14 @@ test_that("medesign creates sscore and keeps vars from me_data", {
   expect_true(all(sscore_names %in% res$covv[["rowname"]]))
 
   # create sscore exclude variables from me_data
-  expect_true(
+  expect_false(
     all(c("ppltrst", "trstprl") %in% res$me_data$question)
   )
 })
 
 
 test_that("medesign creates two sscore and removes vars from me_data", {
-  model_syntax <- "sscore_one = ppltrst + trstprl; sscore_two = psppipl + psppsgv; ~ stfeco + stflife" #nolintr
+  model_syntax <- "~~ .; sscore_one = ppltrst + trstprl; sscore_two = psppipl + psppsgv; ~ stfeco + stflife" #nolintr
 
   # Fake data for the example
   me_data <- quality
@@ -340,7 +345,7 @@ test_that("medesign creates two sscore and removes vars from me_data", {
   expect_true(all(sscore_names %in% res$covv[["rowname"]]))
 
   # create sscore exclude variables from me_data
-  expect_true(
+  expect_false(
     all(c("ppltrst", "trstprl", "psppipl", "psppsgv") %in% res$me_data$question)
   )
 
@@ -349,7 +354,7 @@ test_that("medesign creates two sscore and removes vars from me_data", {
 
 test_that("medesign only checks for NA in me_data for used variables", {
   # These three variables share a common method
-  me_syntax <- "~ mpg + cyl"
+  me_syntax <- "~~ mpg + cyl; ~ mpg + cyl"
   # Fake data for the example
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
@@ -360,13 +365,18 @@ test_that("medesign only checks for NA in me_data for used variables", {
 
   # Expect NO error
   # https://stackoverflow.com/questions/10826365/how-to-test-that-an-error-does-not-occur #nolintr
-  expect_error(res <- medesign(me_syntax, mtcars, me_data), NA)
+  expect_error(
+    res <- medesign(me_syntax, mtcars, me_data),
+    NA
+  )
+
   me_data <- data.frame(stringsAsFactors = FALSE,
                         question = c("mpg", "cyl", "drat"),
                         reliability = c(0.729, NA, NA),
                         validity = c(0.951, 0.944, NA),
                         quality = c(0.693, 0.77, 0.89)
                         )
+
   # This should throw an error because there is an NA in
   # validity/reliability for a var used in the me_syntax
   expect_error(medesign(me_syntax, mtcars, me_data))
@@ -384,7 +394,7 @@ test_that("medesign checks for wrong format of me_data", {
                    reliability = c(NA, 0.4, 0.5),
                    validity = c(NA, NA, 0.6))
 
-  me_syntax <- "~ V1 + V2"
+  me_syntax <- "~~ .; ~ V1 + V2"
   expect_error(
     medesign(me_syntax, mtcars, me_df),
     paste0("Columns ",  all_vars, " must be available in `me_data`")
@@ -443,15 +453,16 @@ test_that("medesign calculates quality and method effect correctly for sumscore"
   data(ess7es)
   .data <- ess7es[c("trstprl", "trstplt", "trstprt")]
   me_data <- me_df
-  model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
+  model_syntax <- "~~ .; std(s1) = trstprl + trstplt + trstprt"
   medesign_tst <- medesign(model_syntax, .data, me_data)
-
   sscore_subset <- medesign_tst$me_data$question == "s1"
   res <- medesign_tst$me_data[sscore_subset, c("quality", "method_eff")]
 
-  expect_equal(round(as.data.frame(res), 4),
-               data.frame(quality = 0.8936, method_eff = 0.0422),
-               tol = 0.000001)
+  expect_equal(
+    round(as.data.frame(res), 4),
+    data.frame(quality = 0.8936, method_eff = 0.0422),
+    tol = 0.000001
+  )
 
 })
 
@@ -467,7 +478,8 @@ test_that("medesign replaces quality in diagonal of cor and cov correctly", {
 
   data(ess7es)
   .data <- ess7es[c("trstprl", "trstplt", "trstprt")]
-  model_syntax <- "std(s1) = trstprl + trstplt + trstprt"
+  model_syntax <- "~~ .; std(s1) = trstprl + trstplt + trstprt"
+
   medesign_tst <-
     medesign(
       model_syntax,
@@ -483,7 +495,8 @@ test_that("medesign replaces quality in diagonal of cor and cov correctly", {
 
   expect_equal(
     diag(as.matrix(medesign_tst$covv[-1])),
-    c(0.779, 0.822, 0.821, 6.3998926),
+    c(5.230898, 4.109667, 3.854053, 6.399893),
     tol = 0.00001
   )
+
 })
