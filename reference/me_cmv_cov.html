@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Adjust a covariance matrix for Common Method Variance (CMV) — me_cmv_cov • measurementfree</title>
+<title>Adjust a covariance matrix for Common Method Variance (CMV) and Quality of Sum score — me_cmv_cov • measurementfree</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,11 @@
 
 
 
-<meta property="og:title" content="Adjust a covariance matrix for Common Method Variance (CMV) — me_cmv_cov" />
+<meta property="og:title" content="Adjust a covariance matrix for Common Method Variance (CMV) and Quality of Sum score — me_cmv_cov" />
 <meta property="og:description" content="me_cmv_cov accepts an medesign object specified in
 medesign and adjusts the covariance coefficients of
 common method variables with the reliability and validity coefficients
-from me_data. Optionally, you can supply the CMV coefficients
-manually in the argument cmv." />
+from me_data as well as the quality of sum scores." />
 
 
 
@@ -118,7 +117,7 @@ manually in the argument cmv." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Adjust a covariance matrix for Common Method Variance (CMV)</h1>
+    <h1>Adjust a covariance matrix for Common Method Variance (CMV) and Quality of Sum score</h1>
     <small class="dont-index">Source: <a href='https://github.com/sociometricresearch/measurementfree/blob/master/R/me_cmv_cov.R'><code>R/me_cmv_cov.R</code></a></small>
     <div class="hidden name"><code>me_cmv_cov.Rd</code></div>
     </div>
@@ -127,8 +126,7 @@ manually in the argument cmv." />
     <p><code>me_cmv_cov</code> accepts an <code>medesign</code> object specified in
 <code><a href='medesign.html'>medesign</a></code> and adjusts the covariance coefficients of
 common method variables with the reliability and validity coefficients
-from <code>me_data</code>. Optionally, you can supply the CMV coefficients
-manually in the argument <code>cmv</code>.</p>
+from <code>me_data</code> as well as the quality of sum scores.</p>
     </div>
 
     <pre class="usage"><span class='fu'>me_cmv_cov</span><span class='op'>(</span><span class='va'>.medesign</span><span class='op'>)</span></pre>
@@ -144,41 +142,51 @@ manually in the argument <code>cmv</code>.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The common-method-variance corrected correlation.</p>
+    <p>The common-method-variance and quality corrected covariance matrix.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code>link{medesign}</code> and <code><a href='me_cmv_cor.html'>me_cmv_cor</a></code> for the same
-adjustment but for a covariance matrix.</p></div>
+adjustment but for a correlation matrix.</p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
-<span class='co'>## TODO - Fix when me_cmv_cov works well</span>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>2131</span><span class='op'>)</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tibble.tidyverse.org/'>tibble</a></span><span class='op'>)</span>
 
-<span class='va'>original_df</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/as.data.frame.html'>as.data.frame</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/matrix.html'>matrix</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fl'>100</span>, sd <span class='op'>=</span> <span class='fl'>50</span><span class='op'>)</span>, nrow <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span><span class='op'>)</span>
+<span class='co'># measurement data extract from SQP for Spain, Round 7 in Spanish</span>
+<span class='va'>me_data</span> <span class='op'>&lt;-</span>
+<span class='fu'><a href='https://rdrr.io/r/base/data.frame.html'>data.frame</a></span><span class='op'>(</span>
+  question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"ppltrst"</span>, <span class='st'>"polintr"</span>, <span class='st'>"trstprl"</span>, <span class='st'>"trstplt"</span>, <span class='st'>"trstprt"</span>, <span class='st'>"stfedu"</span>, <span class='st'>"stfhlth"</span><span class='op'>)</span>,
+  reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.737</span>, <span class='fl'>0.624</span>, <span class='fl'>0.812</span>, <span class='fl'>0.852</span>, <span class='fl'>0.858</span>, <span class='fl'>0.757</span>, <span class='fl'>0.76</span><span class='op'>)</span>,
+  validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.952</span>, <span class='fl'>0.964</span>, <span class='fl'>0.959</span>, <span class='fl'>0.965</span>, <span class='fl'>0.956</span>, <span class='fl'>0.838</span>, <span class='fl'>0.798</span><span class='op'>)</span>,
+  quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.702</span>, <span class='fl'>0.601</span>, <span class='fl'>0.779</span>, <span class='fl'>0.822</span>, <span class='fl'>0.821</span>, <span class='fl'>0.635</span>, <span class='fl'>0.607</span><span class='op'>)</span>
+<span class='op'>)</span>
 
-<span class='co'># Toy quality dataset</span>
-<span class='va'>me_df</span> <span class='op'>&lt;-</span>
- <span class='fu'><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></span><span class='op'>(</span>question <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste0</a></span><span class='op'>(</span><span class='st'>"V"</span>, <span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>)</span>,
- quality <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.2</span>, <span class='fl'>0.3</span>, <span class='fl'>0.5</span>, <span class='fl'>0.6</span>, <span class='fl'>0.9</span><span class='op'>)</span>,
- reliability <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.6</span>, <span class='fl'>0.4</span>, <span class='fl'>0.5</span>, <span class='fl'>0.5</span>, <span class='fl'>0.7</span><span class='op'>)</span>,
- validity <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0.79</span>, <span class='fl'>0.9</span>, <span class='fl'>0.6</span>, <span class='fl'>0.7</span>, <span class='fl'>0.8</span><span class='op'>)</span><span class='op'>)</span>
+<span class='co'># Define a measurement error model with two sum scores</span>
+<span class='co'># and sharing a common method variance between ppltrst</span>
+<span class='co'># and the zpoltrst sum score</span>
+<span class='va'>m1</span> <span class='op'>&lt;-</span> <span class='st'>"std(zserv) = stfhlth + stfedu;
+       std(zpoltrst) = trstprl + trstplt + trstprt;
+       ~ ppltrst + zpoltrst"</span>
 
-<span class='co'># Define mdesign object</span>
-<span class='va'>m_obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span><span class='op'>(</span><span class='st'>"~ V4 + V5"</span>, <span class='va'>original_df</span>, <span class='va'>me_df</span><span class='op'>)</span>
+<span class='co'># Create measurement error design</span>
+<span class='va'>mdes</span> <span class='op'>&lt;-</span>
+  <span class='fu'><a href='medesign.html'>medesign</a></span><span class='op'>(</span>
+    model_syntax <span class='op'>=</span> <span class='va'>m1</span>,
+    .data <span class='op'>=</span> <span class='va'>ess7es</span><span class='op'>[</span><span class='va'>me_data</span><span class='op'>$</span><span class='va'>question</span><span class='op'>]</span>,
+    me_data <span class='op'>=</span> <span class='va'>me_data</span>
+  <span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
+<span class='va'>mdes</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'mdes' not found</span></div><div class='input'>
+<span class='co'># Original covariance matrix</span>
+<span class='fu'><a href='me_covariance.html'>me_covariance</a></span><span class='op'>(</span><span class='va'>mdes</span><span class='op'>$</span><span class='va'>.data</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in is.data.frame(x): object 'mdes' not found</span></div><div class='input'>
+<span class='co'># Coefficients of covariance changes</span>
+<span class='co'># when adjusting for common method variance and</span>
+<span class='co'># quality of sum scores</span>
+<span class='fu'>me_cmv_cov</span><span class='op'>(</span><span class='va'>mdes</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='error'>Error in me_cmv_cov(mdes): object 'mdes' not found</span></div><div class='input'>
 
-<span class='co'># Original correlation matrix</span>
-<span class='fu'><a href='me_covariance.html'>me_covariance</a></span><span class='op'>(</span><span class='va'>original_df</span><span class='op'>)</span>
-
-<span class='co'># Coefficient of correlation changes</span>
-<span class='co'># when adjusting for common method variance</span>
-<span class='fu'>me_cmv_cov</span><span class='op'>(</span><span class='va'>m_obj</span><span class='op'>)</span>
-
-<span class='co'># The V5*V4 from both the upper/lower triangles</span>
-<span class='co'># covariance matrix changed from -181 to -634</span>
-<span class='op'>}</span>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

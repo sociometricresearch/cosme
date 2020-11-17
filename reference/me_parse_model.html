@@ -125,9 +125,11 @@
 
     <pre class="usage"><span class='fu'>me_parse_model</span><span class='op'>(</span>
   model_syntax <span class='op'>=</span> <span class='st'>" "</span>,
+  me_data <span class='op'>=</span> <span class='cn'>NULL</span>,
+  data <span class='op'>=</span> <span class='cn'>NULL</span>,
   as_list <span class='op'>=</span> <span class='cn'>FALSE</span>,
   debug_code <span class='op'>=</span> <span class='cn'>FALSE</span>,
-  operators <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"~"</span>, <span class='st'>"="</span><span class='op'>)</span>
+  operators <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"~"</span>, <span class='st'>"="</span>, <span class='st'>"~~"</span><span class='op'>)</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -136,6 +138,15 @@
     <tr>
       <th>model_syntax</th>
       <td><p>a string containing the model specification</p></td>
+    </tr>
+    <tr>
+      <th>me_data</th>
+      <td><p>measurment error data. This is used to return the RHS of
+the quality specification.</p></td>
+    </tr>
+    <tr>
+      <th>data</th>
+      <td><p>data to extract the variables when specifying '~ .'</p></td>
     </tr>
     <tr>
       <th>as_list</th>

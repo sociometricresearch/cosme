@@ -228,9 +228,7 @@ diagonal by default. This is then used by <code>me_cmv_cor</code> and
   <span class='op'>)</span>
 
 <span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
-#&gt; Parsed model:
-#&gt;    ~ trstplt + trstprl + trstprt</div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
 <span class='co'># Each pair of variables share a common method.</span>
 <span class='va'>me_syntax</span> <span class='op'>&lt;-</span>
  <span class='st'>"~ trstplt + trstprl + trstprt
@@ -247,10 +245,7 @@ diagonal by default. This is then used by <code>me_cmv_cor</code> and
 <span class='va'>me_data</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>me_data</span>, <span class='va'>me_data2</span><span class='op'>)</span>
 
 <span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
-#&gt; Parsed model:
-#&gt;    ~ trstplt + trstprl + trstprt
-#&gt;    ~ stfedu + stfhlth</div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
 <span class='co'># We can also create new variables and use them</span>
 <span class='co'># as variables sharing a common method</span>
 
@@ -259,10 +254,7 @@ diagonal by default. This is then used by <code>me_cmv_cor</code> and
   ~ new_sscore1 + stfedu + stfhlth"</span>
 
 <span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
-#&gt; Parsed model:
-#&gt;    new_sscore1 = trstplt+trstprl+trstprt
-#&gt;    ~ new_sscore1 + stfedu + stfhlth</div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
 <span class='co'># Alternatively, we can also combined two newly created variables</span>
 <span class='co'># as sharing a common method</span>
 <span class='va'>me_syntax</span> <span class='op'>&lt;-</span>
@@ -271,11 +263,7 @@ diagonal by default. This is then used by <code>me_cmv_cor</code> and
   ~ new_sscore1 + new_sscore2"</span>
 
 <span class='fu'>medesign</span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>ess7es</span>, <span class='va'>me_data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; &lt;Measurement error design&gt;
-#&gt; Parsed model:
-#&gt;    new_sscore1 = trstplt+trstprl+trstprt
-#&gt;    new_sscore2 = stfedu+stfhlth
-#&gt;    ~ new_sscore1 + new_sscore2</div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

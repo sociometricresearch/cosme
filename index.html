@@ -80,15 +80,15 @@
 <p>The <code>measurementfree</code> package allows you to calculate several estimations of the quality of your survey questions and also adjust your estimations for measurement error.</p>
 <p>Assuming you have a data frame with the <code>reliability</code>, <code>validity</code> and <code>quality</code> of your question, you can correct for the quality and common method variance easily.</p>
 <p>Load the package as:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="co"># devtools::install_github("sociometricresearch/measurementfree")</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sociometricresearch.github.io/measurementfree/">measurementfree</a></span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># devtools::install_github("sociometricresearch/measurementfree")</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sociometricresearch.github.io/measurementfree/">measurementfree</a></span><span class="op">)</span></code></pre></div>
 <div id="a-simple-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#a-simple-example" class="anchor"></a>A simple example</h2>
 <p><code>measurementfree</code> introduces the concept of a measurement error design, such as the <code>survey</code> package has a survey design object. You can define this measurement error design with three objects: your model design, your measurement error data and the data of the analysis. For a simple case, let’s use the data from the European Social Survey already loaded with the package. The variables <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code> were asked with the same type of the question. In other words, they share a common method (for example, a likert type scale question). Sharing a common method allows us to correct for their common method variance. We could define the measurement error design object as this:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="co"># Data</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Data</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">ess7es</span><span class="op">)</span>
 <span class="va">ess_subset</span> <span class="op">&lt;-</span> <span class="va">ess7es</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>
 
@@ -109,23 +109,23 @@
 <span class="va">me_obj</span>
 <span class="co">#&gt; &lt;Measurement error design&gt;</span>
 <span class="co">#&gt; Parsed model:</span>
-<span class="co">#&gt;    ~ trstplt + trstprl + trstprt</span></pre></div>
+<span class="co">#&gt;    ~ trstplt + trstprl + trstprt</span></code></pre></div>
 <p>This object describes your measurement error design. With this, we simply pass it to <code>me_cmv_cor</code> to adjust the correlation of <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code> for common method variance as well as their quality:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span><span class="op">(</span><span class="va">me_obj</span><span class="op">)</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span><span class="op">(</span><span class="va">me_obj</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 3 x 4</span>
 <span class="co">#&gt;   rowname trstprl trstplt trstprt</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span>
 <span class="co">#&gt; 1 trstprl   1       0.690   0.630</span>
 <span class="co">#&gt; 2 trstplt   0.690   1       0.892</span>
-<span class="co">#&gt; 3 trstprt   0.630   0.892   1</span></pre></div>
+<span class="co">#&gt; 3 trstprt   0.630   0.892   1</span></code></pre></div>
 </div>
 <div id="another-simple-example" class="section level2">
 <h2 class="hasAnchor">
 <a href="#another-simple-example" class="anchor"></a>Another simple example</h2>
 <p>The previous example corrected only variables <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code>. What if we have more groups of variables that share a common method? Just keep adding them to the model syntax! For example, <code>stfedu</code> and <code>stfhlth</code> also share a common method, let’s add them to the model syntax and make sure we have data on <code>me_data</code> for them:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="co"># Data</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Data</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">ess7es</span><span class="op">)</span>
 <span class="va">ess_subset</span> <span class="op">&lt;-</span> <span class="va">ess7es</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 
@@ -149,10 +149,10 @@
 <span class="co">#&gt; &lt;Measurement error design&gt;</span>
 <span class="co">#&gt; Parsed model:</span>
 <span class="co">#&gt;    ~ trstplt + trstprl + trstprt</span>
-<span class="co">#&gt;    ~ stfedu + stfhlth</span></pre></div>
+<span class="co">#&gt;    ~ stfedu + stfhlth</span></code></pre></div>
 <p>Once you have your measurement error design, we simply pass it to <code>me_cmv_cor</code> to adjust the correlation for common method variance as well as their quality:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span><span class="op">(</span><span class="va">me_obj</span><span class="op">)</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="reference/me_cmv_cor.html">me_cmv_cor</a></span><span class="op">(</span><span class="va">me_obj</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 5 x 6</span>
 <span class="co">#&gt;   rowname trstprl trstplt trstprt stfedu stfhlth</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;</span>
@@ -160,7 +160,7 @@
 <span class="co">#&gt; 2 trstplt   0.693   1       0.889  0.392   0.413</span>
 <span class="co">#&gt; 3 trstprt   0.629   0.889   1      0.351   0.332</span>
 <span class="co">#&gt; 4 stfedu    0.392   0.392   0.351  1       0.616</span>
-<span class="co">#&gt; 5 stfhlth   0.380   0.413   0.332  0.616   1</span></pre></div>
+<span class="co">#&gt; 5 stfhlth   0.380   0.413   0.332  0.616   1</span></code></pre></div>
 <p>Alternatively, you can use <code>me_cmv_cov</code> to adjust a covariance matrix for common method variance as well as quality.</p>
 </div>
 </div>

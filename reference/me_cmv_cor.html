@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Adjust a correlation matrix for Common Method Variance (CMV) — me_cmv_cor • measurementfree</title>
+<title>Adjust a correlation matrix for Common Method Variance (CMV) and Quality of Sum score — me_cmv_cor • measurementfree</title>
 
 
 <!-- jquery -->
@@ -39,12 +39,11 @@
 
 
 
-<meta property="og:title" content="Adjust a correlation matrix for Common Method Variance (CMV) — me_cmv_cor" />
+<meta property="og:title" content="Adjust a correlation matrix for Common Method Variance (CMV) and Quality of Sum score — me_cmv_cor" />
 <meta property="og:description" content="me_cmv_cor accepts an medesign object created by
 medesign and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
-from me_data. Optionally, you can supply the CMV coefficients
-manually in the argument cmv." />
+from me_data." />
 
 
 
@@ -118,7 +117,7 @@ manually in the argument cmv." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Adjust a correlation matrix for Common Method Variance (CMV)</h1>
+    <h1>Adjust a correlation matrix for Common Method Variance (CMV) and Quality of Sum score</h1>
     <small class="dont-index">Source: <a href='https://github.com/sociometricresearch/measurementfree/blob/master/R/me_cmv_cor.R'><code>R/me_cmv_cor.R</code></a></small>
     <div class="hidden name"><code>me_cmv_cor.Rd</code></div>
     </div>
@@ -127,8 +126,7 @@ manually in the argument cmv." />
     <p><code>me_cmv_cor</code> accepts an <code>medesign</code> object created by
 <code><a href='medesign.html'>medesign</a></code> and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
-from <code>me_data</code>. Optionally, you can supply the CMV coefficients
-manually in the argument <code>cmv</code>.</p>
+from <code>me_data</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>me_cmv_cor</span><span class='op'>(</span><span class='va'>.medesign</span><span class='op'>)</span></pre>
@@ -146,7 +144,7 @@ manually in the argument <code>cmv</code>.</p>
 
     <p>The common-method-variance corrected correlation. It is a correlation
 data frame but some correlation coefficients are adjusted for their shared
-common method variance.</p>
+common method variance and the quality of sum scores.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code>link{medesign}</code> and <code><a href='me_cmv_cov.html'>me_cmv_cov</a></code> for the same
@@ -171,18 +169,13 @@ adjustment but for a covariance matrix.</p></div>
   <span class='op'>)</span>
 
 <span class='va'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span><span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
 <span class='co'># Correlations adjusted for CMV</span>
 <span class='fu'>me_cmv_cor</span><span class='op'>(</span><span class='va'>mdes</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 3 x 4</span><span>
-#&gt;   rowname trstprl trstplt trstprt
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.771   0.704
-#&gt; </span><span style='color: #555555;'>2</span><span> trstplt   0.771   1       0.984
-#&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.704   0.984   1    </div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in me_cmv_cor(mdes): object 'mdes' not found</span></div><div class='input'>
 <span class='co'># Original correlation</span>
 <span class='fu'><a href='me_correlate.html'>me_correlate</a></span><span class='op'>(</span><span class='va'>.data</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 3 x 4</span><span>
+</div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 3 x 4</span><span>
 #&gt;   rowname trstprl trstplt trstprt
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.649   0.598
@@ -208,17 +201,10 @@ adjustment but for a covariance matrix.</p></div>
 
 <span class='va'>.data</span> <span class='op'>&lt;-</span> <span class='va'>ess7es</span><span class='op'>[</span><span class='fl'>1</span><span class='op'>:</span><span class='fl'>5</span><span class='op'>]</span>
 <span class='va'>mdes</span> <span class='op'>&lt;-</span> <span class='fu'><a href='medesign.html'>medesign</a></span><span class='op'>(</span><span class='va'>me_syntax</span>, <span class='va'>.data</span>, <span class='va'>me_data</span><span class='op'>)</span>
-
+</div><div class='output co'>#&gt; <span class='error'>Error in syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)), data = data): Argument 'data' must be supplied to extract terms from the formula</span></div><div class='input'>
 <span class='co'># Correlations adjusted for CMV</span>
 <span class='fu'>me_cmv_cor</span><span class='op'>(</span><span class='va'>mdes</span><span class='op'>)</span>
-</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 5 x 6</span><span>
-#&gt;   rowname trstprl trstplt trstprt stfedu stfhlth
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'>1</span><span> trstprl   1       0.774   0.704  0.442   0.430
-#&gt; </span><span style='color: #555555;'>2</span><span> trstplt   0.774   1       0.981  0.435   0.462
-#&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.704   0.981   1      0.390   0.371
-#&gt; </span><span style='color: #555555;'>4</span><span> stfedu    0.442   0.435   0.390  1       0.704
-#&gt; </span><span style='color: #555555;'>5</span><span> stfhlth   0.430   0.462   0.371  0.704   1    </div><div class='input'>
+</div><div class='output co'>#&gt; <span class='error'>Error in me_cmv_cor(mdes): object 'mdes' not found</span></div><div class='input'>
 <span class='co'># Original correlations</span>
 <span class='fu'><a href='me_correlate.html'>me_correlate</a></span><span class='op'>(</span><span class='va'>.data</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 5 x 6</span><span>
@@ -229,7 +215,6 @@ adjustment but for a covariance matrix.</p></div>
 #&gt; </span><span style='color: #555555;'>3</span><span> trstprt   0.598   0.839   1      0.316   0.297
 #&gt; </span><span style='color: #555555;'>4</span><span> stfedu    0.348   0.352   0.316  1       0.620
 #&gt; </span><span style='color: #555555;'>5</span><span> stfhlth   0.335   0.369   0.297  0.620   1    </div><div class='input'>
-
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
