@@ -168,11 +168,28 @@ of <code>measurementfree</code> such as <code>me_cmv_cor</code> and <code>me_cmv
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The model syntax allows to define the relationship between variables
-in terms of whether they share a common method in the question
-that was asked. For example, if the questions called <code>stflife</code>
-and <code>stfwork</code> were both measured with a 1-10 likert scale related
-to satisfaction, these two questions were measured with the same method.
-The model syntax would specify them like:</p>
+in terms of how to correct for their measurement error and whether
+they share a common method in the question that was asked. To correct for
+the measurement error of a set of variables you can write the model
+like this:</p>
+<pre><span class='op'>~</span><span class='op'>~</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span></pre>
+
+<p>For most purposes, a user would just want to correct for measurement error
+on all variables which have measurement error statistics in <code>me_data</code>
+and is present on <code>.data</code>. For that, <code>~~</code> is interpreted as
+a normal R formula so you can automatically apply the correction to all
+variables like this:</p>
+<pre><span class='op'>~</span><span class='op'>~</span> <span class='va'>.</span></pre>
+
+<p>Correcting for measurement error (that is, using `~~`) is a necessary
+step for `medesign`. That is, it always needs to be specified as it is
+the first step on which other corrections are built. <code>medesign</code>
+will raise an error if no `~~` is specified.</p>
+<p>For correcting for common method variance, the syntax is virtually the same
+but exchanging `~~` for `~`. For example, if the questions called
+<code>stflife</code> and <code>stfwork</code> were both measured with a 1-10 likert
+scale related to satisfaction, these two questions were measured with
+the same method. The model syntax would specify them like:</p>
 <pre><span class='op'>~</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span></pre>
 
 <p>These two questions should also be in <code>.data</code> and in <code>me_data</code>,
@@ -190,15 +207,28 @@ and then specify that the new 'sum score' variable shares a common
 method with the variables <code>stflife</code> and <code>stfwork</code>. We would
 write it like this:</p>
 <pre>
+<span class='co'># Correct for measurement error of all variables</span>
+<span class='op'>~</span><span class='op'>~</span> <span class='va'>.</span>
+
+<span class='co'># Creation of new variables</span>
 <span class='fu'>std</span><span class='op'>(</span><span class='va'>new_variable</span><span class='op'>)</span> <span class='op'>=</span> <span class='va'>trstplt</span> <span class='op'>+</span> <span class='va'>trstprl</span> <span class='op'>+</span> <span class='va'>trstprt</span>
+
+<span class='co'># Correct for common method variance</span>
 <span class='op'>~</span> <span class='va'>new_variable</span> <span class='op'>+</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span>
 </pre>
 
 <p>You can also combine these building blocks to specify a shared
 common method between two new variables. For example:</p>
 <pre>
+
+<span class='co'># Quality correction</span>
+<span class='op'>~</span><span class='op'>~</span> <span class='va'>.</span>
+
+<span class='co'># Creation of new variables</span>
 <span class='fu'>std</span><span class='op'>(</span><span class='va'>new_variable1</span><span class='op'>)</span> <span class='op'>=</span> <span class='va'>trstplt</span> <span class='op'>+</span> <span class='va'>trstprl</span> <span class='op'>+</span> <span class='va'>trstprt</span>
 <span class='fu'>std</span><span class='op'>(</span><span class='va'>new_variable2</span><span class='op'>)</span> <span class='op'>=</span> <span class='va'>stflife</span> <span class='op'>+</span> <span class='va'>stfwork</span>
+
+<span class='co'># Correction for common method</span>
 <span class='op'>~</span> <span class='va'>new_variable1</span> <span class='op'>+</span> <span class='va'>new_variable2</span>
 </pre>
 
