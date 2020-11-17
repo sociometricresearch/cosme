@@ -6,13 +6,20 @@
 \usage{
 me_parse_model(
   model_syntax = " ",
+  me_data = NULL,
+  data = NULL,
   as_list = FALSE,
   debug_code = FALSE,
-  operators = c("~", "=")
+  operators = c("~", "=", "~~")
 )
 }
 \arguments{
 \item{model_syntax}{a string containing the model specification}
+
+\item{me_data}{measurment error data. This is used to return the RHS of
+the quality specification.}
+
+\item{data}{data to extract the variables when specifying '~ .'}
 
 \item{as_list}{a logical for whether the result is a data frame or a list.
 Dataframe is set as a default.}

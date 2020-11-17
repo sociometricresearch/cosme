@@ -1,14 +1,20 @@
 ##' @title Extract a model specification from the measurement error model
 ##' @param model_syntax a string containing the model specification
+##' @param me_data measurment error data. This is used to return the RHS of
+##' the quality specification.
+##' 
+##' @param data data to extract the variables when specifying '~ .'
 ##' @param as_list a logical for whether the result is a data frame or a list.
 ##' Dataframe is set as a default.
 ##' @param debug_code a logical for whether debugging logs should be printed.
 ##' @param operators permitted operators to define new lines
 ##' @return A data frame with the parsed model extracted into different columns
 me_parse_model <- function(model_syntax = " ",
+                           me_data = NULL,
+                           data = NULL,
                            as_list = FALSE,
                            debug_code = FALSE,
-                           operators = c("~", "=")) {
+                           operators = c("~", "=", "~~")) {
 
   if (length(model_syntax) == 0) {
     stop("Empty measurement error model_syntax")
@@ -74,7 +80,7 @@ me_parse_model <- function(model_syntax = " ",
 
   ind_formula <- grep("^~", model)
   model[ind_formula] <- paste0("X", seq_along(ind_formula), model[ind_formula])
-  
+
   FLAT.lhs <- character(0)
   FLAT.op <- character(0)
   FLAT.rhs <- character(0)
@@ -93,14 +99,30 @@ me_parse_model <- function(model_syntax = " ",
       print(x)
       cat("\n")
     }
-    
-    if (grepl(operators[1], x, fixed = TRUE)) {
-      op <- operators[1]
-    } else if (grepl(operators[2], x, fixed = TRUE)) {
-      op <- operators[2]
-    } else {
+
+    # This is a regex to match the operator. Here's an example on how
+    # it looks like:
+    # "^.+[^~~]~~{1}[^~~]+$"
+    # ^.+: Begin with any letter repeated any number of times
+    # [^~~]: Following by anything that is NOT the operator
+    # ~~{1}: then the operator repeated only once
+    # [^~~]+$: followed by anything that is not the operator until
+    # the end of the string.
+    # This regex is complicated because we want to differentiate
+    # between '~~' and '~'. By making sure the operator is not
+    # repeated twice we can directly test whether the user specified
+    # '~~' or '~'.
+    op_regex <- paste0(
+      "^.+[^", operators, "]", operators, "{1}[^", operators, "]", "+$"
+    )
+    op_lgl <- vapply(op_regex, grepl, x, FUN.VALUE = logical(1))
+
+    # If no operator is matched, raise an error
+    if (!any(op_lgl)) {
       stop("Unknown operator in ", model[i], ". Operators must be one of ", paste0("'", operators, "'", collapse = ", "), ".") #nolintr
     }
+
+    op <- operators[op_lgl]
 
     # Identify where the operator is
     op.idx <- regexpr(op, x)
@@ -163,17 +185,29 @@ me_parse_model <- function(model_syntax = " ",
     # things likes a * b to interactions when we just want them as
     # operations
     if (op == "=") {
-      out <- stats::setNames(list(empty_name = NULL), rhs)      
+      out <- stats::setNames(list(empty_name = NULL), rhs)
+    } else if (op == "~~") {
+      me_data <- as.data.frame(me_data)
+      row.names(me_data) <- me_data$question
+
+      out <- syntax_parse_rhs(
+        rhs = stats::as.formula(paste0("~", rhs)),
+        data = t(me_data)
+      )
+
     } else {
-      out <- syntax_parse_rhs(rhs = stats::as.formula(paste0("~", rhs)))
+      out <- syntax_parse_rhs(
+        rhs = stats::as.formula(paste0("~", rhs)),
+        data = data
+      )
     }
-    
+
     if (debug_code) print(out)
-    
+
     for (l in 1:length(lhs.names)) {
       for (j in 1:length(out)) {
         rhs.name <- names(out)[j]
-        
+
         FLAT.idx <- FLAT.idx + 1L
         FLAT.lhs[FLAT.idx] <- lhs.names[l]
         FLAT.op[FLAT.idx] <- op
@@ -191,7 +225,7 @@ me_parse_model <- function(model_syntax = " ",
 
   mod.idx <- which(FLAT.rhs.mod.idx > 0L)
   FLAT.rhs.mod.idx[mod.idx] <- 1:length(mod.idx)
-  
+
   FLAT <- data.frame(lhs = FLAT.lhs,
                      op = FLAT.op,
                      rhs = FLAT.rhs,
@@ -220,7 +254,9 @@ me_parse_model <- function(model_syntax = " ",
                 )
          )
 
-  final_df <- rbind(sscore_df, cmv_df)
+  quality_df <- FLAT[FLAT$op == "~~", ]
+  if (nrow(quality_df) > 0) quality_df$type  <- NA
+  final_df <- rbind(sscore_df, cmv_df, quality_df)
 
   if (as_list) {
     final_df <- lapply(final_df, identity)
@@ -229,10 +265,13 @@ me_parse_model <- function(model_syntax = " ",
   final_df
 }
 
-syntax_parse_rhs <- function (rhs) {
+syntax_parse_rhs <- function (rhs, data) {
+  if (is.null(data)) {
+    stop("Argument 'data' must be supplied to extract terms from the formula")
+  }
   out <- list()
 
-  all_terms <- attr(stats::terms(rhs), "term.labels")
+  all_terms <- attr(stats::terms(rhs, data = data), "term.labels")
   out <- stats::setNames(vector("list", length(all_terms)), all_terms)
 
   if (length(out) > 1L) {
@@ -246,6 +285,6 @@ syntax_parse_rhs <- function (rhs) {
       rhs.names <- names(out)
     }
   }
-  
+
   out
 }
