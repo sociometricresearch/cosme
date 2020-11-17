@@ -86,8 +86,10 @@ diagonal by default. This is then used by \code{me_cmv_cor} and
 \examples{
 
 data(ess7es)
-# These three variables share a common method
-me_syntax <- "~ trstplt + trstprl + trstprt"
+# Correct for measurement error for all variables
+# and correct for the fact that these three variables
+# share a common method
+me_syntax <- "~~ .; ~ trstplt + trstprl + trstprt"
 
 # Data from sqp
 me_data <-
@@ -102,7 +104,8 @@ medesign(me_syntax, ess7es, me_data)
 
 # Each pair of variables share a common method.
 me_syntax <-
- "~ trstplt + trstprl + trstprt
+ "~~ .;
+  ~ trstplt + trstprl + trstprt
   ~ stfedu + stfhlth"
 
 me_data2 <-
@@ -121,16 +124,18 @@ medesign(me_syntax, ess7es, me_data)
 # as variables sharing a common method
 
 me_syntax <-
- "std(new_sscore1) = trstplt + trstprl + trstprt;
+ "~~ .;
+  std(new_sscore1) = trstplt + trstprl + trstprt;
   ~ new_sscore1 + stfedu + stfhlth"
 
 medesign(me_syntax, ess7es, me_data)
 
-# Alternatively, we can also combined two newly created variables
+# Alternatively, we can also combine two newly created variables
 # as sharing a common method
 me_syntax <-
  "std(new_sscore1) = trstplt + trstprl + trstprt;
   std(new_sscore2) = stfedu + stfhlth;
+  ~~ .;
   ~ new_sscore1 + new_sscore2"
 
 medesign(me_syntax, ess7es, me_data)

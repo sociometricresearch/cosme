@@ -80,8 +80,10 @@
 #' @examples
 #'
 #' data(ess7es)
-#' # These three variables share a common method
-#' me_syntax <- "~ trstplt + trstprl + trstprt"
+#' # Correct for measurement error for all variables
+#' # and correct for the fact that these three variables
+#' # share a common method
+#' me_syntax <- "~~ .; ~ trstplt + trstprl + trstprt"
 #'
 #' # Data from sqp
 #' me_data <-
@@ -96,7 +98,8 @@
 #'
 #' # Each pair of variables share a common method.
 #' me_syntax <-
-#'  "~ trstplt + trstprl + trstprt
+#'  "~~ .;
+#'   ~ trstplt + trstprl + trstprt
 #'   ~ stfedu + stfhlth"
 #'
 #' me_data2 <-
@@ -115,28 +118,35 @@
 #' # as variables sharing a common method
 #'
 #' me_syntax <-
-#'  "std(new_sscore1) = trstplt + trstprl + trstprt;
+#'  "~~ .;
+#'   std(new_sscore1) = trstplt + trstprl + trstprt;
 #'   ~ new_sscore1 + stfedu + stfhlth"
 #'
 #' medesign(me_syntax, ess7es, me_data)
 #'
-#' # Alternatively, we can also combined two newly created variables
+#' # Alternatively, we can also combine two newly created variables
 #' # as sharing a common method
 #' me_syntax <-
 #'  "std(new_sscore1) = trstplt + trstprl + trstprt;
 #'   std(new_sscore2) = stfedu + stfhlth;
+#'   ~~ .;
 #'   ~ new_sscore1 + new_sscore2"
 #'
 #' medesign(me_syntax, ess7es, me_data)
 #'
 medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...) {
+
   me_data <- as_me(me_data)
+  stopifnot(is.data.frame(.data), nrow(.data) > 0)
+  parsed_model <- me_parse_model(model_syntax, me_data, .data)
 
-  stopifnot(is.data.frame(.data),
-            nrow(.data) > 0)
+  # If no quality has been specified, raise error
+  if (!any(parsed_model$op == "~~")) {
+    stop("You need to provide a quality specification with `~~`. To correct for the quality of all available variables write `~~ .`") #nolintr
+  }
 
-  parsed_model <- me_parse_model(model_syntax)
   split_model <- split(parsed_model, parsed_model$lhs)
+  split_model <- Filter(function(x) all(x$op != "~~"), split_model)
 
   vars_used <- lapply(split_model, function(x) {
     all.vars(stats::as.formula(paste0("~", paste(x$rhs, collapse = "+"))))
@@ -166,6 +176,18 @@ medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...)
                                            .drop = FALSE,
                                            ...)
 
+  if (drop_sscore_vars) {
+    sscore_vars_used <- unlist(vars_used[which_sscore])
+    valid_vars <- setdiff(names(.data), sscore_vars_used)
+    .data <- .data[valid_vars]
+  }
+
+  # Doing it AGAIN because we calculated the sum score quality
+  # before
+  complete_parse <- me_parse_model(model_syntax, me_data_sscore, .data)
+  quality_vars <- complete_parse[complete_parse$op == "~~", "rhs"]
+  quality_vars <- intersect(quality_vars, names(.data))
+
   # I checked the sscore vars above but all variables here again just
   # because I'm lazy
   check_number_cmv(parsed_model)
@@ -174,18 +196,15 @@ medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...)
   ## me_data_filt <- me_data[match(vars_used, me_data$question), ]
 
   # Only check NA's on variables used
-  non_sscore_vars <- setdiff(unlist(vars_used), names(vars_used))
-  check_me_na(me_data_sscore[me_data_sscore$question %in% non_sscore_vars, ],
-              me_cols = c("reliability", "validity"))
+  ## non_sscore_vars <- setdiff(unlist(vars_used), names(vars_used))
 
-  check_data_vars(.data, unlist(vars_used))
-  check_data_na(.data, unlist(vars_used))
+  check_me_na(
+    me_data_sscore[me_data_sscore$question %in% quality_vars, ],
+    me_cols = c("reliability", "validity")
+  )
 
-  if (drop_sscore_vars) {
-    sscore_vars_used <- unlist(vars_used[which_sscore])
-    valid_vars <- setdiff(names(.data), sscore_vars_used)
-    .data <- .data[valid_vars]
-  }
+  check_data_vars(.data, unlist(vars_used[!which_sscore]))
+  check_data_na(.data, unlist(vars_used[!which_sscore]))
 
   qual_cor <- stats::cor(.data, use = "complete.obs")
   qual_cov <- stats::cov(.data, use = "complete.obs")
@@ -195,23 +214,23 @@ medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...)
   # to an explicit declaration of quality in model_syntax in the future
   me_data_sscore <- me_data_sscore[!is.na(me_data_sscore$quality), ]
 
-  vars_match <- intersect(me_data_sscore$question, rownames(qual_cor))
-  tmp_me <- me_data_sscore[me_data_sscore$question %in% vars_match, ]
+  message(
+    paste0("Correcting for measurement error in ", paste0(quality_vars, collapse = ", "), ". If you want to correct other variables, make sure they are both in `me_data` and `.data` and you specify their names in the model syntax (`~~`).") #nolintr
+  )
+
+  tmp_me <- me_data_sscore[me_data_sscore$question %in% quality_vars, ]
   pos_diag <- stats::na.omit(match(tmp_me$question, rownames(qual_cor)))
   diag(qual_cor)[pos_diag] <- tmp_me$quality
 
-  # The covariance quality needs to be unstandardized
-  sscores <- setdiff(tmp_me$question, me_data$question)
-  sd_sscore <- vapply(.data[sscores], stats::sd, na.rm = TRUE, FUN.VALUE = numeric(1))
+  ## sscores <- setdiff(tmp_me$question, me_data$question)
+  sd_sscore <- vapply(.data[quality_vars], stats::sd, na.rm = TRUE, FUN.VALUE = numeric(1))
   sd_pos <- match(names(sd_sscore), tmp_me$question)
-  tmp_me$quality[sd_pos] <- tmp_me$quality[sd_pos] * (sd_sscore^2)
-
-  diag(qual_cov)[pos_diag] <- tmp_me$quality
+  diag(qual_cov)[pos_diag] <- tmp_me$quality[sd_pos] * (sd_sscore^2)
 
   structure(
     list(parsed_model = parsed_model,
          .data = .data,
-         me_data = me_data_sscore,
+         me_data = tmp_me,
          corr = matrix2tibble(qual_cor),
          covv = matrix2tibble(qual_cov)
          ),
@@ -223,7 +242,7 @@ medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...)
 print.medesign <- function(x, ...) {
   sscore_df <- x$parsed_model[x$parsed_model$op == "=", ]
   split_sscore <- split(sscore_df, sscore_df$lhs)
-  
+
   formatted_sscore <- vapply(split_sscore, function(x) {
     paste(unique(x$lhs), unique(x$op), paste(unique(x$rhs), collapse = " + "))
   }, FUN.VALUE = character(1)
@@ -231,13 +250,15 @@ print.medesign <- function(x, ...) {
 
   cmv_df <- x$parsed_model[x$parsed_model$op == "~", ]
   split_cmv <- split(cmv_df, cmv_df$lhs)
-  
+
   formatted_cmv <- vapply(split_cmv, function(x) {
     paste(unique(x$op), paste(unique(x$rhs), collapse = " + "))
   }, FUN.VALUE = character(1))
 
+  formatted_quality <- paste0("~~ ", paste0(x$me_data$question, collapse = " + "))
+
   clean_model <- paste0("   ",
-                        c(formatted_sscore, formatted_cmv),
+                        c(formatted_sscore, formatted_quality, formatted_cmv),
                         collapse = "\n")
 
   cat("<Measurement error design>",
@@ -295,7 +316,7 @@ scale_add_sscore <- function(.data, new_name, vars_names) {
   # AsIs from the I() in the formula
   created_ss[ss_name] <- as.numeric(created_ss[[ss_name]])
   .data[[ss_name]] <- created_ss[[ss_name]]
-  
+
   .data
 }
 
@@ -318,6 +339,6 @@ adapted_sscore_quality <- function(parsed_model, .data, me_data, ...) {
                  ...
                  )
   }
-  
+
   me_data
 }
