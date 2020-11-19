@@ -68,11 +68,19 @@ me_cmv_cov <- function(.medesign) {
   new_diag <- diag(stats::cov(.medesign$.data, use = "complete.obs"))
   cov_diag[to_fill] <- new_diag[to_fill]
   me_data <- .medesign$me_data[.medesign$me_data$question %in% names(cov_diag), ]
+  quality_default <- stats::setNames(diag(as.matrix(res_cor[-1])), res_cor$rowname)
   quality <- stats::setNames(me_data$quality, me_data$question)
+
+  quality_default <- quality_default[order(names(quality_default))]
+  quality <- quality[order(names(quality))]
+
+  lhs <- match(names(quality), names(quality_default))
+  rhs <- stats::na.omit(match(names(quality_default), names(quality)))
+  quality_default[lhs] <- quality[rhs]
   tmp_cor <- as.matrix(res_cor[-1])
   diag_order <- match(res_cor$rowname, names(cov_diag))
-  quality_order <- match(res_cor$rowname, names(quality))
-  diag(tmp_cor) <- cov_diag[diag_order] * quality[quality_order]
+  quality_order <- match(res_cor$rowname, names(quality_default))
+  diag(tmp_cor) <- cov_diag[diag_order] * quality_default[quality_order]
 
   tmp_cor <- as.data.frame(tmp_cor)
   tmp_cor$rowname <- res_cor$rowname

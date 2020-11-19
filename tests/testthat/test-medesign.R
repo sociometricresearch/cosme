@@ -34,15 +34,17 @@ quality <-
 
 
 test_that("medesign raises error when bad model_syntax", {
+
   # 1) The variables defined in the model are present in `me_data`.
   model_syntax <- "~~ .; ~ mpg + cyl + drat"
   .data <- mtcars
-  me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl"),
-                        reliability = c(0.729, 0.815),
-                        validity = c(0.951, 0.944),
-                        quality = c(0.693, 0.77)
-                        )
+  me_data <- data.frame(
+    stringsAsFactors = FALSE,
+    question = c("mpg", "cyl"),
+    reliability = c(0.729, 0.815),
+    validity = c(0.951, 0.944),
+    quality = c(0.693, 0.77)
+  )
 
   expect_error(
     medesign(model_syntax, .data, me_data),
@@ -99,10 +101,10 @@ test_that("medesign raises error when bad model_syntax", {
   )
 
   # 5) Defining CMV with one variable raises error.
-  model_syntax <- "~~ .; ~ mpg + cyl + whatever; ~ drat"
+  model_syntax <- "~~ .; ~ mpg + cyl; ~ am"
   .data <- mtcars
   me_data <- data.frame(stringsAsFactors = FALSE,
-                        question = c("mpg", "cyl", "whatever"),
+                        question = c("mpg", "cyl", "am"),
                         reliability = c(0.729, 0.815, 0.68),
                         validity = c(0.951, 0.944, 0.79),
                         quality = c(0.693, 0.77, 0.89)
@@ -110,7 +112,7 @@ test_that("medesign raises error when bad model_syntax", {
 
   expect_error(
     medesign(model_syntax, .data, me_data),
-    regexp = "You need to supply at least two variables to calculate the Common Method Variance (CMV) in '~ drat'", #nolintr
+    regexp = "You need to supply at least two variables to calculate the Common Method Variance (CMV) in '~ am'", #nolintr
     fixed = TRUE
   )
 })
@@ -499,4 +501,128 @@ test_that("medesign replaces quality in diagonal of cor and cov correctly", {
     tol = 0.00001
   )
 
+})
+
+me_data <-
+  data.frame(
+    question = c("trstprl", "trstplt", "trstprt", "stfedu", "stfhlth"),
+    reliability = c(0.812, 0.852, 0.858, 0.870, 0.871),
+    validity = c(0.959, 0.965, 0.956, 0.915, 0.893),
+    quality = c(0.779, 0.822, 0.821, 0.796, 0.779)
+  )
+
+test_that("Error raised if `~~` is not specified", {
+
+  model_definition <- "
+   ~ trstplt + trstprl + trstprt;
+   ~ stfedu + stfhlth
+  "
+
+  expect_error(
+    medesign(model_definition, ess7es, me_data),
+    "You need to provide a quality specification with `~~`. To correct for the quality of all available variables write `~~ .`" #nolintr
+  )
+})
+
+test_that("medesign fails when all vars in CMV are not in quality correction", {
+  model_definition <- "
+   ~~ stfedu
+   ~ stfedu + stfhlth
+  "
+
+  expect_error(
+    medesign(model_definition, ess7es, me_data),
+    regexp = "All variables defined as adjusting for CMV (`~`) need to be also included for the correction of measurement error in `~~`", #nolintr
+    fixed = TRUE
+  )
+})
+
+test_that("medesign only corrects for specific quality variables", {
+
+  model_definition <- "
+   std(s1) = trstprl + trstplt
+   ~~ stfedu
+  "
+
+  all_vars <- c("trstprl", "trstplt", "stfedu", "polintr")
+  .data <- ess7es[all_vars]
+  mdes <- medesign(model_definition, .data, me_data)
+
+  ################ For me_cmv_cor #######################
+
+  # Here we check that except for the diagonal of
+  # stfedu, everything should be the same. This
+  # makes sure that even if we specify sum scores
+  # only the variable in ~~ is corrected for quality
+  adapted_cor <- as.matrix(mdes$corr[-1])
+  adapted_cor[1, 1] <- 1
+  row.names(adapted_cor) <- attr(adapted_cor, "dimnames")[[2]]
+  original_cor <- cor(mdes$.data, use = "complete.obs")
+
+  expect_equal(
+    original_cor,
+    adapted_cor
+  )
+
+  # Here we check that after correction,
+  # only coefficients associated with stfedu
+  # are changed. I fixed the comparison to a data
+  # frame just to make the comparison less convoluted
+  # by testing specific coefficients
+  correct_df <- tibble(
+    rowname = c("stfedu", "polintr", "s1"),
+    stfedu = c(1, 0.0581535778453805, 0.431057908657271),
+    polintr = c(0.0581535778453805, 1, -0.176930409361294),
+    s1 = c(0.431057908657271, -0.176930409361294, 1)
+  )
+
+  # All coefficients in the same column as stfedu
+  # could be different from the original correlation
+  # However, all other coefficients (here only s1 and polintr)
+  # should have the same correlation coefficient as the
+  # original correlation. Here the coef 0.1769 is the same
+  # in this and the original correlation
+  expect_equal(
+    correct_df,
+    me_cmv_cor(mdes)
+  )
+
+  ################ For me_cmv_cov #######################
+
+  # Here we check that except for the diagonal of
+  # stfedu, everything should be the same. This
+  # makes sure that even if we specify sum scores
+  # only the variable in ~~ is corrected for quality
+  adapted_cov <- as.matrix(mdes$covv[-1])
+  adapted_cov[1, 1] <- 5.478122
+  row.names(adapted_cov) <- attr(adapted_cov, "dimnames")[[2]]
+  original_cov <- cov(mdes$.data, use = "complete.obs")
+
+  expect_equal(
+    original_cov,
+    adapted_cov
+  )
+
+  # Here we check that after correction,
+  # only coefficients associated with stfedu
+  # are changed. I fixed the comparison to a data
+  # frame just to make the comparison less convoluted
+  # by testing specific coefficients
+  correct_df <- tibble(
+    rowname = c("stfedu", "polintr", "s1"),
+    stfedu = c(4.36058512518863, 0.127945060461026, 1.82450118921453),
+    polintr = c(0.127945060461026, 0.883613754495464, -0.300764378569922),
+    s1 = c(1.82450118921453, -0.300764378569922, 3.27028321423119)
+  )
+
+  # All coefficients in the same column as stfedu
+  # could be different from the original correlation
+  # However, all other coefficients (here only s1 and polintr)
+  # should have the same correlation coefficient as the
+  # original correlation. Here the coef 0.1769 is the same
+  # in this and the original correlation
+  expect_equal(
+    correct_df,
+    me_cmv_cov(mdes)
+  )
 })

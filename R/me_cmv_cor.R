@@ -80,28 +80,42 @@ me_cmv_cor <- function(.medesign) {
   }
 
   # cmv vector equals the same length as the number of cmv definitions
+  parsed_m <- .medesign$parsed_model
+  number_cmvs <- unique(parsed_m[parsed_m$op == "~", "lhs"])
   if (!is.null(cmv)) {
     stopifnot(is.numeric(cmv))
-    stopifnot(length(cmv) == length(unique(.medesign$parsed_model$lhs)))
+    stopifnot(length(cmv) == length(number_cmvs))
   } else {
     # Create empty list to iterate over each cmv
-    cmv <- rep(list(NULL), length(unique(.medesign$parsed_model$lhs)))
+    cmv <- rep(list(NULL), length(number_cmvs))
   }
 
-  parsed_model <- .medesign$parsed_model
-  cmv_df <- parsed_model[parsed_model$op == "~", ]
+  cmv_df <- parsed_m[parsed_m$op == "~", ]
 
   cmv_groups <- split(cmv_df, cmv_df$lhs)
   list_cmv_vars <- lapply(cmv_groups, `[[`, "rhs")
+
+  if (length(list_cmv_vars) == 0) {
+    names_cmv <- paste0(
+      .medesign$me_data$question,
+      .medesign$me_data$question,
+      collapse = "_"
+    )
+
+    list_cmv_vars <- list(stats::setNames(.medesign$me_data$question, names_cmv))
+    cmv <- list(stats::setNames(0, names_cmv))
+  }
 
   # If it's the first iteration, provide the original correlation
   # otherwise the looped corrected correlation
   res <- .medesign$corr
   for (i in seq_along(list_cmv_vars)) {
-    res <- me_cmv_cor_(x = res,
-                       me_data = .medesign$me_data,
-                       cmv_vars = list_cmv_vars[[i]],
-                       cmv = cmv[[i]])
+    res <- me_cmv_cor_(
+      x = res,
+      me_data = .medesign$me_data,
+      cmv_vars = list_cmv_vars[[i]],
+      cmv = cmv[[i]]
+    )
   }
 
   res

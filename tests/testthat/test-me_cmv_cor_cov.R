@@ -117,8 +117,7 @@ test_cor_cov <- function(fun, fun_str) {
 
     reordered <- cmv_shuffled[order(cmv_shuffled$rowname), names(cmv_original)]
 
-    expect_identical(cmv_original,
-                     reordered)
+    expect_identical(cmv_original, reordered)
   })
 
   test_that(paste0(fun_str, " gives same result when variables in medata are shuffled"), { #nolintr

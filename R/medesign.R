@@ -219,17 +219,21 @@ medesign <- function(model_syntax, .data, me_data, drop_sscore_vars = TRUE, ...)
   # before
   complete_parse <- me_parse_model(model_syntax, me_data_sscore, .data)
   quality_vars <- complete_parse[complete_parse$op == "~~", "rhs"]
-  quality_vars <- intersect(quality_vars, names(.data))
+  cmv_vars <- complete_parse[complete_parse$op == "~", "rhs"]
 
-  # I checked the sscore vars above but all variables here again just
-  # because I'm lazy
   check_number_cmv(parsed_model)
   check_me_vars(me_data_sscore, unlist(vars_used))
+  cmv_quality_present <- cmv_vars %in% quality_vars
 
-  ## me_data_filt <- me_data[match(vars_used, me_data$question), ]
+  if (!all(cmv_quality_present)) {
+    not_present <- cmv_vars[!cmv_quality_present]
+    stop(
+      "All variables defined as adjusting for CMV (`~`) need to be also included for the correction of measurement error in `~~`", #nolintr
+      call. = FALSE
+    )
+  }
 
-  # Only check NA's on variables used
-  ## non_sscore_vars <- setdiff(unlist(vars_used), names(vars_used))
+  quality_vars <- intersect(quality_vars, names(.data))
 
   check_me_na(
     me_data_sscore[me_data_sscore$question %in% quality_vars, ],
