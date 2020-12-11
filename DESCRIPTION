@@ -1,5 +1,5 @@
-Package: measurementfree
-Title: A flexible tool to correct correlation and covariance matrices for measurement error
+Package: cosme
+Title: A flexible tool to correct for survey measurement errors
 Version: 0.0.1
 Authors@R: 
     c(
@@ -10,16 +10,16 @@ Authors@R:
            comment = c(ORCID = "0000-0001-5594-1156")),
     person(given = "Wiebke",
            family = "Weber",
-	   role = c("aut"),
-	   email = "wiebke.weber@upf.edu",
-	   comment = c(ORCID = "0000-0002-6754-1392"))
+	         role = c("aut"),
+	         email = "wiebke.weber@upf.edu",
+	         comment = c(ORCID = "0000-0002-6754-1392"))
     )
-Description: Through a flexible syntax for model specification, measurementfree allows to define a measurement error design object which can be used to adjust for measurement error in correlation and covariance matrices.
+Description: Through a flexible syntax for model specification, cosme allows to define a measurement error design object which can be used to adjust for measurement error in correlation and covariance matrices.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
 LazyData: true
-URL: https://sociometricresearch.github.io/measurementfree/, https://github.com/sociometricresearch/measurementfree/
+URL: https://sociometricresearch.github.io/cosme/, https://github.com/sociometricresearch/cosme/
 VignetteBuilder: knitr
 Suggests: 
     covr,

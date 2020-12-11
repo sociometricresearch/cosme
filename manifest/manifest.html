@@ -467,12 +467,12 @@ lm_tse(
 <li><p>Step 2.3: Combine the model definition, the data that will be used in the analysis and the measurement error estimates. This step takes care of making sure that all variables defined in the model are indeed in the measurement error data frame as well as in the data. Moreover, it checks whether the variables defined have actual values in the measurement error dataframe.</p></li>
 <li><p>Step 3: Define the measurement error model, with two additional arguments: <code>complex_wt</code> and <code>me</code>, which were explained above.</p></li>
 </ul>
-<p>This last step is familiar yet adds the new <code>me</code> argument. How would this work out with the previous <code>lavaan.survey</code> expression? Below the curtain, <code>lavaan.survey</code> and <code>measurementfree</code> can be integrated:</p>
+<p>This last step is familiar yet adds the new <code>me</code> argument. How would this work out with the previous <code>lavaan.survey</code> expression? Below the curtain, <code>lavaan.survey</code> and <code>cosme</code> can be integrated:</p>
 <pre class="r"><code>library(lavaan.survey)
 library(essurvey)
 library(magrittr)
 library(sqpr)
-library(measurementfree)
+library(cosme)
 
 # Choose your selected variables
 selected_vars &lt;- c(&quot;ppltrst&quot;,

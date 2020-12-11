@@ -30,7 +30,7 @@ correlation coefficients over one for these variables. Default set to
 }
 \value{
 an \code{me} design object which can be passed to other functions
-of \code{measurementfree} such as \code{me_cmv_cor} and \code{me_cmv_cov}.
+of \code{cosme} such as \code{me_cmv_cor} and \code{me_cmv_cov}.
 }
 \description{
 Define your measurement error design

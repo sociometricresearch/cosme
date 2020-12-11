@@ -410,7 +410,7 @@ Pompeu Fabra University<br><div class="abstract">
 <p>From looking at several papers online, I think it might be better to focus on one example and begin with something simple: only correct for quality, then CMV, the simple concepts vs complex concepts and finalize with complex vs complex concepts. Otherwise it’s too difficult (at least for me) to find several examples that we can use all of the applications.</p>
 <div id="political-trust-example" class="section level2">
 <h2>Political Trust example</h2>
-<p>In this case study we will go through an applied example of the capabilities of the <code>measurementfree</code> package.</p>
+<p>In this case study we will go through an applied example of the capabilities of the <code>cosme</code> package.</p>
 <p>We’ll begin by loading some packages we’ll use.</p>
 <pre class="r"><code>library(lavaan)</code></pre>
 <pre><code>## This is lavaan 0.6-3</code></pre>
@@ -432,8 +432,8 @@ library(essurvey)</code></pre>
 <pre class="r"><code>library(sqpr)
 library(magrittr)
 
-# And measurementfree
-library(measurementfree)</code></pre>
+# And cosme
+library(cosme)</code></pre>
 <pre><code>## 
 ## Please cite as:</code></pre>
 <pre><code>## Cimentada, J. &amp; Weber, W. (2019). A flexible tool to correct correlation and covariance matrices for measurement error R package version 0.0.1.</code></pre>
@@ -632,12 +632,12 @@ original_corr_2</code></pre>
 ## agea     -0.03754432  0.01659999  1.0000000000 -0.22553987 -0.193861040
 ## eisced    0.07276395  0.03815190 -0.2255398662  1.00000000  0.494724370
 ## pspwght   0.02194284 -0.01227852 -0.1938610399  0.49472437  1.000000000</code></pre>
-<p><code>measurementfree</code> has a very similar function to <code>cor</code> but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the <code>pspwght</code> from the European Social Survey.</p>
+<p><code>cosme</code> has a very similar function to <code>cor</code> but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the <code>pspwght</code> from the European Social Survey.</p>
 <pre class="r"><code>me_design &lt;- medesign(&quot;~ stfeco + stflife&quot;,
                       ess7es[variables_order],
                       quality)</code></pre>
 <p>It’s the same correlation coefficients but with the diagonal set to the quality of the estimates. But <strong>note</strong> that both the order of the variables <code>Quality</code> and the order of the variables in <code>ess7corr</code> should be the same! Otherwise we might confuse quality estimates between variables.</p>
-<p>For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The <code>measurementfree</code> package makes this very easy using the <code>me_cmv_cor</code> function. Supply the correlation data frame, the <code>Quality</code> dataset with quality estimates and <code>me_cmv_cor</code> estimates the CMV between the variables specified (here only two) and subtracts it from the correlation.</p>
+<p>For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The <code>cosme</code> package makes this very easy using the <code>me_cmv_cor</code> function. Supply the correlation data frame, the <code>Quality</code> dataset with quality estimates and <code>me_cmv_cor</code> estimates the CMV between the variables specified (here only two) and subtracts it from the correlation.</p>
 <pre class="r"><code>corrected_corr &lt;- me_cmv_cor(me_design)</code></pre>
 <p>Here we have a corrected matrix for both measurement error and for the common method variance of some variables. We can dump this into our <code>sem</code> models and get estimates corrected for measurement error.</p>
 </div>

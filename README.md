@@ -1,21 +1,21 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# measurementfree
+# cosme
 
 <!-- badges: start -->
 
 [![R build
-status](https://github.com/sociometricresearch/measurementfree/workflows/R-CMD-check/badge.svg)](https://github.com/sociometricresearch/measurementfree/actions)
+status](https://github.com/sociometricresearch/cosme/workflows/R-CMD-check/badge.svg)](https://github.com/sociometricresearch/cosme/actions)
 [![Codecov test
-coverage](https://codecov.io/gh/sociometricresearch/measurementfree/branch/master/graph/badge.svg)](https://codecov.io/gh/sociometricresearch/measurementfree?branch=master)
+coverage](https://codecov.io/gh/sociometricresearch/cosme/branch/master/graph/badge.svg)](https://codecov.io/gh/sociometricresearch/cosme?branch=master)
 [![CRAN
-status](https://www.r-pkg.org/badges/version/measurementfree)](https://cran.r-project.org/package=measurementfree)
+status](https://www.r-pkg.org/badges/version/cosme)](https://cran.r-project.org/package=cosme)
 <!-- badges: end -->
 
-The `measurementfree` package allows you to calculate several
-estimations of the quality of your survey questions and also adjust your
-estimations for measurement error.
+The `cosme` package allows you to calculate several estimations of the
+quality of your survey questions and also adjust your estimations for
+measurement error.
 
 Assuming you have a data frame with the `reliability`, `validity` and
 `quality` of your question, you can correct for the quality and common
@@ -24,22 +24,22 @@ method variance easily.
 Load the package as:
 
 ``` r
-# devtools::install_github("sociometricresearch/measurementfree")
-library(measurementfree)
+# devtools::install_github("sociometricresearch/cosme")
+library(cosme)
 ```
 
 ## A simple example
 
-`measurementfree` introduces the concept of a measurement error design,
-such as the `survey` package has a survey design object. You can define
-this measurement error design with three objects: your model design,
-your measurement error data and the data of the analysis. For a simple
-case, let’s use the data from the European Social Survey already loaded
-with the package. The variables `trstplt`, `trstprl` and `trstprt` were
-asked with the same type of the question. In other words, they share a
-common method (for example, a likert type scale question). Sharing a
-common method allows us to correct for their common method variance. We
-could define the measurement error design object as this:
+`cosme` introduces the concept of a measurement error design, such as
+the `survey` package has a survey design object. You can define this
+measurement error design with three objects: your model design, your
+measurement error data and the data of the analysis. For a simple case,
+let’s use the data from the European Social Survey already loaded with
+the package. The variables `trstplt`, `trstprl` and `trstprt` were asked
+with the same type of the question. In other words, they share a common
+method (for example, a likert type scale question). Sharing a common
+method allows us to correct for their common method variance. We could
+define the measurement error design object as this:
 
 ``` r
 # Data

@@ -1,4 +1,4 @@
 library(testthat)
-library(measurementfree)
+library(cosme)
 
-test_check("measurementfree")
+test_check("cosme")

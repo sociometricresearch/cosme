@@ -22,7 +22,7 @@
 #' @param ... arguments passed to \code{\link{me_sscore}}.
 #'
 #' @return an \code{me} design object which can be passed to other functions
-#' of \code{measurementfree} such as \code{me_cmv_cor} and \code{me_cmv_cov}.
+#' of \code{cosme} such as \code{me_cmv_cor} and \code{me_cmv_cov}.
 #'
 #' @details
 #'

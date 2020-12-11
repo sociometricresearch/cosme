@@ -94,7 +94,7 @@ several examples that we can use all of the applications.
 
 ## Political Trust example
 
-In this case study we will go through an applied example of the capabilities of the `measurementfree` package.
+In this case study we will go through an applied example of the capabilities of the `cosme` package.
 
 We'll begin by loading some packages we'll use.
 
@@ -107,8 +107,8 @@ library(essurvey)
 library(sqpr)
 library(magrittr)
 
-# And measurementfree
-library(measurementfree)
+# And cosme
+library(cosme)
 ```
 
 ## Read the data
@@ -278,7 +278,7 @@ original_corr_2 <- cor(ess7escorr, use = "complete.obs", method = "pearson")
 original_corr_2
 ```
 
-`measurementfree` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey.
+`cosme` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey.
 
 ```{r}
 
@@ -290,7 +290,7 @@ me_design <- medesign("~ stfeco + stflife",
 
 It's the same correlation coefficients but with the diagonal set to the quality of the estimates. But **note** that both the order of the variables `Quality` and the order of the variables in `ess7corr` should be the same! Otherwise we might confuse quality estimates between variables.
 
-For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `measurementfree` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation.
+For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `cosme` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation.
 
 ```{r}
 

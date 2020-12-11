@@ -142,7 +142,7 @@ applications.
 \subsection{Political Trust example}\label{political-trust-example}}
 
 In this case study we will go through an applied example of the
-capabilities of the \texttt{measurementfree} package.
+capabilities of the \texttt{cosme} package.
 
 We'll begin by loading some packages we'll use.
 
@@ -199,8 +199,8 @@ Cimentada, Jorge (2019). Download Data from the European Social Survey on the Fl
 R> library(sqpr)
 R> library(magrittr)
 R> 
-R> # And measurementfree
-R> library(measurementfree)
+R> # And cosme
+R> library(cosme)
 \end{CodeInput}
 
 \begin{CodeOutput}
@@ -548,7 +548,7 @@ pspwght   0.02194284 -0.01227852 -0.1938610399  0.49472437  1.000000000
 \end{CodeOutput}
 \end{CodeChunk}
 
-\texttt{measurementfree} has a very similar function to \texttt{cor} but
+\texttt{cosme} has a very similar function to \texttt{cor} but
 allows to replace the diagonal and weight the correlation. In our
 analysis we can use it to multiply the diagonal with the quality
 estimates of all the variables and use the \texttt{pspwght} from the
@@ -571,7 +571,7 @@ estimates between variables.
 
 For variables which are measured with the same method, we want to
 account for their Common Method Variance (CMV). The
-\texttt{measurementfree} package makes this very easy using the
+\texttt{cosme} package makes this very easy using the
 \texttt{me\_cmv\_cor} function. Supply the correlation data frame, the
 \texttt{Quality} dataset with quality estimates and
 \texttt{me\_cmv\_cor} estimates the CMV between the variables specified

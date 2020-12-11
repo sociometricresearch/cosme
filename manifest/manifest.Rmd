@@ -135,14 +135,14 @@ among other things... This 'model definition' will borrow many  ideas from the `
 
 * Step 3: Define the measurement error model, with two additional arguments: `complex_wt` and `me`, which were explained above.
 
-This last step is familiar yet adds the new `me` argument. How would this work out with the previous `lavaan.survey` expression? Below the curtain, `lavaan.survey` and `measurementfree` can be integrated:
+This last step is familiar yet adds the new `me` argument. How would this work out with the previous `lavaan.survey` expression? Below the curtain, `lavaan.survey` and `cosme` can be integrated:
 
 ```{r eval = FALSE}
 library(lavaan.survey)
 library(essurvey)
 library(magrittr)
 library(sqpr)
-library(measurementfree)
+library(cosme)
 
 # Choose your selected variables
 selected_vars <- c("ppltrst",

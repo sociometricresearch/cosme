@@ -18,7 +18,7 @@ only supports quality, reliability and validity. Can also specify one of the
 metrics and the remaining are set to \code{0} by default}
 
 \item{all_columns}{if \code{TRUE} will return all columns (quite a few) that are
-supported by the \code{measurementfree} package. If \code{FALSE} (default) it
+supported by the \code{cosme} package. If \code{FALSE} (default) it
 will return only columns \code{question}, \code{quality}, \code{reliability}
 and \code{validity}. See the details section for the definition of all
 columns.}
@@ -26,7 +26,7 @@ columns.}
 \value{
 a \code{\link[tibble]{tibble}} of one row with the supplied metrics.
 It also has class \code{me} for further manipulations within the
-\code{measurementfree} package.
+\code{cosme} package.
 }
 \description{
 \code{me_construct} is designed to create measurement error tibbles
@@ -96,7 +96,7 @@ Computed as the squared of the reliability coefficient
 
 
 \code{me_construct_} is useful if you're interested in programming
-with \code{measurementfree} rather than using it interactively. If you want
+with \code{cosme} rather than using it interactively. If you want
 to use \code{me_construct} inside a function, use the equivalent
 \code{me_construct_} which uses standard evaluation.
 }

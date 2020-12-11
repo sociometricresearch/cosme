@@ -235,7 +235,7 @@ estimate_sscore <- function(me_scores, .data, new_name, wt) {
   final_meff <- sum(wt / sd_sscore * me_scores[[reliability]] * methodeff)^2
 
   if (sign(final_qcoef) == -1) {
-    stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/measurementfree/issues") #nolintr
+    stop("Calculating the quality coefficient for a sum score resulted in a value not within 0 and 1. Please report the exact example the produced this error at https://github.com/sociometricresearch/cosme/issues") #nolintr
   }
 
   list(

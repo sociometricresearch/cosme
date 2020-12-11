@@ -11,14 +11,14 @@
 #' metrics and the remaining are set to \code{0} by default
 #'
 #' @param all_columns if \code{TRUE} will return all columns (quite a few) that are
-#' supported by the \code{measurementfree} package. If \code{FALSE} (default) it
+#' supported by the \code{cosme} package. If \code{FALSE} (default) it
 #' will return only columns \code{question}, \code{quality}, \code{reliability}
 #' and \code{validity}. See the details section for the definition of all
 #' columns.
 #'
 #' @return a \code{\link[tibble]{tibble}} of one row with the supplied metrics.
 #' It also has class \code{me} for further manipulations within the
-#' \code{measurementfree} package.
+#' \code{cosme} package.
 #'
 #' @details
 #'
@@ -85,7 +85,7 @@
 #'
 #'
 #' \code{me_construct_} is useful if you're interested in programming
-#' with \code{measurementfree} rather than using it interactively. If you want
+#' with \code{cosme} rather than using it interactively. If you want
 #' to use \code{me_construct} inside a function, use the equivalent
 #' \code{me_construct_} which uses standard evaluation.
 #'

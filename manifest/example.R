@@ -5,8 +5,8 @@ library(dplyr)
 library(essurvey)
 library(sqpr)
 
-# And measurementfree
-library(measurementfree)
+# And cosme
+library(cosme)
 
 
 # Choose your selected variables
