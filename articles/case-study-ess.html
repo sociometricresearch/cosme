@@ -5,14 +5,14 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Case-study: Correcting for measurement error using the SQP database • measurementfree</title>
+<title>Case-study: Correcting for measurement error using the SQP database • cosme</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Case-study: Correcting for measurement error using the SQP database">
-<meta property="og:description" content="measurementfree">
+<meta property="og:description" content="cosme">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -30,7 +30,7 @@
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">measurementfree</a>
+        <a class="navbar-link" href="../index.html">cosme</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
@@ -55,7 +55,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sociometricresearch/measurementfree/">
+  <a href="https://github.com/sociometricresearch/cosme/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -76,16 +76,16 @@
       <h1 data-toc-skip>Case-study: Correcting for measurement error using the SQP database</h1>
                         <h4 class="author">Jorge Cimentada and Wiebke Weber</h4>
             
-            <h4 class="date">2020-11-19</h4>
+            <h4 class="date">2020-12-11</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/sociometricresearch/measurementfree/blob/master/vignettes/case-study-ess.Rmd"><code>vignettes/case-study-ess.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sociometricresearch/cosme/blob/master/vignettes/case-study-ess.Rmd"><code>vignettes/case-study-ess.Rmd</code></a></small>
       <div class="hidden name"><code>case-study-ess.Rmd</code></div>
 
     </div>
 
     
     
-<!-- In this case study we will go through an applied example of the capabilities of the `measurementfree` package. -->
+<!-- In this case study we will go through an applied example of the capabilities of the `cosme` package. -->
 <!-- We'll begin by loading some packages we'll use. -->
 <!-- ```{r} -->
 <!-- library(lavaan) -->
@@ -93,8 +93,8 @@
 <!-- library(ggplot2) -->
 <!-- library(essurvey) -->
 <!-- library(sqpr) -->
-<!-- # And measurementfree -->
-<!-- library(measurementfree) -->
+<!-- # And cosme -->
+<!-- library(cosme) -->
 <!-- ``` -->
 <!-- ## Read the data -->
 <!-- Let's read in the data from the European Social Survey using the `essurvey` package and create a sum score of a number of variables. A sum score is the weighted $(w)$ `sum` of a number of variables $(y_1, y_2, ..., y_k)$ to create a composite score $(CS)$: -->
@@ -215,7 +215,7 @@
 <!-- original_corr_2 <- cor(ess7escorr, use = "complete.obs", method = "pearson") -->
 <!-- original_corr_2 -->
 <!-- ``` -->
-<!-- `measurementfree` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey. -->
+<!-- `cosme` has a very similar function to `cor` but allows to replace the diagonal and weight the correlation. In our analysis we can use it to multiply the diagonal with the quality estimates of all the variables and use the `pspwght` from the European Social Survey. -->
 <!-- ```{r} -->
 <!-- corr_q2 <- -->
 <!--   me_correlate(data = ess7escorr, -->
@@ -226,7 +226,7 @@
 <!-- corr_q2 -->
 <!-- ``` -->
 <!-- It's the same correlation coefficients but with the diagonal set to the quality of the estimates. But **note** that both the order of the variables `Quality` and the order of the variables in `ess7corr` should be the same! Otherwise we might confuse quality estimates between variables. -->
-<!-- For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `measurementfree` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation. -->
+<!-- For variables which are measured with the same method, we want to account for their Common Method Variance (CMV). The `cosme` package makes this very easy using the `me_cmv_cor` function. Supply the correlation data frame, the `Quality` dataset with quality estimates and `me_cmv_cor` estimates the CMV between the variables specified (here only two) and subtracts it from the correlation. -->
 <!-- ```{r} -->
 <!-- #subtract the cmv from the observed correlation -->
 <!-- corr_q2_cmv <- -->
@@ -240,7 +240,7 @@
 <!-- cmv <- -->
 <!--   Quality %>% -->
 <!--   filter(question %in% c("stflife", "stfeco")) %>% -->
-<!--   measurementfree::estimate_cmv() -->
+<!--   cosme::estimate_cmv() -->
 <!-- 0.272 - cmv -->
 <!-- ``` -->
 <!-- To finish off correcting for the measurement error, we consider this matrix with quality estimates on the diagonal and CMV subtracted from the correlations, a covariance matrix and transform it to a correlation matrix. -->
@@ -293,7 +293,7 @@
 <!-- # Change of R2: -->
 <!-- R2 - R2_uncorr -->
 <!-- ``` -->
-<!-- This case-study shows how adjusting for measurement error and Common Method Variance (CMV) can improve your estimates. We hope that you find the `measurementfree` package useful for your estimations. -->
+<!-- This case-study shows how adjusting for measurement error and Common Method Variance (CMV) can improve your estimates. We hope that you find the `cosme` package useful for your estimations. -->
 <!-- * Wiebke Weber and Hannah Werner (under review). "The correct(ed) political trust. A step-by-step explanation to correct for measurement error in the study of trust in political institutions.", Working paper (available upon request).. -->
   </div>
 

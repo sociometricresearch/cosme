@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Construct a measurement error tibble manually — me_construct • measurementfree</title>
+<title>Construct a measurement error tibble manually — me_construct • cosme</title>
 
 
 <!-- jquery -->
@@ -72,7 +72,7 @@ by manually inserting new metrics such as quality or validity." />
         <span class="icon-bar"></span>
       </button>
       <span class="navbar-brand">
-        <a class="navbar-link" href="../index.html">measurementfree</a>
+        <a class="navbar-link" href="../index.html">cosme</a>
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
@@ -97,7 +97,7 @@ by manually inserting new metrics such as quality or validity." />
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://github.com/sociometricresearch/measurementfree/">
+  <a href="https://github.com/sociometricresearch/cosme/">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -116,7 +116,7 @@ by manually inserting new metrics such as quality or validity." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Construct a measurement error tibble manually</h1>
-    <small class="dont-index">Source: <a href='https://github.com/sociometricresearch/measurementfree/blob/master/R/me_construct.R'><code>R/me_construct.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/sociometricresearch/cosme/blob/master/R/me_construct.R'><code>R/me_construct.R</code></a></small>
     <div class="hidden name"><code>me_construct.Rd</code></div>
     </div>
 
@@ -146,7 +146,7 @@ metrics and the remaining are set to <code>0</code> by default</p></td>
     <tr>
       <th>all_columns</th>
       <td><p>if <code>TRUE</code> will return all columns (quite a few) that are
-supported by the <code>measurementfree</code> package. If <code>FALSE</code> (default) it
+supported by the <code>cosme</code> package. If <code>FALSE</code> (default) it
 will return only columns <code>question</code>, <code>quality</code>, <code>reliability</code>
 and <code>validity</code>. See the details section for the definition of all
 columns.</p></td>
@@ -157,7 +157,7 @@ columns.</p></td>
 
     <p>a <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> of one row with the supplied metrics.
 It also has class <code>me</code> for further manipulations within the
-<code>measurementfree</code> package.</p>
+<code>cosme</code> package.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p><code>me_construct</code> returns a four column <code><a href='https://tibble.tidyverse.org/reference/tibble.html'>tibble</a></code> with
@@ -214,7 +214,7 @@ Computed as the squared of the reliability coefficient</p></li>
 
 
 <p><code>me_construct_</code> is useful if you're interested in programming
-with <code>measurementfree</code> rather than using it interactively. If you want
+with <code>cosme</code> rather than using it interactively. If you want
 to use <code>me_construct</code> inside a function, use the equivalent
 <code>me_construct_</code> which uses standard evaluation.</p>
 
