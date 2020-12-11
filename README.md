@@ -9,6 +9,7 @@
 status](https://github.com/sociometricresearch/cosme/workflows/R-CMD-check/badge.svg)](https://github.com/sociometricresearch/cosme/actions)
 [![Codecov test
 coverage](https://codecov.io/gh/sociometricresearch/cosme/branch/master/graph/badge.svg)](https://codecov.io/gh/sociometricresearch/cosme?branch=master)
+[![DOI](https://zenodo.org/badge/198222115.svg)](https://zenodo.org/badge/latestdoi/198222115)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/cosme)](https://cran.r-project.org/package=cosme)
 <!-- badges: end -->
