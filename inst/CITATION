@@ -2,10 +2,11 @@ citHeader('To cite cosme in publications use:')
 
 citEntry(
   entry    = 'Manual',
-  title    = 'An flexible tool to correct correlation and covariance matrices for measurement error',
-  author   = 'Jorge Cimentada  (<https://orcid.org/0000-0001-5594-1156>) Wiebke Weber  (<https://orcid.org/0000-0002-6754-1392>)',
-  year     = '2019',
+  title    = 'A flexible tool to correct for survey measurement errors',
+  author   = 'Jorge Cimentada, Wiebke Weber',
+  year     = '2020',
   note     = 'R package version 0.0.1',
   url      = 'https://sociometricresearch.github.io/cosme/, https://github.com/sociometricresearch/cosme/',
-  textVersion = 'Cimentada, J. & Weber, W. (2019). A flexible tool to correct correlation and covariance matrices for measurement error R package version 0.0.1.'
+  doi      = '10.5281/zenodo.4316599',
+  textVersion = 'Jorge Cimentada, & Wiebke Weber. (2020, December 11). sociometricresearch/cosme: Package release (Version v0.0.1). Zenodo. http://doi.org/10.5281/zenodo.4316599'
 )
