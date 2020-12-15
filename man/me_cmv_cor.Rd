@@ -24,7 +24,7 @@ from \code{me_data}.
 
 data(ess7es)
 
-.data <- ess7es[1:3]
+.data <- ess7es[c("trstplt", "trstprl", "trstprt")]
 
 # Correct for measurement error for all variables
 # and correct for the fact that these three variables
@@ -67,7 +67,7 @@ me_data2 <-
 
 me_data <- rbind(me_data, me_data2)
 
-.data <- ess7es[1:5]
+.data <- ess7es[c("trstplt", "trstprl", "trstprt", "stfedu", "stfhlth")]
 mdes <- medesign(me_syntax, .data, me_data)
 
 # Correlations adjusted for CMV
