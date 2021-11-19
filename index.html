@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">cosme</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.0.1</span>
       </span>
     </div>
 
@@ -58,8 +60,8 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/sociometricresearch/cosme/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+  <a href="https://github.com/sociometricresearch/cosme/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -75,9 +77,9 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="cosme" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#cosme" class="anchor"></a>cosme</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="cosme">cosme<a class="anchor" aria-label="anchor" href="#cosme"></a>
+</h1></div>
 <!-- badges: start -->
 
 <p>The <code>cosme</code> package allows you to calculate several estimations of the quality of your survey questions and also adjust your estimations for measurement error.</p>
@@ -85,14 +87,14 @@
 <p>Load the package as:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># devtools::install_github("sociometricresearch/cosme")</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://sociometricresearch.github.io/cosme/">cosme</a></span><span class="op">)</span></code></pre></div>
-<div id="a-simple-example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#a-simple-example" class="anchor"></a>A simple example</h2>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sociometricresearch.github.io/cosme/" class="external-link">cosme</a></span><span class="op">)</span></code></pre></div>
+<div class="section level2">
+<h2 id="a-simple-example">A simple example<a class="anchor" aria-label="anchor" href="#a-simple-example"></a>
+</h2>
 <p><code>cosme</code> introduces the concept of a measurement error design, such as the <code>survey</code> package has a survey design object. You can define this measurement error design with three objects: your model design, your measurement error data and the data of the analysis. For a simple case, let’s use the data from the European Social Survey already loaded with the package. The variables <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code> were asked with the same type of the question. In other words, they share a common method (for example, a likert type scale question). Sharing a common method allows us to correct for their common method variance. We could define the measurement error design object as this:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Data</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">ess7es</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ess7es</span><span class="op">)</span>
 <span class="va">ess_subset</span> <span class="op">&lt;-</span> <span class="va">ess7es</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>
 
 <span class="co"># This is the model definition</span>
@@ -106,11 +108,11 @@
 
 <span class="co"># The measurement error data</span>
 <span class="va">me_data</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
-    question <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"trstprl"</span>, <span class="st">"trstplt"</span>, <span class="st">"trstprt"</span><span class="op">)</span>,
-    reliability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.812</span>, <span class="fl">0.852</span>, <span class="fl">0.858</span><span class="op">)</span>,
-    validity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.959</span>, <span class="fl">0.965</span>, <span class="fl">0.956</span><span class="op">)</span>,
-    quality <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.779</span>, <span class="fl">0.822</span>, <span class="fl">0.821</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
+    question <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trstprl"</span>, <span class="st">"trstplt"</span>, <span class="st">"trstprt"</span><span class="op">)</span>,
+    reliability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.812</span>, <span class="fl">0.852</span>, <span class="fl">0.858</span><span class="op">)</span>,
+    validity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.959</span>, <span class="fl">0.965</span>, <span class="fl">0.956</span><span class="op">)</span>,
+    quality <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.779</span>, <span class="fl">0.822</span>, <span class="fl">0.821</span><span class="op">)</span>
   <span class="op">)</span>
 
 <span class="co"># Define your measurement error design</span>
@@ -131,13 +133,13 @@
 <span class="co">#&gt; 2 trstplt   0.771   1       0.984</span>
 <span class="co">#&gt; 3 trstprt   0.704   0.984   1</span></code></pre></div>
 </div>
-<div id="another-simple-example" class="section level2">
-<h2 class="hasAnchor">
-<a href="#another-simple-example" class="anchor"></a>Another simple example</h2>
+<div class="section level2">
+<h2 id="another-simple-example">Another simple example<a class="anchor" aria-label="anchor" href="#another-simple-example"></a>
+</h2>
 <p>The previous example corrected only variables <code>trstplt</code>, <code>trstprl</code> and <code>trstprt</code>. What if we have more groups of variables that share a common method? Just keep adding them to the model syntax! For example, <code>stfedu</code> and <code>stfhlth</code> also share a common method, let’s add them to the model syntax and make sure we have data on <code>me_data</code> for them:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Data</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">ess7es</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ess7es</span><span class="op">)</span>
 <span class="va">ess_subset</span> <span class="op">&lt;-</span> <span class="va">ess7es</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>
 
 <span class="co"># This is the model definition</span>
@@ -152,11 +154,11 @@
 
 <span class="co"># The measurement error data</span>
 <span class="va">me_data</span> <span class="op">&lt;-</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
-    question <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"trstprl"</span>, <span class="st">"trstplt"</span>, <span class="st">"trstprt"</span>, <span class="st">"stfedu"</span>, <span class="st">"stfhlth"</span><span class="op">)</span>,
-    reliability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.812</span>, <span class="fl">0.852</span>, <span class="fl">0.858</span>, <span class="fl">0.870</span>, <span class="fl">0.871</span><span class="op">)</span>,
-    validity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.959</span>, <span class="fl">0.965</span>, <span class="fl">0.956</span>, <span class="fl">0.915</span>, <span class="fl">0.893</span><span class="op">)</span>,
-    quality <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.779</span>, <span class="fl">0.822</span>, <span class="fl">0.821</span>, <span class="fl">0.796</span>, <span class="fl">0.779</span><span class="op">)</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
+    question <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"trstprl"</span>, <span class="st">"trstplt"</span>, <span class="st">"trstprt"</span>, <span class="st">"stfedu"</span>, <span class="st">"stfhlth"</span><span class="op">)</span>,
+    reliability <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.812</span>, <span class="fl">0.852</span>, <span class="fl">0.858</span>, <span class="fl">0.870</span>, <span class="fl">0.871</span><span class="op">)</span>,
+    validity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.959</span>, <span class="fl">0.965</span>, <span class="fl">0.956</span>, <span class="fl">0.915</span>, <span class="fl">0.893</span><span class="op">)</span>,
+    quality <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.779</span>, <span class="fl">0.822</span>, <span class="fl">0.821</span>, <span class="fl">0.796</span>, <span class="fl">0.779</span><span class="op">)</span>
   <span class="op">)</span>
 
 <span class="co"># Define your measurement error design</span>
@@ -186,52 +188,58 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/sociometricresearch/cosme/">https://​github.com/​sociometricresearch/​cosme/​</a>
-</li>
+<li><a href="https://github.com/sociometricresearch/cosme/" class="external-link">Browse source code</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
+
+
 <div class="citation">
-<h2>Citation</h2>
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
 <li><a href="authors.html">Citing cosme</a></li>
 </ul>
 </div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Jorge Cimentada <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-5594-1156" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Wiebke Weber <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-6754-1392" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Jorge Cimentada <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-5594-1156" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Wiebke Weber <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-6754-1392" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/sociometricresearch/cosme/actions"><img src="https://github.com/sociometricresearch/cosme/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-<li><a href="https://codecov.io/gh/sociometricresearch/cosme?branch=master"><img src="https://codecov.io/gh/sociometricresearch/cosme/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
-<li><a href="https://zenodo.org/badge/latestdoi/198222115"><img src="https://zenodo.org/badge/198222115.svg" alt="DOI"></a></li>
-<li><a href="https://cran.r-project.org/package=cosme"><img src="https://www.r-pkg.org/badges/version/cosme" alt="CRAN status"></a></li>
+<li><a href="https://github.com/sociometricresearch/cosme/actions" class="external-link"><img src="https://github.com/sociometricresearch/cosme/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
+<li><a href="https://codecov.io/gh/sociometricresearch/cosme?branch=master" class="external-link"><img src="https://codecov.io/gh/sociometricresearch/cosme/branch/master/graph/badge.svg" alt="Codecov test coverage"></a></li>
+<li><a href="https://zenodo.org/badge/latestdoi/198222115" class="external-link"><img src="https://zenodo.org/badge/198222115.svg" alt="DOI"></a></li>
+<li><a href="https://cran.r-project.org/package=cosme" class="external-link"><img src="https://www.r-pkg.org/badges/version/cosme" alt="CRAN status"></a></li>
 </ul>
 </div>
-</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Jorge Cimentada, Wiebke Weber.</p>
+  <p></p>
+<p>Developed by Jorge Cimentada, Wiebke Weber.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.9000.9000.9000.</p>
 </div>
 
       </footer>
@@ -239,6 +247,8 @@
 
   
 
+
+  
 
   </body>
 </html>
