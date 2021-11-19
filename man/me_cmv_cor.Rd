@@ -18,7 +18,10 @@ common method variance and the quality of sum scores.
 \code{me_cmv_cor} accepts an \code{medesign} object created by
 \code{\link{medesign}} and adjusts the correlation coefficients of
 common method variables with the reliability and validity coefficients
-from \code{me_data}.
+from \code{me_data}. During measurement error correction, correlations
+above 1 and below -1 can happen. Internally, this is converted to
+1 and -1 at a maximum so the user should never see a correlation higher than
+the maximum values.
 }
 \examples{
 

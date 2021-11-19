@@ -3,7 +3,10 @@
 #' \code{me_cmv_cor} accepts an \code{medesign} object created by
 #' \code{\link{medesign}} and adjusts the correlation coefficients of
 #' common method variables with the reliability and validity coefficients
-#' from \code{me_data}.
+#' from \code{me_data}. During measurement error correction, correlations
+#' above 1 and below -1 can happen. Internally, this is converted to
+#' 1 and -1 at a maximum so the user should never see a correlation higher than
+#' the maximum values.
 #'
 #' @param .medesign An \code{medesign} object given by \code{\link{medesign}}
 #'
@@ -139,6 +142,16 @@ me_cmv_cor_ <- function(x, me_data, cmv_vars, cmv = NULL) {
 
   # Turn the correlation back to a correlation for the diagonal to be one
   corrected_corr[, -1] <- stats::cov2cor(as.matrix(corrected_corr[, -1]))
+
+  # If any correlation is over 1 or below -1, set to the maximum.
+  # This can happen after correction.
+  cor_matrix <- corrected_corr[, -1]
+  over_one <- cor_matrix > 1
+  cor_matrix[over_one] <- 1
+  below_minus_one <- cor_matrix < -1
+  cor_matrix[below_minus_one] <- -1
+
+  corrected_corr[, -1] <- cor_matrix
   corrected_corr
 }
 
